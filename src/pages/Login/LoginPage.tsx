@@ -16,8 +16,8 @@ const LoginPage = () => {
     const handleSubmit = async (formData: FormData) => {
         try {
             const response = await API.userApi.loginUser({
-                email: formData.email,
-                password: formData.password
+                name: formData.name,
+                phoneNumber: formData.phoneNumber
             });
             if (response.status === 200) {
                 console.log('Login successful:', response.data); // 성공적인 로그인 데이터 출력
@@ -36,7 +36,7 @@ const LoginPage = () => {
     
 
     return (
-        <div>
+        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%'}}>
             <LoginComponent onClickSubmit={handleSubmit} errormsg={error} success={success} />
         </div>
     );

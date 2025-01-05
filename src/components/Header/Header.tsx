@@ -1,5 +1,4 @@
 import style from './Header.module.css';
-import Logo from '@/assets/imgs/textLogo-removebg-preview.svg';
 import ReportIcon from '@/assets/imgs/report.svg';
 import { useNavigate } from 'react-router-dom';
 import API from '@/api';
@@ -29,19 +28,19 @@ const Header = () => {
 
     return (
         <header className={style.header}>
-            <img className={style.logo}
-                src={Logo} 
-                alt="text logo" 
-                width="10%" 
+            <div 
+                className={style.logo}
                 onClick={() => navigate('/')}
                 style={{ cursor: 'pointer' }}
-            />
+            >
+                그림마당
+            </div>
             <div className={style.buttonGroup}>
-                <button className={style.logoutButton} onClick={handleLogout}>
-                    Logout
-                </button>
                 <button className={style.settingsButton} onClick={() => navigate('/report')}>
                     <img src={ReportIcon} alt="settings" height="40" />
+                </button>
+                <button className={style.logoutButton} onClick={handleLogout}>
+                    Logout
                 </button>
             </div>
         </header>

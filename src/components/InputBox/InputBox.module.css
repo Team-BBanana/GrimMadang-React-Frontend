@@ -1,3 +1,21 @@
-.inputBoxContainer{    
-    width: inherit;
+.inputBoxContainer {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+.inputBox {
+    padding: 12px;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: 'Noto Sans KR';
+    transition: border-color 0.2s ease;
+    color: #424242;
+}
+
+.inputBox:focus {
+    border-color: #2D2D2D;
+    outline: none;
 }
