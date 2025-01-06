@@ -6,6 +6,7 @@ import Button from "@/components/Button/Button";
 interface SignupFormData {
     name: string;
     phoneNumber: string;
+    phoneNumberConfirm: string;
 }
 
 interface SignupProps {
@@ -19,20 +20,32 @@ const SignupComponent: React.FC<SignupProps> = ({ errormsg, success, onClickSubm
 
     const [formData, setFormData] = useState<SignupFormData>({
         name: '',
-        phoneNumber: ''
+        phoneNumber: '',
+        phoneNumberConfirm: ''
     });
+
+    const [phoneNumberError, setPhoneNumberError] = useState<string>('');
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+        
+        if (name === 'phoneNumberConfirm' || name === 'phoneNumber') {
+            if (formData.phoneNumber !== value && name === 'phoneNumberConfirm') {
+                setPhoneNumberError('전화번호가 일치하지 않습니다');
+            } else {
+                setPhoneNumberError('');
+            }
+        }
     };
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        const name = formData.name;
-        const phoneNumber = phoneNumberRef.current?.value || "";
-
-        onClickSubmit({ name, phoneNumber });
+        if (formData.phoneNumber !== formData.phoneNumberConfirm) {
+            setPhoneNumberError('전화번호가 일치하지 않습니다');
+            return;
+        }
+        onClickSubmit({ name: formData.name, phoneNumber: formData.phoneNumber, phoneNumberConfirm: formData.phoneNumberConfirm });
     };
 
     return (
@@ -47,7 +60,6 @@ const SignupComponent: React.FC<SignupProps> = ({ errormsg, success, onClickSubm
                         placeholder="이름"
                         value={formData.name}
                         onChange={handleChange}
-                        ref={phoneNumberRef}
                         required
                     />
                     <Input
@@ -60,14 +72,23 @@ const SignupComponent: React.FC<SignupProps> = ({ errormsg, success, onClickSubm
                         ref={phoneNumberRef}
                         required
                     />
-
-                    {errormsg && <p className="error">{errormsg}</p>}
-                    {success && <p className="success">{success}</p>}
+                    <Input
+                        type="text"
+                        id="phoneNumberConfirm"
+                        name="phoneNumberConfirm"
+                        placeholder="전화번호 확인"
+                        value={formData.phoneNumberConfirm}
+                        onChange={handleChange}
+                        required
+                    />
+                    {phoneNumberError && <p className={style.error}>{phoneNumberError}</p>}
                     <div className={style.buttonContainer}>
                         <Button type="submit">회원가입</Button>
                     </div>
                 </form>
             </div>
+            {errormsg && <p className="error">{errormsg}</p>}
+            {success && <p className="success">{success}</p>}
         </div>
     );
 };
