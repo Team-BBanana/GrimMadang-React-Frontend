@@ -11,7 +11,6 @@ const ToolButton: React.FC<ToolButtonProps> = ({ icon: Icon, onClick, disabled =
   return (
     <button
       type="button"
-      className={`flex p-2 items-center justify-center rounded-[10px] disabled:bg-boarlog-80 group`}
       onClick={onClick}
       disabled={disabled}
       title={title}
