@@ -2,8 +2,8 @@
 import { fabric } from "fabric";
 import { useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
-import canvasInstanceAtom from "./stateCanvasInstance";
-import ColorButton, { PenColorTypes, COLOR_CODE } from "./ColorButton";
+import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
+import ColorButton, { PenColorTypes, COLOR_CODE } from "@/pages/canvas/components/ColorButton";
 
 interface ColorPanelProps {
   className: string;

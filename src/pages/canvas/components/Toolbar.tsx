@@ -5,12 +5,12 @@ import HandIcon from "@/assets/svgs/whiteboard/hand.svg?react";
 import EraserCursor from "@/assets/svgs/eraserMouseCursor.svg";
 
 import { fabric } from "fabric";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 
-import ToolButton from "./ToolButton";
+import ToolButton from "@/pages/canvas/components/ToolButton";
 
-import activeToolAtom from "./stateActiveTool";
-import canvasInstanceAtom from "./stateCanvasInstance";
+import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
+import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
 import { useAtom, useAtomValue } from "jotai";
 
 import style from "../CanvasPage.module.css"
@@ -22,39 +22,39 @@ const Toolbar = () => {
   /**
    * @description 화이트 보드에 그려져 있는 요소들을 클릭을 통해 선택 가능한지 여부를 제어하기 위한 함수입니다.
    */
-  const setIsObjectSelectable = (isSelectable: boolean) => {
+  const setIsObjectSelectable = useCallback((isSelectable: boolean) => {
     if (!(canvas instanceof fabric.Canvas)) return;
     canvas.forEachObject((object) => (object.selectable = isSelectable));
-  };
+  }, [canvas]);
 
   /**
    * @description 캔버스의 옵션을 리셋하는 함수입니다.
    * @description 그래픽 요소 선택 기능: off, 드로잉 모드: off, 드래그 블럭지정모드: off, 커서: 디폴트 포인터
    */
-  const resetCanvasOption = () => {
+  const resetCanvasOption = useCallback(() => {
     if (!(canvas instanceof fabric.Canvas)) return;
     setIsObjectSelectable(false);
     canvas.isDrawingMode = false;
     canvas.selection = false;
     canvas.defaultCursor = "default";
-  };
+  }, [canvas, setIsObjectSelectable]);
 
-  const handleSelect = () => {
+  const handleSelect = useCallback(() => {
     if (!(canvas instanceof fabric.Canvas)) return;
 
     setIsObjectSelectable(true);
     canvas.selection = true;
     canvas.defaultCursor = "default";
-  };
+  }, [canvas, setIsObjectSelectable]);
 
-  const handlePen = () => {
+  const handlePen = useCallback(() => {
     if (!(canvas instanceof fabric.Canvas)) return;
 
     canvas.freeDrawingBrush.width = 10;
     canvas.isDrawingMode = true;
-  };
+  }, [canvas]);
 
-  const handleEraser = () => {
+  const handleEraser = useCallback(() => {
     if (!(canvas instanceof fabric.Canvas)) return;
 
     setIsObjectSelectable(true);
@@ -77,9 +77,9 @@ const Toolbar = () => {
     canvas.on("mouse:up", ({ target }) => handleMouseUp(target));
 
     canvas.on("selection:created", ({ selected }) => handleSelectionCreated(selected));
-  };
+  }, [canvas, activeTool, setIsObjectSelectable]);
 
-  const handleHand = () => {
+  const handleHand = useCallback(() => {
     if (!(canvas instanceof fabric.Canvas)) return;
 
     canvas.defaultCursor = "move";
@@ -100,7 +100,7 @@ const Toolbar = () => {
     canvas.on("mouse:down", handleMouseDown);
     canvas.on("mouse:move", handleMouseMove);
     canvas.on("mouse:up", handleMouseUp);
-  };
+  }, [canvas]);
 
   useEffect(() => {
     if (!(canvas instanceof fabric.Canvas)) return;
@@ -135,7 +135,7 @@ const Toolbar = () => {
         handleHand();
         break;
     }
-  }, [activeTool]);
+  }, [activeTool, canvas, handleEraser, handleHand, handlePen, handleSelect, resetCanvasOption]);
 
   return (
         <div className="absolute top-2.5 left-2.5  z-10 bg-white p-2 rounded shadow-lg">

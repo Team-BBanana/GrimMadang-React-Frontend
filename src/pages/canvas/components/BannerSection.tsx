@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from "@/components/recycleComponent/Button/Button.tsx";
-import Toolbar from "@/pages/Canvas/components/Toolbar.tsx";
+import Button from "@/components/Button/Button.tsx";
+import Toolbar from "@/pages/canvas/components/Toolbar.tsx";
 
 import style from "../CanvasPage.module.css"
 

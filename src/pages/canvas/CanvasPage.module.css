@@ -1,0 +1,103 @@
+.canvasContainer {
+    width: 100vw; /* 화면의 전체 너비 */
+    height: 100vh; /* 화면의 전체 높이 */
+    overflow: hidden; /* 스크롤 숨기기 */
+}
+
+.canvas-section {
+    display: flex; /* 선택 사항: 내부 요소 정렬 */
+    justify-content: center; /* 선택 사항: 수평 중앙 정렬 */
+    align-items: center; /* 선택 사항: 수직 중앙 정렬 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+}
+
+.banner {
+    display: flex;
+    align-items: center;
+    justify-content: cneter; /* 좌우 끝에 요소 배치*/
+    width: 100%; /* 전체 화면 크기 기준으로 정렬*/
+    position: fixed; /* 고정 위치 설정 */
+    top: 0; /* 화면의 제일 위에 위치 */
+    z-index: 1000; /* 다른 요소 위에 표시되도록 z-index 설정 */
+}
+
+.bannerSection {
+    display: flex;
+    background-color: #feb913;
+    height: 100px;
+}
+
+.bannerButton {
+    margin: 20px;
+    border-radius: 30px;
+    font-size: 24px;
+    background-color: #f0f0f0;
+    color: #424242;
+    border: 1px solid #ccc;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(75, 75, 75, 0.1);
+}
+
+.bannerButton:hover {
+    background-color: #feb913;
+}
+
+
+.toolButton button{ 
+    border-radius: 30px;
+    margin: 0px 3px;
+    color: #424242;
+    border: 0.2px solid #ccc;
+    padding: 10px ;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(75, 75, 75, 0.1);
+}
+
+.colorPanel {
+    background-color: #ffffff;
+    border-radius: 30px; 
+    padding: 10px; 
+    box-shadow: -4px 4px 8px rgba(0, 0, 0, 0.3);
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; 
+    border: 1px solid #ccc; 
+    width: 50px;
+    position: relative; 
+}
+
+.notification {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #4caf50; /* 초록색 배경 */
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  animation: fadeInOut 3s ease-in-out;
+  opacity: 0;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

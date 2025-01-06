@@ -5,6 +5,7 @@ import Footer from './components/Footer/Footer.tsx';
 import LoginPage from './pages/Login/LoginPage.tsx';
 import SignupPage from './pages/Signup/SignupPage.tsx';
 import { BrowserRouter as Router } from 'react-router-dom';
+import CanvasPage from './pages/canvas/CanvasPage.tsx';
 
 function AppContent() {
   const location = useLocation(); 
@@ -21,6 +22,7 @@ function AppContent() {
         <Routes>
           <Route path='/' element={<LoginPage />} />
           <Route path='/signup' element={<SignupPage />} />
+          <Route path='/canvas' element={<CanvasPage />} />
         </Routes>
       </div>
       {!isFullBrowserRoutes && <div className="footer"><Footer /></div>}

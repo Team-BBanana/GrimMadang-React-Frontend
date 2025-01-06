@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 
 import canvasInstanceAtom from "./stateCanvasInstance";
-import BannerSection from "@/pages/Canvas/components/BannerSection.tsx";
-import ColorPanel from "@/pages/Canvas/components/ColorPanel.tsx";
+import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
+import ColorPanel from "@/pages/canvas/components/ColorPanel.tsx";
 import style from "../CanvasPage.module.css";
 
 interface CanvasSectionProps {
@@ -51,7 +51,7 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
       newCanvas.dispose();
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [canvasRef, setCanvas]);
 
   const saveCanvasAsImage = () => {
     if (!canvas) return;
