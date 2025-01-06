@@ -6,6 +6,8 @@ import LoginPage from './pages/Login/LoginPage.tsx';
 import SignupPage from './pages/Signup/SignupPage.tsx';
 import { BrowserRouter as Router } from 'react-router-dom';
 import CanvasPage from './pages/canvas/CanvasPage.tsx';
+import GalleryPage from './pages/Gallery/GalleryPage.tsx';
+
 
 function AppContent() {
   const location = useLocation(); 
@@ -23,6 +25,7 @@ function AppContent() {
           <Route path='/' element={<LoginPage />} />
           <Route path='/signup' element={<SignupPage />} />
           <Route path='/canvas' element={<CanvasPage />} />
+          <Route path='/gallery' element={<GalleryPage />} />
         </Routes>
       </div>
       {!isFullBrowserRoutes && <div className="footer"><Footer /></div>}
