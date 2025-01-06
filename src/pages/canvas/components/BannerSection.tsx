@@ -13,7 +13,7 @@ const BannerSection: React.FC<BannerSectionProps> = ({ onSave }) => {
     const navigate = useNavigate();
 
     const handleBack = () => {
-        navigate('/'); // Navigate to the root path
+        navigate('/gallery'); // Navigate to the root path
     };
 
     return (

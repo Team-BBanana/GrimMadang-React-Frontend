@@ -82,32 +82,17 @@
     position: relative;
 }
 
-.notification {
+.keyword {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background-color: #4CAF50;
-    color: white;
+    background-color: #388E3C;
+    color: #FAFAFA;
     padding: 12px 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     z-index: 1000;
-    animation: fadeInOut 3s ease-in-out;
-    opacity: 0;
-    font-weight: 500;
-}
-
-@keyframes fadeInOut {
-  0% {
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+    left: 3%;
+    bottom: 30px;
 }

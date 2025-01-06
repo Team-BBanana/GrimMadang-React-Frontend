@@ -2,7 +2,7 @@ import { fabric } from "fabric";
 import { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 
-import canvasInstanceAtom from "./stateCanvasInstance";
+import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
 import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
 import ColorPanel from "@/pages/canvas/components/ColorPanel.tsx";
 import style from "../CanvasPage.module.css";
@@ -104,6 +104,9 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
         }}
       >
         <ColorPanel className={style.colorPanel} />
+      </div>
+      <div className={style.keyword}>
+        그리기 키워드
       </div>
     </div>
   );
