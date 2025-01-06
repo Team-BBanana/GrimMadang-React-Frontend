@@ -1,16 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import CanvasSection from "./components/CanvasSection";
 import style from "./CanvasPage.module.css";
-import API from "@/api";
-import { useLocation, useNavigate } from "react-router-dom";
+// import API from "@/api";
 
 const CanvasPage = () => {
-  const location = useLocation();
-  const shouldCreateCanvas = location.state?.createNew === true;
+  // const shouldCreateCanvas = location.state?.createNew === true;
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [canvasId, setCanvasId] = useState<string>("");
-  const navigate = useNavigate();
+  // const [canvasId, setCanvasId] = useState<string>("");
+  // const navigate = useNavigate();
 
   // useEffect(() => {
   //   const initializeCanvas = async () => {

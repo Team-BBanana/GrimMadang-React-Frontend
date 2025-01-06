@@ -80,6 +80,8 @@
     border: 1px solid #2E7D32;
     width: 50px;
     position: relative;
+    top: -40px;
+    z-index: 10;
 }
 
 .keyword {
@@ -89,7 +91,7 @@
     padding: 12px 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
+    z-index: 5;
     font-size: 28px;
     font-weight: 600;
     text-align: center;

@@ -1,12 +1,15 @@
 import './App.css'
 import { Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
+
 import Header from './components/Header/Header.tsx';
 import Footer from './components/Footer/Footer.tsx';
-import LoginPage from './pages/Login/LoginPage.tsx';
-import SignupPage from './pages/Signup/SignupPage.tsx';
-import { BrowserRouter as Router } from 'react-router-dom';
+
 import CanvasPage from './pages/canvas/CanvasPage.tsx';
 import GalleryPage from './pages/Gallery/GalleryPage.tsx';
+import LoginPage from './pages/Login/LoginPage.tsx';
+import SignupPage from './pages/Signup/SignupPage.tsx';
+import FamilyPage from './pages/Family/FamilyPage.tsx';
 
 
 function AppContent() {
@@ -26,6 +29,7 @@ function AppContent() {
           <Route path='/signup' element={<SignupPage />} />
           <Route path='/canvas' element={<CanvasPage />} />
           <Route path='/gallery' element={<GalleryPage />} />
+          <Route path='/family' element={<FamilyPage />} />
         </Routes>
       </div>
       {!isFullBrowserRoutes && <div className="footer"><Footer /></div>}
