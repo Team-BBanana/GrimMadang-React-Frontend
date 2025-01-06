@@ -1,37 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import style from './DisplayComponent.module.css';
-import Button from '@/components/Button/Button';
-import { useNavigate } from 'react-router-dom';
+import CommentList from './Comments/CommentList';
 
 interface DisplayComponentProps {
     title: string;
     imageUrl: string;
+    createdTime: string;
 }
 
-const DisplayComponent: React.FC<DisplayComponentProps> = ({ title, imageUrl }) => {
-    const navigate = useNavigate();
+const DisplayComponent: React.FC<DisplayComponentProps> = ({ title, imageUrl, createdTime }) => {
+    const [commentCount, setCommentCount] = useState<number>(0);
 
-    const handleBack = () => {
-        navigate('/');
-    };
-
-    const handleContinue = () => {
-        navigate('/canvas', { state: { imageUrl } });
+    const handleCommentCountUpdate = (count: number) => {
+        setCommentCount(count);
     };
 
     return (
         <div className={style.container}>
-            <div className={style.buttonContainer}>
-                <Button type="button" onClick={handleBack}>뒤로가기</Button>
-                <Button type="button" onClick={handleContinue}>친구만들기</Button>
+            <div className={style.headerContainer}>
+                <h1 className={style.title}>{title}</h1>
+                <span className={style.createdTime}>{createdTime}</span>
             </div>
-            <h1 className={style.title}>{title}</h1>
-            <div className={style.imageContainer}>
-                <img src={imageUrl} alt={title} className={style.backgroundImage} />
-            </div>
-            <div className={style.infoContainer}>
-                <span>❤️ 12명이 좋아합니다.</span>
-                <span>👁️ 293</span>
+            <div className={style.contentWrapper}>
+                <div className={style.imageSection}>
+                    <img src={imageUrl} alt={title} className={style.image} />
+                </div>
+                <div className={style.commentSection}>
+                    <span className={style.commentCount}>💬 {commentCount}개의 댓글</span>
+                    <CommentList onCommentCountUpdate={handleCommentCountUpdate} />
+                </div>
             </div>
         </div>
     );

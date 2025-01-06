@@ -21,10 +21,12 @@ function AppContent() {
       (route.endsWith('*') && location.pathname.startsWith(route.slice(0, -1)))
   );
 
+  const isNoScrollRoute = /^\/gallery\/\d+$/.test(location.pathname);
+
   return (
     <div className="container">
       {!isFullBrowserRoutes && <div className="header"><Header /></div>}
-      <div className="main-content">
+      <div className={`main-content ${isNoScrollRoute ? 'no-scroll' : ''}`}>
         <Routes>
           <Route path='/' element={<LoginPage />} />
           <Route path='/signup' element={<SignupPage />} />

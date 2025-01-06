@@ -13,6 +13,7 @@
 .content input[type="text"],
 .content input[type="tel"] {
     width: 260px;
+    margin-bottom: 16px;
 }
 
 .MindinCanvasImage {
@@ -44,10 +45,6 @@
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s ease;
-}
-
-.loginButton:hover {
-    background-color: #404040;
 }
 
 .signupContainer {

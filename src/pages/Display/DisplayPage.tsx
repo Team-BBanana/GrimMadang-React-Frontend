@@ -5,11 +5,13 @@ import DisplayComponent from './component/DisplayComponent';
 interface ImageData {
     imageUrl: string;
     title: string;
+    createdTime: string;
 }
 
 const mockImageData: ImageData = {
     imageUrl: '/display_Mock_Image/tiger.png',
-    title: "가족그림"
+    title: "호랭쓰",
+    createdTime: "2025-01-06"
 }
 
 const DisplayPage: React.FC = () => {
@@ -25,7 +27,7 @@ const DisplayPage: React.FC = () => {
     }
     return (
         <>
-            <DisplayComponent title={imageData.title} imageUrl={imageData.imageUrl} />
+            <DisplayComponent title={imageData.title} imageUrl={imageData.imageUrl} createdTime={imageData.createdTime} />
         </>
     );
 };
