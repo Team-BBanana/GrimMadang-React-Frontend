@@ -40,10 +40,7 @@ const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit
             navigate(redirectPath);
         }
     };
-    const handleClick = (path: string) => {
-        navigate(path);
-    };
-
+    
     return (
         <div className={style.content}>
             <img src={LogoImage} className={style.MindinCanvasImage} alt="artGround" />
@@ -90,10 +87,6 @@ const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit
                                 >
                                     우리 가족의 그림을 보러 왔어요!
                                 </span>
-                                <div className={style.options}>
-                                    <a type="button" className={style.signupLink} onClick={() => handleClick("/signup")}>회원가입</a>
-                                    <a type="button" className={style.signupLink} onClick={() => handleClick("/find-password")}>비밀번호 찾기</a>
-                                </div>
                             </div>
                         </div>
                     </form>

@@ -10,7 +10,7 @@ const Header = () => {
         <header className={style.header}>
             <div 
                 className={style.logo}
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/gallery')}
                 style={{ cursor: 'pointer' }}
             >
                 그림마당

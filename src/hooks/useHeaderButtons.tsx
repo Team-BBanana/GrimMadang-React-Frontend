@@ -40,8 +40,8 @@ const useHeaderButtons = (): React.ReactNode => {
         
         if (location.pathname === '/') {
             return (
-                <Button type='button' onClick={() => navigate('/home')}>
-                    Home
+                <Button type='button' onClick={() => navigate('/signup')}>
+                    회원가입
                 </Button>
             );
         } else if (/^\/gallery\/\d+$/.test(location.pathname)) {
@@ -55,10 +55,16 @@ const useHeaderButtons = (): React.ReactNode => {
                     </Button>
                 </>
             );
+        } else if (location.pathname === '/signup') {
+            return (
+                <Button type='button' onClick={() => navigate('/')}>
+                    로그인
+                </Button>
+            );
         } else {
             return (
                 <Button type='button' onClick={handleLogout}>
-                    Logout
+                    로그아웃
                 </Button>
             );
         }
