@@ -10,6 +10,11 @@
     box-shadow: 0 3px 18px rgba(0, 0, 0, 0.05);
 }
 
+.content input[type="text"],
+.content input[type="tel"] {
+    width: 260px;
+}
+
 .MindinCanvasImage {
     width: 180px;
     height: auto;
@@ -20,13 +25,6 @@
     display: flex;
     align-items: center;
     margin: 6px 0;
-}
-
-.checkboxContainer input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    margin-right: 6px;
-    accent-color: #2D2D2D;
 }
 
 .checkboxLabel {
@@ -75,20 +73,6 @@
 
 .signupLink:hover {
     color: #666;
-}
-
-.error {
-    color: #e11d48;
-    font-size: 13px;
-    margin-top: 6px;
-    text-align: center;
-}
-
-.success {
-    color: #059669;
-    font-size: 13px;
-    margin-top: 6px;
-    text-align: center;
 }
 
 .loginFamily {

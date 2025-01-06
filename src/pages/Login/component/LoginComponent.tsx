@@ -74,13 +74,14 @@ const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit
                             <span className={style.checkboxLabel}>로그인 상태 유지</span>
                         </div>
 
-                        {errormsg && <p className="error" style={{ whiteSpace: 'pre-wrap' }}>{errormsg}</p>}
-                        {success && <p className="success">{success}</p>}
-
                         <div>
                             <div className={style.buttonContainer}>
                                 <Button type="submit" className={style.loginButton}>로그인</Button>
                             </div>
+
+                            {errormsg && <p className="error" style={{ whiteSpace: 'pre-wrap' }}>{errormsg}</p>}
+                            {success && <p className="success">{success}</p>}
+
 
                             <div className={style.signupContainer}>
                                  <span
