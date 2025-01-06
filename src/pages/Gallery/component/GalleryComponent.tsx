@@ -23,7 +23,7 @@ const GalleryComponent: React.FC = () => {
                         key={index}
                         imageUrl={card.imageUrl}
                         title={card.title}
-                        onClick={() => navigate(`/display/${index + 1}`)}
+                        onClick={() => navigate(`/gallery/${index + 1}`)}
                     />
                 ))}
             </div>

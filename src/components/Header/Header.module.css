@@ -23,9 +23,10 @@
 .buttonGroup {
     display: flex;
     align-items: center;
+    gap: 1rem;
 }
 
-.logoutButton {
+.buttonGroup button {
     background-color: transparent;
     color: #ffffff;
     border: 2px solid #ffffff;

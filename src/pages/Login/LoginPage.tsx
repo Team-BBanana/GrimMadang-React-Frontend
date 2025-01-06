@@ -23,7 +23,7 @@ const LoginPage = () => {
                 console.log('Login successful:', response.data); // 성공적인 로그인 데이터 출력
                 // 서버에서 보낸 데이터가 JWT라면 로컬 저장소에 저장할 수 있습니다.
                 // 예시: localStorage.setItem("jwt", response.data.token);
-                navigate('/canvas'); // React Router를 사용하여 리다이렉션
+                navigate('/gallery'); // React Router를 사용하여 리다이렉션
                 setSuccess("로그인 성공!");
                 setError(null);
             }

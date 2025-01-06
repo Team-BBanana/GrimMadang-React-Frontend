@@ -10,6 +10,7 @@ import GalleryPage from './pages/Gallery/GalleryPage.tsx';
 import LoginPage from './pages/Login/LoginPage.tsx';
 import SignupPage from './pages/Signup/SignupPage.tsx';
 import FamilyPage from './pages/Family/FamilyPage.tsx';
+import DisplayPage from './pages/Display/DisplayPage.tsx';
 
 
 function AppContent() {
@@ -30,6 +31,7 @@ function AppContent() {
           <Route path='/canvas' element={<CanvasPage />} />
           <Route path='/gallery' element={<GalleryPage />} />
           <Route path='/family' element={<FamilyPage />} />
+          <Route path="/gallery/:id" element={<DisplayPage />} />
         </Routes>
       </div>
       {!isFullBrowserRoutes && <div className="footer"><Footer /></div>}
