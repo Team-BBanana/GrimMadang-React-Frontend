@@ -1,8 +1,7 @@
-import {ChangeEvent, FormEvent, useRef, useState} from "react";
-import style from "./LoginComponent.module.css"
-import Input from "@/components/InputBox/InputBox.tsx";
-import Button from "@/components/Button/Button.tsx";
-import { useNavigate } from "react-router-dom";
+import { ChangeEvent, FormEvent, useState } from 'react';
+import style from './LoginComponent.module.css';
+import Input from '@/components/InputBox/InputBox.tsx';
+import Button from '@/components/Button/Button.tsx';
 import LogoImage from '@/assets/imgs/logo.svg';
 
 interface LoginFormData {
@@ -17,13 +16,9 @@ interface LoginProps {
 }
 
 const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit }) => {
-    const nameRef = useRef<HTMLInputElement>(null);
-    const phoneNumberRef = useRef<HTMLInputElement>(null);
-
-    const navigate = useNavigate();
     const [formData, setFormData] = useState<LoginFormData>({
         name: '',
-        phoneNumber: ''
+        phoneNumber: '',
     });
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -31,23 +26,18 @@ const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>, redirectPath: string) => {
+    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const name = nameRef.current?.value || "";
-        const phoneNumber = phoneNumberRef.current?.value || "";
-        await onClickSubmit({ name, phoneNumber });
-        if (success) {
-            navigate(redirectPath);
-        }
+        onClickSubmit(formData);
     };
-    
+
     return (
         <div className={style.content}>
             <img src={LogoImage} className={style.MindinCanvasImage} alt="artGround" />
 
             <div className={style.loginbox}>
                 <div className={style.loginContainer}>
-                    <form onSubmit={(e) => handleSubmit(e, "/canvas")}>
+                    <form onSubmit={handleSubmit}>
                         <Input
                             type="text"
                             id="name"
@@ -73,17 +63,18 @@ const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit
 
                         <div>
                             <div className={style.buttonContainer}>
-                                <Button type="submit" className={style.loginButton}>로그인</Button>
+                                <Button type="submit" className={style.loginButton}>
+                                    로그인
+                                </Button>
                             </div>
 
                             {errormsg && <p className="error" style={{ whiteSpace: 'pre-wrap' }}>{errormsg}</p>}
                             {success && <p className="success">{success}</p>}
 
-
                             <div className={style.signupContainer}>
-                                 <span
+                                <span
                                     className={style.loginFamily}
-                                    onClick={(e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => handleSubmit(e as unknown as FormEvent<HTMLFormElement>, "/family")}
+                                    onClick={() => onClickSubmit({ name: formData.name, phoneNumber: formData.phoneNumber })}
                                 >
                                     우리 가족의 그림을 보러 왔어요!
                                 </span>

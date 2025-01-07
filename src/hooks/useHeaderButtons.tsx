@@ -13,14 +13,14 @@ const useHeaderButtons = (): React.ReactNode => {
             const response = await API.userApi.logoutUser();
             console.log(response.data);
             if (response.status === 200) {
-                navigate('/login');
+                navigate('/');
             } else {
                 console.error('Logout failed');
             }
         } catch (error) {
             if (error instanceof AxiosError && error.response && error.response.status === 401) {
                 console.error('Unauthorized: Redirecting to login');
-                navigate('/login');
+                navigate('/');
             } else {
                 console.error('Error during logout:', error);
             }
