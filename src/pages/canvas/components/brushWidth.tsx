@@ -13,7 +13,7 @@ const BrushWidth: React.FC<BrushWidthProps> = ({ brushWidth, onChange }) => {
 
     return (
         <div className={style.container}>
-            <label htmlFor="brushWidth" className={style.label}>Brush Width:</label>
+            <label htmlFor="brushWidth" className={style.label}>펜 두께</label>
             <input
                 id="brushWidth"
                 type="range"

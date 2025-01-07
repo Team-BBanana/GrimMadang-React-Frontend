@@ -6,6 +6,7 @@ import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
 import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
 import ColorPanel from "@/pages/canvas/components/ColorPanel.tsx";
 import style from "../CanvasPage.module.css";
+import BrushWidth from "./brushWidth";
 
 interface CanvasSectionProps {
   className?: string;
@@ -19,7 +20,8 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
   const [canvas, setCanvas] = useAtom(canvasInstanceAtom);
   const [isDragging, setIsDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 }); // 팔레트의 현재 위치 상태 추가
+  const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 }); 
+  const [brushWidth, setBrushWidth] = useState(10);
 
   useEffect(() => {
     if (!canvasContainerRef.current || !canvasRef.current) return;
@@ -32,7 +34,7 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
 
     setCanvas(newCanvas);
 
-    newCanvas.freeDrawingBrush.width = 10;
+    newCanvas.freeDrawingBrush.width = brushWidth;
     newCanvas.isDrawingMode = true;
     newCanvas.renderAll();
 
@@ -60,6 +62,14 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
       quality: 1.0
     });
     onUpload(dataURL);
+  };
+
+  const handleBrushWidthChange = (width: number) => {
+    setBrushWidth(width);
+    if (canvas) {
+      canvas.freeDrawingBrush.width = width;
+      canvas.renderAll();
+    }
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -107,6 +117,12 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
       </div>
       <div className={style.keyword}>
         그리기 키워드
+      </div>
+      <div>
+        <BrushWidth 
+          brushWidth={brushWidth} 
+          onChange={handleBrushWidthChange} 
+        />
       </div>
     </div>
   );

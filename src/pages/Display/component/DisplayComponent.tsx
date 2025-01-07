@@ -34,7 +34,7 @@ const DisplayComponent: React.FC<DisplayComponentProps> = ({ title, imageUrl, cr
                     {isClicked && (
                         <div className={style.aiCommentOverlay}>
                             <div className={style.aiCommentText}>
-                                <h3 className={style.aiCommentTitle}>AI 피드백</h3>
+                                <h3 className={style.aiCommentTitle}>도우미의 조언</h3>
                                 {aiComment.split('\n').map((text, index) => (
                                     <p key={index}>{text}</p>
                                 ))}
