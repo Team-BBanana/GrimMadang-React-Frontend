@@ -103,7 +103,7 @@
     position: fixed;
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
-    top: 23%;
+    top: 40%;
     right: -200px; /* 초기 위치 (화면 밖) */
     width:300px;
     height: 400px;

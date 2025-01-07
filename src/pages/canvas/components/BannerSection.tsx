@@ -28,7 +28,7 @@ const BannerSection: React.FC<BannerSectionProps> = ({ onSave, step }) => {
             </div>
 
             <Button type="button" className={style.bannerButton} onClick={onSave}>
-                {step === 1 ? "1단계 완료" : step === 2 ? "2단계 완료" : "저장"}
+                {step === 1 ? "1단계 완료" : step === 2 ? "2단계 완료" : step === 5 ? "2단계 진행" : "저장"}
             </Button>
         </div>
     );

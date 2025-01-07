@@ -6,7 +6,7 @@ import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
 import ColorPanel from "@/pages/canvas/components/ColorPanel.tsx";
 import style from "../CanvasPage.module.css";
 import BrushWidth from "./brushWidth";
-import API from "@/api/canvas.api/canvas.api";
+import API from "@/api";
 
 interface CanvasSectionProps {
   className?: string;
@@ -22,9 +22,9 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });
   const [brushWidth, setBrushWidth] = useState(10);
-  const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [step, setStep] = useState(1);
   const [imageData, setImageData] = useState<any>(null);
+  const [isPanelVisible, setIsPanelVisible] = useState(false);
 
   useEffect(() => {
     if (!canvasContainerRef.current || !canvasRef.current) return;
@@ -49,16 +49,24 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
 
     window.addEventListener("resize", handleResize);
 
-    const fetchImageMetaData = async () => {
-      try {
-        const response = await API.ImagemetaData({ sessionId: "your_session_id", topic: "your_topic" });
-        setImageData(response.data);
-      } catch (error) {
-        console.error('Error fetching image metadata:', error);
-      }
-    };
+    //애는 최초 여야함 
+    // const fetchImageMetaData = async () => {
+    //   try {
+    //     const response = await API.canvasApi.ImagemetaData({ sessionId: "your_session_id", topic: "your_topic" });
+    //     setImageData(response.data);
+    //   } catch (error) {
+    //     console.error('Error fetching image metadata:', error);
+    //   }
+    // };
 
-    fetchImageMetaData();
+    // fetchImageMetaData();
+    // Set mock image data
+
+    
+    setImageData({
+      title: "Banana",
+      description: "A banana is an elongated, edible fruit produced by several kinds of large herbaceous flowering plants in the genus Musa."
+    });
 
     return () => {
       newCanvas.dispose();
@@ -73,18 +81,18 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
       quality: 1.0
     });
 
+
     if (step === 1) {
-
       await onUpload(dataURL, step);
+      setIsPanelVisible(true);
+      setStep(5);
+    }else if (step === 5) {
+      setIsPanelVisible(false);
       setStep(2);
-
-    } else if (step === 2) {
-      
+    }else if (step === 2) {
       await onUpload(dataURL, step);
       setStep(3);
-
     } else if (step === 3) {
-
       await handleFinalSave();
     }
   };
@@ -134,6 +142,7 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
   return (
     <div className={className} ref={canvasContainerRef} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
       <BannerSection onSave={saveCanvasAsImage} step={step} />
+      
       <canvas ref={canvasRef} className={style.canvasContainer} onTouchEnd={handleChange} id="mycanvas" />
       <div
         id="color-panel"
@@ -158,8 +167,18 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
         />
       </div>
 
-      <div className={`${style.slidePanel} ${isPanelVisible ? style.visible : style.hidden}`}>
-      </div>
+      {imageData && (
+        <div style={{ position: 'absolute', top: '60px', right: '10px', backgroundColor: 'white', padding: '10px', borderRadius: '5px' }}>
+          <h3>{imageData.title}</h3>
+          <p>{imageData.description}</p>
+        </div>
+      )}
+
+      {isPanelVisible && (
+        <div className={`${style.slidePanel} ${isPanelVisible ? style.visible : style.hidden}`}>
+          {/* Additional content for the slide panel can go here */}
+        </div>
+      )}
     </div>
   );
 };
