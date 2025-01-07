@@ -2,11 +2,14 @@ import React, { ChangeEvent, FormEvent, useRef, useState } from "react";
 import Input from "@/components/InputBox/InputBox";
 import style from "./SignupComponent.module.css"; 
 import Button from "@/components/Button/Button";
+import RoleSelectionModal from "./RoleSelectionModal";
 
 interface SignupFormData {
     name: string;
     phoneNumber: string;
     phoneNumberConfirm: string;
+    role: 'ROLE_FAMILY' | 'ROLE_ELDER' | null;
+    relation?: string;
 }
 
 interface SignupProps {
@@ -17,16 +20,18 @@ interface SignupProps {
 
 const SignupComponent: React.FC<SignupProps> = ({ errormsg, success, onClickSubmit }) => {
     const phoneNumberRef = useRef<HTMLInputElement>(null);
-
+    const [showModal, setShowModal] = useState(true);
     const [formData, setFormData] = useState<SignupFormData>({
         name: '',
         phoneNumber: '',
-        phoneNumberConfirm: ''
+        phoneNumberConfirm: '',
+        role: null,
+        relation: ''
     });
 
     const [phoneNumberError, setPhoneNumberError] = useState<string>('');
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
         
@@ -39,17 +44,26 @@ const SignupComponent: React.FC<SignupProps> = ({ errormsg, success, onClickSubm
         }
     };
 
+    const handleRoleSelect = (role: 'ROLE_FAMILY' | 'ROLE_ELDER') => {
+        setFormData(prev => ({ ...prev, role }));
+        setShowModal(false);
+    };
+
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         if (formData.phoneNumber !== formData.phoneNumberConfirm) {
             setPhoneNumberError('전화번호가 일치하지 않습니다');
             return;
         }
-        onClickSubmit({ name: formData.name, phoneNumber: formData.phoneNumber, phoneNumberConfirm: formData.phoneNumberConfirm });
+        if (!formData.role) {
+            return;
+        }
+        onClickSubmit({ ...formData });
     };
 
     return (
         <div className={style.container}>
+            {showModal && <RoleSelectionModal onSelect={handleRoleSelect} />}
             <div className={style.content}>
                 <form onSubmit={handleSubmit} className={style.formContainer}>
                     <h1>회원가입</h1>
@@ -81,6 +95,24 @@ const SignupComponent: React.FC<SignupProps> = ({ errormsg, success, onClickSubm
                         onChange={handleChange}
                         required
                     />
+                    {formData.role === 'ROLE_FAMILY' && (
+                        <select
+                            name="relation"
+                            value={formData.relation}
+                            onChange={handleChange}
+                            className={style.select}
+                            required
+                        >
+                            <option value="" disabled>당신은 누구신가요?</option>
+                            <option value="daughter">딸</option>
+                            <option value="son">아들</option>
+                            <option value="wife">아내</option>
+                            <option value="husband">남편</option>
+                            <option value="sibling">형제/자매</option>
+                            <option value="granddaughter">손녀</option>
+                            <option value="grandson">손자</option>
+                        </select>
+                    )}
                     {phoneNumberError && <p className={style.error}>{phoneNumberError}</p>}
                     <div className={style.buttonContainer}>
                         <Button type="submit">회원가입</Button>
