@@ -1,9 +1,9 @@
 import style from './Header.module.css';
 import { useNavigate } from 'react-router-dom';
-import useHeaderButtons from '@/hooks/useHeaderButtons';
+import UseHeaderButtons from '@/hooks/useHeaderButtons';
 
 const Header = () => {
-    const button = useHeaderButtons();
+    const button = UseHeaderButtons();
     const navigate = useNavigate();
 
     return (

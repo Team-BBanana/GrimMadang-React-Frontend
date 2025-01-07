@@ -11,7 +11,7 @@ import LoginPage from './pages/Login/LoginPage.tsx';
 import SignupPage from './pages/Signup/SignupPage.tsx';
 import FamilyPage from './pages/Family/FamilyPage.tsx';
 import DisplayPage from './pages/Display/DisplayPage.tsx';
-
+import { useUserRole } from './hooks/UserContext';  
 
 function AppContent() {
   const location = useLocation(); 
@@ -22,6 +22,7 @@ function AppContent() {
   );
 
   const isNoScrollRoute = /^\/gallery\/\d+$/.test(location.pathname);
+  const { userRole } = useUserRole(); 
 
   return (
     <div className="container">
@@ -31,7 +32,7 @@ function AppContent() {
           <Route path='/' element={<LoginPage />} />
           <Route path='/signup' element={<SignupPage />} />
           <Route path='/canvas' element={<CanvasPage />} />
-          <Route path='/gallery' element={<GalleryPage />} />
+          <Route path='/gallery' element={<GalleryPage userRole={userRole} />} />
           <Route path='/family' element={<FamilyPage />} />
           <Route path="/gallery/:id" element={<DisplayPage />} />
         </Routes>

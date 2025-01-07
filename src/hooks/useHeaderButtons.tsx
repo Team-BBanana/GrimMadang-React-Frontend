@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Button from '@/components/Button/Button';
 
 
-const useHeaderButtons = (): React.ReactNode => {
+const UseHeaderButtons = (): React.ReactNode => {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -73,4 +73,4 @@ const useHeaderButtons = (): React.ReactNode => {
     return getButton();
 };
 
-export default useHeaderButtons;
+export default UseHeaderButtons;

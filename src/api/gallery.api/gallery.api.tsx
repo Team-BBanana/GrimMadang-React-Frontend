@@ -10,8 +10,16 @@ const voiceChat = async(data: {transcript: string}) => {
     });
 }
 
+const getElderName = async() => {
+    const url = `/gallery/getElderName`;
+    return await CanvasClient.get(url, {
+        withCredentials: true,
+    });
+}
+
 const galleryApi = {
     voiceChat,
+    getElderName
 };
 
 export default galleryApi;
