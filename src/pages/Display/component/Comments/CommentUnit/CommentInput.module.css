@@ -1,14 +1,23 @@
 .inputWrapper {
     display: flex;
     align-items: center;
-    justify-content:space-between;
+    justify-content: space-between;
     gap: 10px;
     width: 100%;
     box-sizing: border-box;
+    position: sticky;
+    bottom: 0;
+    background-color: white;
+    padding: 15px 0px;
+    border-top: 1px solid #efefef;
 }
 
 .inputWrapper input {
     width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    font-size: 14px;
 }
 
 .commentButton {
@@ -16,8 +25,9 @@
     color: white;
     border: none;
     border-radius: 20px;
+    padding: 8px 16px;
     font-size: 12px;
-    height: 100%;
+    white-space: nowrap;
 }
 
 /* 반응형 디자인 */

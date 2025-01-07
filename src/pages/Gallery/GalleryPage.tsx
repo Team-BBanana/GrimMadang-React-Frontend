@@ -2,11 +2,12 @@ import ElderComponent from "./component/ElderComponent";
 import FamilyComponent from "./component/FamilyComponent";
 import SpeechButton from "./component/SpeechButton/SpeechButton";
 import API from "@/api";
-
+import { useUserRole } from '@/hooks/UserContext';
 import { useEffect, useState } from 'react';
 
-const GalleryPage = ({ userRole }: { userRole: string }) => {
+const GalleryPage = () => {
     const [elderName, setElderName] = useState<string>('');
+    const { userRole } = useUserRole();
 
     useEffect(() => {
         const fetchElderName = async () => {

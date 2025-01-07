@@ -10,7 +10,7 @@ interface DecodedToken {
 
 const getTokenRole = (): string => {
     const token = Cookies.get('token');
-    if (!token) return 'ROLE_FAMILY';
+    if (!token) return 'ROLE_ELDER';
     
     try {
         const decoded = jwtDecode<DecodedToken>(token);

@@ -1,7 +1,7 @@
 import React from 'react';
-import Comment from "./Comment";
-import style from "./Comment.module.css";
-import CommentInput from "./CommentInput";
+import Comment from "./CommentUnit/Comment";
+import style from "./CommentUnit/Comment.module.css";
+import CommentInput from "./CommentUnit/CommentInput";
 
 interface CommentListProps {
   onCommentCountUpdate: (count: number) => void;
@@ -38,9 +38,19 @@ const comments = [
     comment: "짜앙",
     date: "2023-10-15"
   },
+  {
+    name: "아들",
+    comment: "짜앙",
+    date: "2023-10-15"
+  },
+  {
+    name: "아들",
+    comment: "짜앙",
+    date: "2023-10-15"
+  },
 ];
 
-function CommentList({ onCommentCountUpdate }: CommentListProps) {
+function FamilyCommentList({ onCommentCountUpdate }: CommentListProps) {
   React.useEffect(() => {
     onCommentCountUpdate(comments.length);
   }, [onCommentCountUpdate]);
@@ -57,4 +67,4 @@ function CommentList({ onCommentCountUpdate }: CommentListProps) {
   );
 }
 
-export default CommentList;
+export default FamilyCommentList;

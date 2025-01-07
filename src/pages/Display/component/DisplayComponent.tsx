@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import style from './DisplayComponent.module.css';
-import CommentList from './Comments/CommentList';
+import FamilyCommentList from './Comments/FamilyCommentList';
+import ElderCommentList from './Comments/ElderCommentList';
+import { useUserRole } from '@/hooks/UserContext';
 
 interface DisplayComponentProps {
     title: string;
@@ -10,6 +12,7 @@ interface DisplayComponentProps {
 }
 
 const DisplayComponent: React.FC<DisplayComponentProps> = ({ title, imageUrl, createdTime, aiComment }) => {
+    const { userRole } = useUserRole();
     const [commentCount, setCommentCount] = useState<number>(0);
     const [isClicked, setIsClicked] = useState(false);
 
@@ -27,6 +30,7 @@ const DisplayComponent: React.FC<DisplayComponentProps> = ({ title, imageUrl, cr
                 <h1 className={style.title}>{title}</h1>
                 <span className={style.createdTime}>{createdTime}</span>
                 {!isClicked && <div className={style.hintModal}>그림을 눌러 도우미의 조언을 들어보세요</div>}
+                <span className={style.commentCount}>💬 {commentCount}개의 댓글</span>
             </div>
             <div className={style.contentWrapper}>
                 <div className={style.imageSection} onClick={handleImageClick}>
@@ -43,8 +47,8 @@ const DisplayComponent: React.FC<DisplayComponentProps> = ({ title, imageUrl, cr
                     )}
                 </div>
                 <div className={style.commentSection}>
-                    <span className={style.commentCount}>💬 {commentCount}개의 댓글</span>
-                    <CommentList onCommentCountUpdate={handleCommentCountUpdate} />
+                    {userRole === 'ROLE_FAMILY' ? <FamilyCommentList onCommentCountUpdate={handleCommentCountUpdate} /> : null}
+                    {userRole === 'ROLE_ELDER' ? <ElderCommentList onCommentCountUpdate={handleCommentCountUpdate} /> : null}   
                 </div>
             </div>
         </div>
