@@ -15,7 +15,7 @@ const LoginPage = () => {
 
     const handleSubmit = async (formData: FormData) => {
         try {
-            const data = { username: formData.phoneNumber, password: formData.name };
+            const data = { username: formData.phoneNumber, password: formData.name, role: "ROLE_ELDER" };
             const response = await API.userApi.loginElder(data);
 
             if (response.status === 200) {

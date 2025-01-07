@@ -1,16 +1,16 @@
 import { fabric } from "fabric";
 import { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
-
 import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
 import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
 import ColorPanel from "@/pages/canvas/components/ColorPanel.tsx";
 import style from "../CanvasPage.module.css";
 import BrushWidth from "./brushWidth";
+import API from "@/api/canvas.api/canvas.api";
 
 interface CanvasSectionProps {
   className?: string;
-  onUpload: (dataURL: string) => void;
+  onUpload: (dataURL: string, step: number) => void;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   onChange: () => void;
 }
@@ -20,9 +20,11 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
   const [canvas, setCanvas] = useAtom(canvasInstanceAtom);
   const [isDragging, setIsDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 }); 
+  const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });
   const [brushWidth, setBrushWidth] = useState(10);
-  const [isPanelVisible, setIsPanelVisible] = useState(true);
+  const [isPanelVisible, setIsPanelVisible] = useState(false);
+  const [step, setStep] = useState(1);
+  const [imageData, setImageData] = useState<any>(null);
 
   useEffect(() => {
     if (!canvasContainerRef.current || !canvasRef.current) return;
@@ -47,8 +49,16 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
 
     window.addEventListener("resize", handleResize);
 
-    // 팔레트의 초기 위치 설정 (좌측 중앙)
-    setPanelPosition({ x: 30, y: 150 });
+    const fetchImageMetaData = async () => {
+      try {
+        const response = await API.ImagemetaData({ sessionId: "your_session_id", topic: "your_topic" });
+        setImageData(response.data);
+      } catch (error) {
+        console.error('Error fetching image metadata:', error);
+      }
+    };
+
+    fetchImageMetaData();
 
     return () => {
       newCanvas.dispose();
@@ -56,13 +66,35 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
     };
   }, [canvasRef, setCanvas]);
 
-  const saveCanvasAsImage = () => {
+  const saveCanvasAsImage = async () => {
     if (!canvas) return;
     const dataURL = canvas.toDataURL({
       format: 'png',
       quality: 1.0
     });
-    onUpload(dataURL);
+
+    if (step === 1) {
+
+      await onUpload(dataURL, step);
+      setStep(2);
+
+    } else if (step === 2) {
+      
+      await onUpload(dataURL, step);
+      setStep(3);
+
+    } else if (step === 3) {
+
+      await handleFinalSave();
+    }
+  };
+
+  const handleFeedbackAPI = async () => {
+    console.log("Calling feedback API");
+  };
+
+  const handleFinalSave = async () => {
+    console.log("Final save to API");
   };
 
   const handleBrushWidthChange = (width: number) => {
@@ -84,12 +116,12 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging) {
-      const newX = e.clientX - offset.x; // 클릭한 위치를 기준으로 X 좌표 계산
-      const newY = e.clientY - offset.y; // 클릭한 위치를 기준으로 Y 좌표 계산
-      setPanelPosition({ x: newX, y: newY }); // 팔레트의 위치 상태 업데이트
+      const newX = e.clientX - offset.x;
+      const newY = e.clientY - offset.y;
+      setPanelPosition({ x: newX, y: newY });
     }
   };
-  
+
   const handleChange = () => {
     onChange();
   };
@@ -99,21 +131,17 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
     handleChange();
   };
 
-  const togglePanel = () => {
-    setIsPanelVisible(!isPanelVisible);
-  };
-
   return (
     <div className={className} ref={canvasContainerRef} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
-      <BannerSection onSave={() => { saveCanvasAsImage(); togglePanel(); }} />
-      <canvas ref={canvasRef} className={style.canvasContainer} onTouchEnd={handleChange} id="mycanvas"/>
+      <BannerSection onSave={saveCanvasAsImage} step={step} />
+      <canvas ref={canvasRef} className={style.canvasContainer} onTouchEnd={handleChange} id="mycanvas" />
       <div
         id="color-panel"
         onMouseDown={handleMouseDown}
         onMouseUp={() => setIsDragging(false)}
-        style={{ 
-          cursor: isDragging ? "grabbing" : "grab", 
-          position: "absolute", 
+        style={{
+          cursor: isDragging ? "grabbing" : "grab",
+          position: "absolute",
           top: `${panelPosition.y}px`,
           left: `${panelPosition.x}px`,
         }}
@@ -124,9 +152,9 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
         그리기 키워드
       </div>
       <div>
-        <BrushWidth 
-          brushWidth={brushWidth} 
-          onChange={handleBrushWidthChange} 
+        <BrushWidth
+          brushWidth={brushWidth}
+          onChange={handleBrushWidthChange}
         />
       </div>
 

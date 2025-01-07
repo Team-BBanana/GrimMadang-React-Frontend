@@ -19,9 +19,10 @@ export async function getUserInfo(): Promise<ApiResponse> {
 }
 
 // 로그인
-export async function loginElder(data: { username: string; password: string }): Promise<ApiResponse> {
+export async function loginElder(data: { username: string; password: string; role: string; }): Promise<ApiResponse> {
 
-    const response = await CanvasClient.post('/auth/login', JSON.stringify(data), {
+    const url = `/auth/login`;
+    const response = await CanvasClient.post(url, JSON.stringify(data), {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

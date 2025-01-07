@@ -7,9 +7,10 @@ import style from "../CanvasPage.module.css"
 
 interface BannerSectionProps {
     onSave: () => void;
+    step: number;
 }
 
-const BannerSection: React.FC<BannerSectionProps> = ({ onSave }) => {
+const BannerSection: React.FC<BannerSectionProps> = ({ onSave, step }) => {
     const navigate = useNavigate();
 
     const handleBack = () => {
@@ -27,7 +28,7 @@ const BannerSection: React.FC<BannerSectionProps> = ({ onSave }) => {
             </div>
 
             <Button type="button" className={style.bannerButton} onClick={onSave}>
-                저장
+                {step === 1 ? "1단계 완료" : step === 2 ? "2단계 완료" : "저장"}
             </Button>
         </div>
     );
