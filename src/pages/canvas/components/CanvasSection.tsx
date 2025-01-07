@@ -22,6 +22,7 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 }); 
   const [brushWidth, setBrushWidth] = useState(10);
+  const [isPanelVisible, setIsPanelVisible] = useState(true);
 
   useEffect(() => {
     if (!canvasContainerRef.current || !canvasRef.current) return;
@@ -98,9 +99,13 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
     handleChange();
   };
 
+  const togglePanel = () => {
+    setIsPanelVisible(!isPanelVisible);
+  };
+
   return (
     <div className={className} ref={canvasContainerRef} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
-      <BannerSection onSave={saveCanvasAsImage} />
+      <BannerSection onSave={() => { saveCanvasAsImage(); togglePanel(); }} />
       <canvas ref={canvasRef} className={style.canvasContainer} onTouchEnd={handleChange} id="mycanvas"/>
       <div
         id="color-panel"
@@ -123,6 +128,9 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
           brushWidth={brushWidth} 
           onChange={handleBrushWidthChange} 
         />
+      </div>
+
+      <div className={`${style.slidePanel} ${isPanelVisible ? style.visible : style.hidden}`}>
       </div>
     </div>
   );

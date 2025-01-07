@@ -1,5 +1,5 @@
 import React from 'react';
-import style from './BrushWidth.module.css';
+import style from './brushWidth.module.css';
 
 interface BrushWidthProps {
     brushWidth: number;
