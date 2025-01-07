@@ -19,17 +19,15 @@ export async function getUserInfo(): Promise<ApiResponse> {
 }
 
 // 로그인
-export async function loginUser(data: { name: string; phoneNumber: string }): Promise<ApiResponse> {
-    const formDataToSend = new FormData();
-    formDataToSend.append('name', data.name);
-    formDataToSend.append('phoneNumber', data.phoneNumber); 
+export async function loginElder(data: { username: string; password: string }): Promise<ApiResponse> {
 
-    const response = await CanvasClient.post('/auth/login', formDataToSend, {
+    const response = await CanvasClient.post('/auth/login', JSON.stringify(data), {
+        method: "POST",
         headers: {
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "application/json",
         },
         maxRedirects: 0,
-        withCredentials: true // 인증 정보 포함 (쿠키)
+        withCredentials: true, // 인증 정보 포함 (쿠키)
     });
 
     return response;
@@ -70,7 +68,7 @@ export async function signupUser(data: UserData): Promise<ApiResponse> {
 
 const userAPI = {
     getUserInfo,
-    loginUser,
+    loginElder,
     logoutUser,
     refreshToken,
     signupUser,
