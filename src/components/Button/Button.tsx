@@ -9,7 +9,7 @@ interface ButtonProps {
     style?: React.CSSProperties; // 인라인 스타일을 추가
 }
 
-const Button: React.FC<ButtonProps> = ({ type, onClick, children, style: inlineStyle, className }) => {
+const Button = ({ type, onClick, children, style: inlineStyle, className }:ButtonProps) => {
     return (
         <button
             type={type}

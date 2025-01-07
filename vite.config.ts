@@ -14,5 +14,8 @@ export default defineConfig({
       { find: "@", replacement: "/src" },
     ],
   },
+  optimizeDeps: {
+    include: ['regenerator-runtime']
+  }
 });
 

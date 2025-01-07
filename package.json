@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@babel/runtime": "^7.26.0",
+    "@types/react-speech-recognition": "^3.9.5",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.7.9",
     "cors": "^2.8.5",
@@ -25,6 +27,8 @@
     "react-dom": "^18.3.1",
     "react-draggable": "^4.4.6",
     "react-router-dom": "^6.18.0",
+    "react-speech-recognition": "^3.10.0",
+    "regenerator-runtime": "^0.14.1",
     "socket.io": "^4.7.2",
     "socket.io-client": "^4.7.2",
     "toolbar": "^0.0.5",
@@ -34,8 +38,9 @@
     "@svgr/webpack": "^8.1.0",
     "@types/fabric": "^5.3.6",
     "@types/lodash": "^4.17.13",
+    "@types/node": "^22.10.5",
     "@types/pako": "^2.0.3",
-    "@types/react": "^18.2.15",
+    "@types/react": "^18.3.18",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
