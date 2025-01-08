@@ -181,7 +181,7 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}
       </div>
 
       {imageData && (
-        <div style={{ position: 'absolute', top: '60px', right: '10px', backgroundColor: 'white', padding: '10px', borderRadius: '5px' }}>
+        <div className={style.imageData}>
           <h3>{imageData.title}</h3>
           <p>{imageData.description}</p>
         </div>
