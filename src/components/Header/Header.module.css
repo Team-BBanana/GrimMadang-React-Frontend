@@ -12,12 +12,14 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
+.logoContainer {
+    margin-top: 90px; /* Add margin to position the logo */
+    margin-left: -140px; /* Optional: Add margin to the left if needed */
+}
+
 .logo {
-    width: 100%;
-    max-width: 200px;
-    font-family: "Gugi";
-    font-size: 2rem;
-    color: #f1f1f1;
+    height: 300px; /* Adjust the height as needed */
+    width: 500px; /* Maintain aspect ratio */
 }
 
 .buttonGroup {

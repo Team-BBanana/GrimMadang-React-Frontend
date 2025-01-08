@@ -1,6 +1,7 @@
 import style from './Header.module.css';
 import { useNavigate } from 'react-router-dom';
 import UseHeaderButtons from '@/hooks/useHeaderButtons';
+import logo from '@/assets/logo.png'; // 로고를 JS 변수로 임포트
 
 const Header = () => {
     const button = UseHeaderButtons();
@@ -8,13 +9,10 @@ const Header = () => {
 
     return (
         <header className={style.header}>
-            <div 
-                className={style.logo}
-                onClick={() => navigate('/gallery')}
-                style={{ cursor: 'pointer' }}
-            >
-                그림마당
+            <div className={style.logoContainer}>
+                <img src={logo} alt="logo" className={style.logo} onClick={() => navigate('/')} /> {/* 동적으로 로고 렌더링 */}
             </div>
+
             <div className={style.buttonGroup}>
                 {button}
             </div>
