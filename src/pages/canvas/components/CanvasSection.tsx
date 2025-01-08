@@ -190,7 +190,7 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}
       {isPanelVisible && (
         <div className={`${style.slidePanel} ${isPanelVisible ? style.visible : style.hidden}`}>
                 {feedbackData && (
-                  <div style={{ position: 'absolute', top: '60px', right: '10px', backgroundColor: 'white', padding: '10px', borderRadius: '5px' }}>
+                  <div className={style.feedback}>
                     <h3>{feedbackData.title}</h3>
                     <p>{feedbackData.description}</p>
                   </div>
