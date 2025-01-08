@@ -117,7 +117,7 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
   };
 
   const handleFeedbackAPI = async () => {
-    const feedbackData: FeedbackData = {
+    const feedbackData: feedBackData = {
       sessionId: "your_session_id",
       name: "User Name",
       topic: "Banana",
@@ -201,7 +201,7 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
       </div>
 
       {imageData && (
-        <div style={{ position: 'absolute', top: '60px', right: '10px', backgroundColor: 'white', padding: '10px', borderRadius: '5px' }}>
+        <div className={style.imageData}>
           <h3>{imageData.title}</h3>
           <p>{imageData.description}</p>
         </div>
@@ -210,7 +210,7 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange }: CanvasSecti
       {isPanelVisible && (
         <div className={`${style.slidePanel} ${isPanelVisible ? style.visible : style.hidden}`}>
                 {FeedBackData && (
-                  <div style={{ position: 'absolute', top: '60px', right: '10px', backgroundColor: 'white', padding: '10px', borderRadius: '5px' }}>
+                  <div className={style.feedback}>
                     <h3>{FeedBackData.title}</h3>
                     <p>{FeedBackData.description}</p>
                   </div>
