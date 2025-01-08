@@ -52,18 +52,17 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}
 
     window.addEventListener("resize", handleResize);
 
-    //애는 최초 여야함 
-    // const fetchImageMetaData = async () => {
-    //   try {
-    //     const response = await API.canvasApi.ImagemetaData({ sessionId: "your_session_id", topic: "your_topic" });
-    //     setImageData(response.data);
-    //   } catch (error) {
-    //     console.error('Error fetching image metadata:', error);
-    //   }
-    // };
+    // 애는 최초 여야함 
+    const fetchImageMetaData = async () => {
+      try {
+        const response = await API.canvasApi.ImagemetaData({ sessionId: "your_session_id", topic: "your_topic" });
+        setImageData(response.data);
+      } catch (error) {
+        console.error('Error fetching image metadata:', error);
+      }
+    };
 
-    // fetchImageMetaData();
-    // Set mock image data
+    fetchImageMetaData();
 
 
     setImageData({
