@@ -13,13 +13,13 @@
 }
 
 .logoContainer {
-    margin-top: 90px; /* Add margin to position the logo */
-    margin-left: -140px; /* Optional: Add margin to the left if needed */
+    margin-top: 20px; /* Add margin to position the logo */
+    margin-left: -10px; /* Optional: Add margin to the left if needed */
 }
 
 .logo {
-    height: 300px; /* Adjust the height as needed */
-    width: 500px; /* Maintain aspect ratio */
+    height: 100px; /* Adjust the height as needed */
+    width: 230px; /* Maintain aspect ratio */
 }
 
 .buttonGroup {
