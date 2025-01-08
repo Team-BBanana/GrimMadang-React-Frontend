@@ -1,14 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Button from '@/components/Button/Button';
 import style from './SpeechButton.module.css';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 interface SpeechButtonProps {
     onTranscriptComplete: (transcript: string) => void;
+    onAudioComplete?: (audioBlob: Blob) => void;
 }
 
-const SpeechButton = ({ onTranscriptComplete }: SpeechButtonProps) => {
+const SpeechButton = ({ onTranscriptComplete, onAudioComplete }: SpeechButtonProps) => {
     const [isListening, setIsListening] = useState(false);
+    const mediaRecorder = useRef<MediaRecorder | null>(null);
+    const audioChunks = useRef<Blob[]>([]);
+    
     const {
         transcript,
         resetTranscript,
@@ -17,17 +21,51 @@ const SpeechButton = ({ onTranscriptComplete }: SpeechButtonProps) => {
     
     let silenceTimeout: NodeJS.Timeout | null = null;
 
-    const startListening = () => {
-        setIsListening(true);
-        resetTranscript();
-        console.log("startListening");
-        SpeechRecognition.startListening({ continuous: true, language: 'ko-KR' });
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder.current = new MediaRecorder(stream);
+            audioChunks.current = [];
+
+            mediaRecorder.current.ondataavailable = (event) => {
+                audioChunks.current.push(event.data);
+            };
+
+            mediaRecorder.current.onstop = async () => {
+                const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
+                if (onAudioComplete) {
+                    onAudioComplete(audioBlob);
+                }
+                await sendAudioToServer(audioBlob);
+            };
+
+            mediaRecorder.current.start();
+        } catch (error) {
+            console.error('Error accessing microphone:', error);
+        }
+    };
+
+    const startListening = async () => {
+        try {
+            setIsListening(true);
+            resetTranscript();
+            await startRecording();
+            console.log("startListening");
+            SpeechRecognition.startListening({ continuous: true, language: 'ko-KR' });
+        } catch (error) {
+            console.error('Error starting recording:', error);
+            setIsListening(false);
+        }
     };
 
     const stopListening = () => {
         setIsListening(false);
         console.log("stopListening");
         SpeechRecognition.stopListening();
+        if (mediaRecorder.current && mediaRecorder.current.state !== 'inactive') {
+            mediaRecorder.current.stop();
+            mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
+        }
         if (transcript) {
             onTranscriptComplete(transcript);
         }
@@ -46,8 +84,28 @@ const SpeechButton = ({ onTranscriptComplete }: SpeechButtonProps) => {
             if (silenceTimeout) {
                 clearTimeout(silenceTimeout);
             }
+            if (mediaRecorder.current && mediaRecorder.current.state !== 'inactive') {
+                mediaRecorder.current.stop();
+                mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
+            }
         };
     }, [transcript, isListening]);
+
+    const sendAudioToServer = async (audioBlob: Blob) => {
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'recording.wav');
+
+        try {
+            const response = await fetch('YOUR_API_ENDPOINT', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            console.log('Server response:', data);
+        } catch (error) {
+            console.error('Error sending audio:', error);
+        }
+    };
 
     if (!browserSupportsSpeechRecognition) {
         return null;
