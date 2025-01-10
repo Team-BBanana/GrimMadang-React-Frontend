@@ -1,7 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import style from "./GalleryComponent.module.css";
-import CardComponent from "../Card/CardComponent";
 import { cardData } from "../Card/cardData";
+import Carousel from '../Card/carousel/Carousel';
+import { useEffect } from "react";
+import API from "@/api";
+import { useState } from "react";
+import { EmblaOptionsType } from 'embla-carousel'
+
 
 const GalleryComponent: React.FC = () => {
     const navigate = useNavigate();
@@ -10,22 +15,44 @@ const GalleryComponent: React.FC = () => {
         navigate('/canvas', { state: { createNew: true } });
     };
 
+    const [elderName, setElderName] = useState<string>('사용자');
+
+    useEffect(() => {
+        const fetchElderName = async () => {
+            try {
+                const response = await API.galleryApi.getElderName();
+                if (response.status === 200) {
+                    const name = response.data.elderName || 'ㅁㅁㅁ';
+                    console.log(name);
+                    setElderName(name);
+                }
+            } catch (error) {
+                console.error('getElderName 실패:', error);
+            }
+        };
+        fetchElderName();
+    }, []);
+
+    const OPTIONS: EmblaOptionsType = {loop: true};
+
+    const handleCardClick = (index: number) => {
+        navigate(`/gallery/${index + 1}`);
+    };
+
     return (
         <div className={style.container}>
-            <h1 className={style.title}>내 그림 모아보기</h1>
-            <div className={style.cardGrid}>
-                <CardComponent
-                    isAddButton={true}
-                    onClick={handleCreateNewCanvas}
+            <h1 className={style.title}>{elderName} 님의 그림 전시회</h1>
+            <div className={style.carouselContainer}>
+                <Carousel
+                    slides={cardData.map((card, index) => ({
+                        ...card,
+                        onClick: () => handleCardClick(index)
+                    }))}
+                    options={OPTIONS}
                 />
-                {cardData.map((card, index) => (
-                    <CardComponent
-                        key={index}
-                        imageUrl={card.imageUrl}
-                        title={card.title}
-                        onClick={() => navigate(`/gallery/${index + 1}`)}
-                    />
-                ))}
+            </div>
+            <div className={style.explaination}>
+                <p>그림을 눌러 가족들의 응원 한마디를 확인해보세요!</p>
             </div>
         </div>
     );

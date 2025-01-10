@@ -126,12 +126,12 @@ const SpeechButton = ({ onTranscriptComplete, onAudioComplete }: SpeechButtonPro
                 </svg>
             </Button>
 
-            {audioBlob && (
+            {/* {audioBlob && (
                 <audio controls>
                     <source src={URL.createObjectURL(audioBlob)} type="audio/wav" />
                     Your browser does not support the audio element.
                 </audio>
-            )}
+            )} */}
         </div>
     );
 };
