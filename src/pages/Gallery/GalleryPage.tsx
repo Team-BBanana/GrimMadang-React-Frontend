@@ -15,35 +15,59 @@ interface WelcomeFlowData {
     attendanceStreak: number;
 }
 
+interface ElderInfo {
+    elderId: string;
+    name: string;
+    phoneNumber: string;
+    role: string;
+    attendance_streak: number;
+    attendance_total: number;
+}
 
 const GalleryPage = () => {
     const { userRole } = useUserRole();
     const [audioUrl, setAudioUrl] = useState<string | undefined>(undefined);
-
+    const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
 
     useEffect(() => {
+
+        const fetchElderName = async () => {
+            try {
+                const response = await API.userApi.getElderInfo();
+                if (response.status === 200) {
+                    const elderData = response.data as ElderInfo;
+                    setElderinfo(elderData);
+                }
+            } catch (error) {
+                console.error('getElderName 실패:', error);
+            }
+        };
+
+        fetchElderName();
+
         const fetchWelcomeFlow = async () => {
+            if (!elderinfo) return;
+
             try {
                 const data: WelcomeFlowData = {
-                    sessionId: "abc123",
-                    name: "김영희",
+                    sessionId: elderinfo.elderId,
+                    name: elderinfo.name,
                     userRequestWavWelcome: "first",
-                    attendanceTotal: 10,
-                    attendanceStreak: 5
+                    attendanceTotal: elderinfo.attendance_total,
+                    attendanceStreak: elderinfo.attendance_streak
                 };
                 const response = await API.canvasApi.welcomeFlow(data);
                 console.log('Welcome flow response:', response.data);
 
-                const audioData = response.data.data.aiResponseWelcomeWav.data; // WAV 데이터
+                const audioData = response.data.data.aiResponseWelcomeWav.data;
                 console.log('audioData:', audioData);
 
                 if (audioData) {
-                    // WAV 데이터로 Blob 생성
                     const audioBlob = new Blob([new Uint8Array(audioData)], { type: 'audio/wav' });
                     const audioUrl = URL.createObjectURL(audioBlob);
-                    console.log('Generated audio URL:', audioUrl);  // 생성된 URL 로그
+                    console.log('Generated audio URL:', audioUrl);
 
-                    setAudioUrl(audioUrl); // 오디오 URL 상태 업데이트
+                    setAudioUrl(audioUrl);
                 } else {
                     console.error('audioData가 정의되지 않았거나 응답에 없습니다.');
                 }
@@ -52,8 +76,8 @@ const GalleryPage = () => {
             }
         };
 
-        fetchWelcomeFlow();  // 초기화 시 호출
-    }, []);
+        fetchWelcomeFlow();
+    }, [elderinfo]);
 
     const playAudio = () => {
         if (audioUrl) {
@@ -83,15 +107,8 @@ const GalleryPage = () => {
 
     return (
         <>
-            {audioUrl && (
-                <audio controls>
-                    <source src={audioUrl} type="audio/wav" />
-                    브라우저가 오디오 요소를 지원하지 않습니다.
-                </audio>
-            )}
-            <button onClick={playAudio}>Play Welcome Audio</button>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                <GalleryComponent />
+                <GalleryComponent elderinfo={elderinfo} />
                 {userRole === 'ROLE_ELDER' && (
                     <>
                         <SpeechButton onTranscriptComplete={handleTranscriptComplete} />

@@ -14,14 +14,14 @@ interface CanvasSectionProps {
   feedbackData: any;
 }
 
-const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}: CanvasSectionProps) => {
+const CanvasSection = ({  onUpload, canvasRef, onChange, feedbackData}: CanvasSectionProps) => {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [canvas, setCanvas] = useAtom(canvasInstanceAtom);
   const [isDragging, setIsDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });
   const [step, setStep] = useState(1);
-  const [isPanelVisible, setIsPanelVisible] = useState(false);
+  const [isPanelVisible, setIsPanelVisible] = useState(true);
   const [brushWidth, setBrushWidth] = useState(10);
 
   const [imageData, setImageData] = useState<any>(null);

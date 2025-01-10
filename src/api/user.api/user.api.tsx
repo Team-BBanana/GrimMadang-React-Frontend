@@ -67,12 +67,21 @@ export async function signupUser(data: UserData): Promise<ApiResponse> {
     });
 }
 
+export async function getElderInfo(): Promise<ApiResponse> {
+    const url = `/api/users/getelderinfo`;
+
+    return await CanvasClient.get(url);
+    
+}
+
+
 const userAPI = {
     getUserInfo,
     loginElder,
     logoutUser,
     refreshToken,
     signupUser,
+    getElderInfo
 };
 
 export default userAPI;

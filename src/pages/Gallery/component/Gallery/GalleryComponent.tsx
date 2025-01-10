@@ -2,43 +2,37 @@ import { useNavigate } from "react-router-dom";
 import style from "./GalleryComponent.module.css";
 import { cardData } from "../Card/cardData";
 import Carousel from '../Card/carousel/Carousel';
-import { useEffect } from "react";
-import API from "@/api";
-import { useState } from "react";
 import { EmblaOptionsType } from 'embla-carousel'
 import { useUserRole } from "@/hooks/UserContext";
 
+interface ElderInfo {
+    elderId: string | null;
+    name: string | "ㅁㅁㅁ";
+    phoneNumber: string | null;
+    role: string | null;
+    attendance_streak: number | null;
+    attendance_total: number | null;
+}
 
-const GalleryComponent: React.FC = () => {
+interface GalleryComponentProps {
+    elderinfo: ElderInfo | null;
+}
+
+
+const GalleryComponent: React.FC<GalleryComponentProps> = ({ elderinfo }) => {
     const navigate = useNavigate();
-    const [elderName, setElderName] = useState<string>('사용자');
     const { userRole } = useUserRole();
     
     const handleCreateNewCanvas = () => {
       navigate('/canvas', { state: { createNew: true } });
     };
 
-    useEffect(() => {
-        const fetchElderName = async () => {
-            try {
-                const response = await API.galleryApi.getElderName();
-                if (response.status === 200) {
-                    const name = response.data.elderName || 'ㅁㅁㅁ';
-                    console.log(name);
-                    setElderName(name);
-                }
-            } catch (error) {
-                console.error('getElderName 실패:', error);
-            }
-        };
-        fetchElderName();
-    }, []);
 
     const OPTIONS: EmblaOptionsType = {loop: true};
 
     return (
         <div className={style.container}>
-            <h1 className={style.title}>{elderName} 님의 그림 전시회</h1>
+            <h1 className={style.title}>{elderinfo?.name} 님의 그림 전시회</h1>
             <div className={style.carouselContainer}>
                 <Carousel
                     slides={[
