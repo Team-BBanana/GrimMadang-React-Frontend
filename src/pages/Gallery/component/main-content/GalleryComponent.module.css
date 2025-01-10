@@ -2,27 +2,46 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 100px;
+    padding: 40px;
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    background: linear-gradient(90deg, #022216, #1a3b2a, #284e3a, #1a3b2a, #022216); /* 어두운 녹색 그라디언트 적용 */
+    color: #fff;
 }
 
 .title {
-    font-size: 2rem;
-    margin-bottom: 50px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    font-weight: bold;
-    padding: 10px 20px;
-    border-radius: 8px;
+    font-family: 'Song Myung', serif;
+    font-size: 4rem;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
+    font-weight: 700;
+    color: #a8d5ba;
+    letter-spacing: 5px;
 }
 
-.cardGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 30px;
-    width: 100%;
+.carouselContainer {
+    height: 100%;
+    display: flex;
+    justify-content:end;
+    align-items: center;
+    padding: 0 30px;
 }
 
-.container, .title, .cardGrid {
-    box-sizing: border-box;
+.explaination {
+    font-size: 1.8rem;
+    color: #a8d5ba;
+    animation: float 3s ease-in-out infinite;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 0px 80px;
+    border-radius: 50px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translatey(0px);
+    }
+    50% {
+        transform: translatey(-5px);
+    }
 }
