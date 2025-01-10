@@ -3,9 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
 import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
-import ColorPanel from "@/pages/canvas/components/ColorPanel.tsx";
 import style from "../CanvasPage.module.css";
-import BrushWidth from "./brushWidth";
 import API from "@/api";
 
 interface CanvasSectionProps {
@@ -22,9 +20,9 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}
   const [isDragging, setIsDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });
-  const [brushWidth, setBrushWidth] = useState(10);
   const [step, setStep] = useState(1);
   const [isPanelVisible, setIsPanelVisible] = useState(false);
+  const [brushWidth, setBrushWidth] = useState(10);
 
 
   const [imageData, setImageData] = useState<any>(null);
@@ -85,31 +83,66 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}
 
   const saveCanvasAsImage = async () => {
     if (!canvas) return;
-    const dataURL = canvas.toDataURL({
-      format: 'png',
-      quality: 1.0
+
+    // 캔버스의 모든 객체를 가져옵니다.
+    const objects = canvas.getObjects();
+    if (objects.length === 0) return;
+
+    // 경계 상자를 수동으로 계산합니다.
+    const boundingBox = objects.reduce((acc, obj) => {
+        const objBoundingBox = obj.getBoundingRect();
+        return {
+            left: Math.min(acc.left, objBoundingBox.left),
+            top: Math.min(acc.top, objBoundingBox.top),
+            right: Math.max(acc.right, objBoundingBox.left + objBoundingBox.width),
+            bottom: Math.max(acc.bottom, objBoundingBox.top + objBoundingBox.height),
+        };
+    }, {
+        left: Infinity,
+        top: Infinity,
+        right: -Infinity,
+        bottom: -Infinity,
     });
 
-    if (step === 1) {
-      await onUpload(dataURL, step);
+    const rect = new fabric.Rect({
+        left: boundingBox.left - 50, // 왼쪽 마진
+        top: boundingBox.top - 50, // 위쪽 마진
+        width: (boundingBox.right - boundingBox.left) + 100, // 오른쪽 마진 + 왼쪽 마진
+        height: (boundingBox.bottom - boundingBox.top) + 100, // 아래쪽 마진 + 위쪽 마진
+        strokeWidth: 2,
+        fill: 'transparent', // 사각형 내부 색상
+    });
 
-      setStep(5);
+    canvas.add(rect); // 캔버스에 사각형 추가
+    canvas.renderAll(); // 캔버스를 다시 렌더링
 
+    // 빨간색 박스의 크기로 이미지를 저장합니다.
+    const dataURL = canvas.toDataURL({
+        format: 'png',
+        quality: 1.0,
+        left: boundingBox.left - 50,
+        top: boundingBox.top - 50,
+        width: (boundingBox.right - boundingBox.left) + 100,
+        height: (boundingBox.bottom - boundingBox.top) + 100,
+    });
+
+      if (step === 1) {
+        await onUpload(dataURL, step);
+        setStep(5);
     } else if (step === 5) {
-
-      setIsPanelVisible(false);
-      setStep(2);
-
+        setIsPanelVisible(false);
+        setStep(2);
+        canvas.clear(); // 캔버스 초기화
     } else if (step === 2) {
-
-      await onUpload(dataURL, step);
-      setStep(3);
-
+        await onUpload(dataURL, step);
+        setStep(3);
     } else if (step === 3) {
-
-      await handleFinalSave();
-
+        await handleFinalSave();
     }
+
+    // 사각형을 캔버스에서 제거합니다.
+    canvas.remove(rect);
+    canvas.renderAll(); // 캔버스를 다시 렌더링
   };
 
 
@@ -122,15 +155,6 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}
     if (canvas) {
       canvas.freeDrawingBrush.width = width;
       canvas.renderAll();
-    }
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    const colorPanel = document.getElementById("color-panel");
-    if (colorPanel) {
-      const rect = colorPanel.getBoundingClientRect();
-      setOffset({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-      setIsDragging(true);
     }
   };
 
@@ -152,40 +176,15 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}
   };
 
   return (
-    <div className={className} ref={canvasContainerRef} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
+    <div className={style.canvasContainer} ref={canvasContainerRef} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
       <BannerSection onSave={saveCanvasAsImage} step={step} />
-      
-      <canvas ref={canvasRef} className={style.canvasContainer} onTouchEnd={handleChange} id="mycanvas" />
-      <div
-        id="color-panel"
-        onMouseDown={handleMouseDown}
-        onMouseUp={() => setIsDragging(false)}
-        style={{
-          cursor: isDragging ? "grabbing" : "grab",
-          position: "absolute",
-          top: `${panelPosition.y}px`,
-          left: `${panelPosition.x}px`,
-        }}
-      >
-        <ColorPanel className={style.colorPanel} />
-      </div>
-      <div className={style.keyword}>
-        그리기 키워드
-      </div>
-      <div>
-        <BrushWidth
-          brushWidth={brushWidth}
-          onChange={handleBrushWidthChange}
-        />
-      </div>
-
-      {imageData && (
-        <div className={style.imageData}>
-          <h3>{imageData.title}</h3>
-          <p>{imageData.description}</p>
-        </div>
-      )}
-
+        <canvas ref={canvasRef} className={style.canvas} onTouchEnd={handleChange} id="mycanvas"/>
+        {imageData && (
+          <div className={style.imageData}>
+            <h3>{imageData.title}</h3>
+            <p>{imageData.description}</p>
+          </div>
+        )}
       {isPanelVisible && (
         <div className={`${style.slidePanel} ${isPanelVisible ? style.visible : style.hidden}`}>
                 {feedbackData && (

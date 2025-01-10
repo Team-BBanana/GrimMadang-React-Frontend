@@ -1,37 +1,47 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import Button from "@/components/Button/Button.tsx";
-import Toolbar from "@/pages/canvas/components/Toolbar.tsx";
-
-import style from "../CanvasPage.module.css"
+import { useState } from 'react';
+import style from "../CanvasPage.module.css";
+import ColorPanel from './toolBar/ColorPanel';
+import BrushWidth from './toolBar/brushWidth';
+import { canvasInstanceAtom } from '@/store/atoms';
+import { useAtomValue } from 'jotai';
+import Toolbar from './toolBar/Toolbar';
 
 interface BannerSectionProps {
     onSave: () => void;
     step: number;
 }
 
-const BannerSection: React.FC<BannerSectionProps> = ({ onSave, step }) => {
-    const navigate = useNavigate();
+function BannerSection({ onSave, step }: BannerSectionProps) {
+    const [brushWidth, setBrushWidth] = useState(10);
+    const canvas = useAtomValue(canvasInstanceAtom);
 
-    const handleBack = () => {
-        navigate('/gallery'); // Navigate to the root path
-    };
+    const handleBrushWidthChange = (width: number) => {
+        setBrushWidth(width);
+        if (canvas) {
+            canvas.freeDrawingBrush.width = width;
+            canvas.renderAll();
+        }
+      };
+    
 
     return (
         <div className={style.bannerSection}>
-            <Button type="button" className={style.bannerButton} onClick={handleBack}>
-                뒤로
-            </Button>
-
-            <div style={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
-                <Toolbar />
+            <ColorPanel className={style.colorPanel} />
+            <div>
+                <BrushWidth
+                    brushWidth={brushWidth}
+                    onChange={handleBrushWidthChange}
+                />
             </div>
-
-            <Button type="button" className={style.bannerButton} onClick={onSave}>
-                {step === 1 ? "1단계 완료" : step === 2 ? "2단계 완료" : step === 5 ? "2단계 진행" : "저장"}
-            </Button>
+            <Toolbar/>
+            
+            <button className={style.stepButton} onClick={onSave}>
+                {step === 1 ? "첫 번째 단계 완료하기" : 
+                 step === 2 ? "두 번째 단계 완료하기" : 
+                 step === 5 ? "다음 단계로 가기" : "저장하기"}
+            </button>
         </div>
     );
-};
+}
 
 export default BannerSection;

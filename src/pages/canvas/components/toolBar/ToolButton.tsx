@@ -1,13 +1,13 @@
 import React from "react";
 
 interface ToolButtonProps {
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   onClick: () => void;
   disabled: boolean;
   title: string;
+  children?: React.ReactNode; 
 }
 
-const ToolButton: React.FC<ToolButtonProps> = ({ icon: Icon, onClick, disabled = false, title }) => {
+const ToolButton: React.FC<ToolButtonProps> = ({ onClick, disabled = false, title, children }) => {
   return (
     <button
       type="button"
@@ -15,7 +15,7 @@ const ToolButton: React.FC<ToolButtonProps> = ({ icon: Icon, onClick, disabled =
       disabled={disabled}
       title={title}
     >
-      <Icon className={disabled ? "group-disabled:fill-white" : ""} />
+      {children}
     </button>
   );
 };
