@@ -3,7 +3,6 @@ import { EmblaCarouselType, EmblaEventType, EmblaOptionsType } from 'embla-carou
 import useEmblaCarousel from 'embla-carousel-react'
 import { NextButton, PrevButton, usePrevNextButtons } from './CarouselArrowButtons'
 import { DotButton, useDotButton } from './CarouselDotButton'
-import { cardData } from '../cardData'
 
 interface CardComponentProps {
     imageUrl?: string;
@@ -27,7 +26,6 @@ function Carousel(props: PropType) {
   const { options } = props
   const [emblaRef, emblaApi] = useEmblaCarousel(options)
   const tweenFactor = useRef(0)
-
   const { selectedIndex, scrollSnaps, onDotButtonClick } =
     useDotButton(emblaApi)
 
@@ -106,11 +104,17 @@ function Carousel(props: PropType) {
               style={{ cursor: 'pointer' }}
             >
               <div className="frame-wrapper">
-                <img 
-                  className="embla__slide__img" 
-                  src={slide.imageUrl} 
-                  alt={slide.title || 'Slide image'} 
-                />
+                {slide.isAddButton ? (
+                  <div className="add-button">
+                    <span>새 작품 그리기</span>
+                  </div>
+                ) : (
+                  <img 
+                    className="embla__slide__img" 
+                    src={slide.imageUrl} 
+                    alt={slide.title || 'Slide image'} 
+                  />
+                )}
                 <div className="frame-overlay"></div>
               </div>
             </div>
