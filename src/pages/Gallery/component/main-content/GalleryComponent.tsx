@@ -35,6 +35,9 @@ const GalleryComponent: React.FC = () => {
 
     const OPTIONS: EmblaOptionsType = {loop: true};
 
+    const handleCardClick = (index: number) => {
+        navigate(`/gallery/${index + 1}`);
+    };
 
     return (
         <div className={style.container}>
@@ -43,7 +46,7 @@ const GalleryComponent: React.FC = () => {
                 <Carousel
                     slides={cardData.map((card, index) => ({
                         ...card,
-                        onClick: () => navigate(`/gallery/${index + 1}`)
+                        onClick: () => handleCardClick(index)
                     }))}
                     options={OPTIONS}
                 />

@@ -98,10 +98,19 @@ function Carousel(props: PropType) {
     <div className="embla">
       <div className="embla__viewport" ref={emblaRef}>
         <div className="embla__container">
-          {cardData.map((slide, index) => (
-            <div className="embla__slide" key={index}>
+          {props.slides.map((slide, index) => (
+            <div 
+              className="embla__slide" 
+              key={index}
+              onClick={slide.onClick}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="frame-wrapper">
-                <img className="embla__slide__img" src={slide.imageUrl} alt={slide.title || 'Slide image'} />
+                <img 
+                  className="embla__slide__img" 
+                  src={slide.imageUrl} 
+                  alt={slide.title || 'Slide image'} 
+                />
                 <div className="frame-overlay"></div>
               </div>
             </div>
