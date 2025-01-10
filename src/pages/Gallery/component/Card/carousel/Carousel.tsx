@@ -98,7 +98,7 @@ function Carousel(props: PropType) {
     <div className="embla">
       <div className="embla__viewport" ref={emblaRef}>
         <div className="embla__container">
-          {props.slides.map((slide, index) => (
+        {props.slides.map((slide, index) => (
             <div 
               className="embla__slide" 
               key={index}
@@ -106,7 +106,7 @@ function Carousel(props: PropType) {
               style={{ cursor: 'pointer' }}
             >
               <div className="frame-wrapper">
-                <img 
+              <img 
                   className="embla__slide__img" 
                   src={slide.imageUrl} 
                   alt={slide.title || 'Slide image'} 
