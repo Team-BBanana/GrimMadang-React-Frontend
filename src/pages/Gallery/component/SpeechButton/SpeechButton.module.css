@@ -1,32 +1,31 @@
 .speechButton {
     position: fixed;
-    bottom: 20px;
-    right: 50px;
+    bottom: 30px;
+    right: 80px;
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0px 40px rgba(255, 255, 255, 0.5);
     cursor: pointer;
     z-index: 3;
-    fill: #f1f1f1;
-}
-
-.speechButton svg {
-    fill: #f1f1f1;
+    fill: #ffffff;
+    border: 2px solid #ffffff;
+    transition: transform 0.3s ease;
+    animation: pulse 1.5s infinite;
+    background-color: #284e3a;
 }
 
 .speechButton:hover svg path {
-    fill: #2E7D32;
+    fill: #284e3a;
 }
-
 .listening {
     background-color: #f1f1f1;
-    border: 1px solid #2E7D32;
-    animation: pulse 1.5s infinite;
+    border: 1px solid #284e3a;
+    animation: none;
 }
 
 .listening svg path {
-    fill: #2E7D32;
+    fill: #284e3a;
 }
 
 
