@@ -9,6 +9,12 @@ export const CanvasClient = axios.create({
     withCredentials :true
 });
 
+export const AIClient = axios.create({
+    baseURL: "http://localhost:3012/",
+    withCredentials :true
+});
+
+
 
 const API = {
     userApi,

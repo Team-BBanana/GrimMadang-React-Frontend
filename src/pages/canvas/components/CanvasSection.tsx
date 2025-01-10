@@ -24,7 +24,6 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [brushWidth, setBrushWidth] = useState(10);
 
-
   const [imageData, setImageData] = useState<any>(null);
 
   useEffect(() => {
@@ -126,7 +125,8 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}
         height: (boundingBox.bottom - boundingBox.top) + 100,
     });
 
-      if (step === 1) {
+
+    if (step === 1) {
         await onUpload(dataURL, step);
         setStep(5);
     } else if (step === 5) {

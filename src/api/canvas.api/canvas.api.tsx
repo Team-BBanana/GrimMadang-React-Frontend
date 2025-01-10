@@ -1,12 +1,11 @@
-import { CanvasClient } from '..';
+import { CanvasClient, AIClient } from '..';
 
-
-interface welcomeFlowData {
+interface WelcomeFlowData {
     sessionId: string;
     name: string;
-    userRequestWelcomeWav: string;
-    attendanceTotal: string;
-    attendanceStreak: string;
+    userRequestWavWelcome: string;
+    attendanceTotal: number;
+    attendanceStreak: number;
 }
 
 interface exploreCanvasData {
@@ -54,10 +53,10 @@ const exploreCanvas = async(data: exploreCanvasData) => {
     });
 }
 
-const welcomeFlow = async(data: welcomeFlowData) => {
+const welcomeFlow = async(data: WelcomeFlowData) => {
     const url = `/api/conversation/welcomeFlow`;
 
-    return await CanvasClient.post(url,JSON.stringify(data),{
+    return await AIClient.post(url,JSON.stringify(data),{
         method: "POST",
         headers: {
             "Content-Type": "application/json", // JSON 요청임을 명시
