@@ -3,9 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
 import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
-import ColorPanel from "@/pages/canvas/components/ColorPanel.tsx";
 import style from "../CanvasPage.module.css";
-import BrushWidth from "./brushWidth";
 import API from "@/api";
 
 interface CanvasSectionProps {
@@ -22,10 +20,9 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}
   const [isDragging, setIsDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });
-  const [brushWidth, setBrushWidth] = useState(10);
   const [step, setStep] = useState(1);
-  const [isPanelVisible, setIsPanelVisible] = useState(true);
-
+  const [isPanelVisible, setIsPanelVisible] = useState(false);
+  const [brushWidth, setBrushWidth] = useState(10);
 
   const [imageData, setImageData] = useState<any>(null);
 
@@ -106,7 +103,6 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}
         bottom: -Infinity,
     });
 
-    // 사각형을 그립니다. 각 사방에 100px의 마진을 추가합니다.
     const rect = new fabric.Rect({
         left: boundingBox.left - 50, // 왼쪽 마진
         top: boundingBox.top - 50, // 위쪽 마진
@@ -128,6 +124,7 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}
         width: (boundingBox.right - boundingBox.left) + 100,
         height: (boundingBox.bottom - boundingBox.top) + 100,
     });
+
 
     if (step === 1) {
         await onUpload(dataURL, step);
@@ -161,15 +158,6 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}
     }
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    const colorPanel = document.getElementById("color-panel");
-    if (colorPanel) {
-      const rect = colorPanel.getBoundingClientRect();
-      setOffset({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-      setIsDragging(true);
-    }
-  };
-
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging) {
       const newX = e.clientX - offset.x;
@@ -188,40 +176,15 @@ const CanvasSection = ({ className, onUpload, canvasRef, onChange, feedbackData}
   };
 
   return (
-    <div className={className} ref={canvasContainerRef} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
+    <div className={style.canvasContainer} ref={canvasContainerRef} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
       <BannerSection onSave={saveCanvasAsImage} step={step} />
-      
-      <canvas ref={canvasRef} className={style.canvasContainer} onTouchEnd={handleChange} id="mycanvas" />
-      <div
-        id="color-panel"
-        onMouseDown={handleMouseDown}
-        onMouseUp={() => setIsDragging(false)}
-        style={{
-          cursor: isDragging ? "grabbing" : "grab",
-          position: "absolute",
-          top: `${panelPosition.y}px`,
-          left: `${panelPosition.x}px`,
-        }}
-      >
-        <ColorPanel className={style.colorPanel} />
-      </div>
-      <div className={style.keyword}>
-        그리기 키워드
-      </div>
-      <div>
-        <BrushWidth
-          brushWidth={brushWidth}
-          onChange={handleBrushWidthChange}
-        />
-      </div>
-
-      {imageData && (
-        <div className={style.imageData}>
-          <h3>{imageData.title}</h3>
-          <p>{imageData.description}</p>
-        </div>
-      )}
-
+        <canvas ref={canvasRef} className={style.canvas} onTouchEnd={handleChange} id="mycanvas"/>
+        {imageData && (
+          <div className={style.imageData}>
+            <h3>{imageData.title}</h3>
+            <p>{imageData.description}</p>
+          </div>
+        )}
       {isPanelVisible && (
         <div className={`${style.slidePanel} ${isPanelVisible ? style.visible : style.hidden}`}>
                 {feedbackData && (

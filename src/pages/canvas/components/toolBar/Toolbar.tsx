@@ -1,19 +1,16 @@
-import MouseIcon from "@/assets/svgs/whiteboard/mouse.svg?react";
-import PenIcon from "@/assets/svgs/whiteboard/pen.svg?react";
-import EraserIcon from "@/assets/svgs/whiteboard/eraser.svg?react";
-import HandIcon from "@/assets/svgs/whiteboard/hand.svg?react";
 import EraserCursor from "@/assets/svgs/eraserMouseCursor.svg";
 
 import { fabric } from "fabric";
 import { useEffect, useCallback } from "react";
 
-import ToolButton from "@/pages/canvas/components/ToolButton";
+import ToolButton from "@/pages/canvas/components/toolBar/ToolButton";
+import { IconBrush, IconEraser, IconSelect, IconArrowsMove } from '@tabler/icons-react';
 
 import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
 import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
 import { useAtom, useAtomValue } from "jotai";
 
-import style from "../CanvasPage.module.css"
+import style from "./module/toolBar.module.css"
 
 const Toolbar = () => {
   const [activeTool, setActiveTool] = useAtom(activeToolAtom);
@@ -121,11 +118,7 @@ const Toolbar = () => {
         break;
 
       case "stickyNote":
-
         break;
-
-      // case "image":
-      //   break;
 
       case "eraser":
         handleEraser();
@@ -138,47 +131,53 @@ const Toolbar = () => {
   }, [activeTool, canvas, handleEraser, handleHand, handlePen, handleSelect, resetCanvasOption]);
 
   return (
-        <div className="absolute top-2.5 left-2.5  z-10 bg-white p-2 rounded shadow-lg">
-          {/*<div className="flex flex-col items-center justify-center p-2 w-12 gap-1 rounded-xl bg-grayscale-lightgray border border-grayscale-lightgray shadow-md ">*/}
-          <div style={ { display: "flex", justifyContent: "space-between", alignItems: "center" , gap : "8px"}}>
-            <div className={style.toolButton}>
+        <div className={style.toolSet}>
+          <div className={style.toolButton}>
             <ToolButton
-                icon={PenIcon}
                 onClick={() => {
                   setActiveTool("pen");
                 }}
                 disabled={activeTool === "pen"}
                 title="Pen Tool"
-            />
+            ><IconBrush/>
+            <span className={style.toolTitle}>그리기</span>
+            </ToolButton>
 
             <ToolButton
-                icon={EraserIcon}
                 onClick={() => {
                   setActiveTool("eraser");
                 }}
                 disabled={activeTool === "eraser"}
                 title="Eraser Tool"
-            />
+            >
+            <IconEraser/>
+            <span className={style.toolTitle}>지우개</span>
+            </ToolButton>
+
             <ToolButton
-                icon={MouseIcon}
                 onClick={() => {
                   setActiveTool("select");
                 }}
                 disabled={activeTool === "select"}
                 title="Select Tool"
-            />
+            >
+            <IconSelect/>
+            <span className={style.toolTitle}>선택하기</span>
+            </ToolButton>
+
             <ToolButton
-                icon={HandIcon}
                 onClick={() => {
                   setActiveTool("hand");
                 }}
                 disabled={activeTool === "hand"}
                 title="Hand Tool"
-            />
-            </div>
+            >
+            <IconArrowsMove/>
+            <span className={style.toolTitle}>움직이기</span>
+            </ToolButton>
           </div>
         </div>
   );
 };
 
-        export default Toolbar;
+export default Toolbar;

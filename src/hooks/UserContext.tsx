@@ -16,7 +16,7 @@ const getTokenRole = (): string => {
         const decoded = jwtDecode<DecodedToken>(token);
         return decoded.role;
     } catch {
-        return 'ROLE_ELDER';
+        return 'ROLE_FAMILY';
     }
 };
 

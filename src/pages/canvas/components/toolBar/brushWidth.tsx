@@ -1,19 +1,19 @@
 import React from 'react';
-import style from './brushWidth.module.css';
+import style from './module/brushWidth.module.css';
 
 interface BrushWidthProps {
     brushWidth: number;
     onChange: (width: number) => void;
 }
 
-const BrushWidth: React.FC<BrushWidthProps> = ({ brushWidth, onChange }) => {
+function BrushWidth({ brushWidth, onChange }: BrushWidthProps) {
     const handleBrushWidthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         onChange(parseInt(event.target.value, 10));
     };
 
     return (
         <div className={style.container}>
-            <label htmlFor="brushWidth" className={style.label}>펜 두께</label>
+            <label htmlFor="brushWidth" className={style.label}>붓 두께: {brushWidth}</label>
             <input
                 id="brushWidth"
                 type="range"
@@ -23,9 +23,8 @@ const BrushWidth: React.FC<BrushWidthProps> = ({ brushWidth, onChange }) => {
                 onChange={handleBrushWidthChange}
                 className={style.slider}
             />
-            <span className={style.value}>{brushWidth}px</span>
         </div>
     );
-};
+}
 
 export default BrushWidth;

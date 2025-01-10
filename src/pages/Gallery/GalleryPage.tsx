@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 import './component/Card/carousel/module/embla.css'
 import './component/Card/carousel/module/base.css'
-import GalleryComponent from "./component/main-content/GalleryComponent";
+import GalleryComponent from "./component/Gallery/GalleryComponent";
 
 interface WelcomeFlowData {
     sessionId: string;

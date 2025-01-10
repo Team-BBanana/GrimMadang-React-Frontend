@@ -6,16 +6,17 @@ import { useEffect } from "react";
 import API from "@/api";
 import { useState } from "react";
 import { EmblaOptionsType } from 'embla-carousel'
+import { useUserRole } from "@/hooks/UserContext";
 
 
 const GalleryComponent: React.FC = () => {
     const navigate = useNavigate();
-
-    const handleCreateNewCanvas = () => {
-        navigate('/canvas', { state: { createNew: true } });
-    };
-
     const [elderName, setElderName] = useState<string>('사용자');
+    const { userRole } = useUserRole();
+    
+    const handleCreateNewCanvas = () => {
+      navigate('/canvas', { state: { createNew: true } });
+    };
 
     useEffect(() => {
         const fetchElderName = async () => {
@@ -35,19 +36,23 @@ const GalleryComponent: React.FC = () => {
 
     const OPTIONS: EmblaOptionsType = {loop: true};
 
-    const handleCardClick = (index: number) => {
-        navigate(`/gallery/${index + 1}`);
-    };
-
     return (
         <div className={style.container}>
             <h1 className={style.title}>{elderName} 님의 그림 전시회</h1>
             <div className={style.carouselContainer}>
                 <Carousel
-                    slides={cardData.map((card, index) => ({
-                        ...card,
-                        onClick: () => handleCardClick(index)
-                    }))}
+                    slides={[
+                        ...cardData.map((card, index) => ({
+                            ...card,
+                            onClick: () => navigate(`/gallery/${index + 1}`)
+                        })),
+                        ...(userRole === 'ROLE_ELDER' ? [{
+                            imageUrl: '',
+                            title: '새 캔버스 만들기',
+                            onClick: handleCreateNewCanvas,
+                            isAddButton: true
+                        }] : [])
+                    ]}
                     options={OPTIONS}
                 />
             </div>
