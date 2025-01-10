@@ -1,5 +1,5 @@
 export const cardData = [
-    { imageUrl: "public/MockImage/1_가족그림.png", title: "가족그림" },
+    { imageUrl: "public/MockImage/1_바나나.png", title: "가족그림" },
     { imageUrl: "public/MockImage/2_호랑이.png", title: "호랑이" },
     { imageUrl: "public/MockImage/3_엄마.png", title: "엄마" },
     { imageUrl: "public/MockImage/4_엄마와아빠.png", title: "엄마와 아빠" },
