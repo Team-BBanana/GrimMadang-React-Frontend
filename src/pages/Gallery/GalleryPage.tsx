@@ -78,7 +78,7 @@ const GalleryPage = () => {
         };
 
         fetchWelcomeFlow();
-    }, [elderinfo]);
+    }, []);
 
     const playAudio = () => {
         if (audioUrl) {
