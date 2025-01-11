@@ -21,7 +21,7 @@ const CanvasSection = ({  onUpload, canvasRef, onChange, feedbackData}: CanvasSe
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });
   const [step, setStep] = useState(1);
-  const [isPanelVisible, setIsPanelVisible] = useState(true);
+  const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [brushWidth, setBrushWidth] = useState(10);
 
   const [imageData, setImageData] = useState<any>(null);

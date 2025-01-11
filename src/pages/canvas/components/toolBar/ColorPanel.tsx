@@ -1,8 +1,9 @@
 import { fabric } from "fabric";
 import { useEffect, useState } from "react";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useAtom } from "jotai";
 import { HexColorPicker } from "react-colorful";
 import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
+import colorAtom from "@/store/atoms/canvas/colorAtom";
 
 interface ColorPanelProps {
   className: string;
@@ -10,7 +11,7 @@ interface ColorPanelProps {
 
 function ColorPanel({ className }: ColorPanelProps) {
   const canvas = useAtomValue(canvasInstanceAtom);
-  const [color, setColor] = useState("#000000");
+  const [color, setColor] = useAtom(colorAtom);
 
   useEffect(() => {
     if (!(canvas instanceof fabric.Canvas)) return;

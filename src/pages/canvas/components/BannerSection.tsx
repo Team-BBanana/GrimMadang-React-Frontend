@@ -23,7 +23,6 @@ function BannerSection({ onSave, step }: BannerSectionProps) {
         }
       };
     
-
     return (
         <div className={style.bannerSection}>
             <ColorPanel className={style.colorPanel} />
@@ -33,8 +32,7 @@ function BannerSection({ onSave, step }: BannerSectionProps) {
                     onChange={handleBrushWidthChange}
                 />
             </div>
-            <Toolbar/>
-            
+            <Toolbar brushWidth={brushWidth}/>
             <button className={style.stepButton} onClick={onSave}>
                 {step === 1 ? "첫 번째 단계 완료하기" : 
                  step === 2 ? "두 번째 단계 완료하기" : 
