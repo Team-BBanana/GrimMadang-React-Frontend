@@ -29,6 +29,7 @@
     transition: transform 0.3s ease;
     animation: pulse 1.5s infinite;
     background-color: #284e3a;
+    padding: 15px;
 }
 
 .speechButton:hover svg path {
