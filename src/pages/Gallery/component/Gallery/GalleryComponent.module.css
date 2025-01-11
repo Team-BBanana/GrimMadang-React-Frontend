@@ -16,6 +16,7 @@
     font-weight: 700;
     color: #a8d5ba;
     letter-spacing: 5px;
+    margin-bottom: 0px;
 }
 
 .carouselContainer {
@@ -29,10 +30,9 @@
 .explaination {
     font-size: 1.8rem;
     color: #a8d5ba;
-    animation: float 2s ease-in-out infinite;
-    background-color: rgba(0, 0, 0, 0.3);
-    padding: 0px 80px;
-    border-radius: 50px;
     text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.explaination p {
+    margin: 10px;
 }

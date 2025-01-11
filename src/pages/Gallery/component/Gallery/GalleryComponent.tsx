@@ -3,7 +3,6 @@ import style from "./GalleryComponent.module.css";
 import { cardData } from "../Card/cardData";
 import Carousel from '../Card/carousel/Carousel';
 import { EmblaOptionsType } from 'embla-carousel'
-import { useUserRole } from "@/hooks/UserContext";
 
 interface ElderInfo {
     elderId: string | null;
@@ -21,18 +20,19 @@ interface GalleryComponentProps {
 
 const GalleryComponent: React.FC<GalleryComponentProps> = ({ elderinfo }) => {
     const navigate = useNavigate();
-    const { userRole } = useUserRole();
     
     const handleCreateNewCanvas = () => {
       navigate('/canvas', { state: { createNew: true } });
     };
-
 
     const OPTIONS: EmblaOptionsType = {loop: true};
 
     return (
         <div className={style.container}>
             <h1 className={style.title}>{elderinfo?.name} 님의 그림 전시회</h1>
+            <div className={style.explaination}>
+                <p>그림을 눌러 가족들의 응원 한마디를 확인해보세요!</p>
+            </div>
             <div className={style.carouselContainer}>
                 <Carousel
                     slides={[
@@ -40,7 +40,7 @@ const GalleryComponent: React.FC<GalleryComponentProps> = ({ elderinfo }) => {
                             ...card,
                             onClick: () => navigate(`/gallery/${index + 1}`)
                         })),
-                        ...(userRole === 'ROLE_ELDER' ? [{
+                        ...(elderinfo?.role === 'ROLE_ELDER' ? [{
                             imageUrl: '',
                             title: '새 캔버스 만들기',
                             onClick: handleCreateNewCanvas,
@@ -50,9 +50,7 @@ const GalleryComponent: React.FC<GalleryComponentProps> = ({ elderinfo }) => {
                     options={OPTIONS}
                 />
             </div>
-            <div className={style.explaination}>
-                <p>그림을 눌러 가족들의 응원 한마디를 확인해보세요!</p>
-            </div>
+            
         </div>
     );
 };

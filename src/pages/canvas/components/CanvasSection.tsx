@@ -17,7 +17,7 @@ interface CanvasSectionProps {
 const CanvasSection = ({  onUpload, canvasRef, onChange, feedbackData}: CanvasSectionProps) => {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [canvas, setCanvas] = useAtom(canvasInstanceAtom);
-  const [isDragging, setIsDragging] = useState(false);
+  const [isDragging, setIsDragging] = useState(true);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });
   const [step, setStep] = useState(1);
