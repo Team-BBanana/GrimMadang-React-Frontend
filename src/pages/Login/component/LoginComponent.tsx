@@ -3,9 +3,10 @@ import style from './LoginComponent.module.css';
 import Input from '@/components/InputBox/InputBox.tsx';
 import Button from '@/components/Button/Button.tsx';
 import LogoImage from '@/assets/imgs/logo.svg';
+import RoleSelectionModal from './RoleSelectionModal';
 
 interface LoginFormData {
-    name: string;
+    username: string;
     phoneNumber: string;
 }
 
@@ -17,9 +18,10 @@ interface LoginProps {
 
 const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit }) => {
     const [formData, setFormData] = useState<LoginFormData>({
-        name: '',
+        username: '',
         phoneNumber: '',
     });
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -31,6 +33,14 @@ const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit
         onClickSubmit(formData);
     };
 
+    const handleOpenModal = () => {
+        setIsModalVisible(true);
+    };
+
+    const handleSelectRole = (role: 'ROLE_FAMILY' | 'ROLE_ELDER', phoneNumber: string) => {
+        setIsModalVisible(false);
+    };
+
     return (
         <div className={style.content}>
             <img src={LogoImage} className={style.MindinCanvasImage} alt="artGround" />
@@ -40,10 +50,10 @@ const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit
                     <form onSubmit={handleSubmit}>
                         <Input
                             type="text"
-                            id="name"
-                            name="name"
+                            id="username"
+                            name="username"
                             placeholder="이름"
-                            value={formData.name}
+                            value={formData.username}
                             onChange={handleChange}
                             required
                         />
@@ -64,7 +74,7 @@ const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit
                         <div>
                             <div className={style.buttonContainer}>
                                 <Button type="submit" className={style.loginButton}>
-                                    로그인
+                                    그림 그리기
                                 </Button>
                             </div>
 
@@ -74,15 +84,19 @@ const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit
                             <div className={style.signupContainer}>
                                 <span
                                     className={style.loginFamily}
-                                    onClick={() => onClickSubmit({ name: formData.name, phoneNumber: formData.phoneNumber })}
+                                    onClick={handleOpenModal}
                                 >
-                                    우리 가족의 그림을 보러 왔어요!
+                                    <a>우리 가족의 그림을 보러 왔어요!</a>
                                 </span>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
+
+            {isModalVisible && (
+                <RoleSelectionModal onSelect={handleSelectRole} />
+            )}
         </div>
     );
 };

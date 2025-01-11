@@ -12,10 +12,6 @@ const Header = () => {
             <div className={style.logoContainer}>
                 <img src={logo} alt="logo" className={style.logo} onClick={() => navigate('/')} /> {/* 동적으로 로고 렌더링 */}
             </div>
-
-            <div className={style.buttonGroup}>
-                {button}
-            </div>
         </header>
     );
 };

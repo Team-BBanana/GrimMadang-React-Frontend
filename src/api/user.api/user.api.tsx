@@ -9,8 +9,8 @@ interface ApiResponse<T = unknown> {
 
 // 사용자 데이터 타입 정의
 interface UserData {
-    name?: string;
-    phoneNumber?: string;
+    username: string;
+    phoneNumber: string;
 }
 
 export async function getUserInfo(): Promise<ApiResponse> {
@@ -50,15 +50,12 @@ export async function refreshToken(data: UserData): Promise<ApiResponse> {
 }
 
 // 회원 가입
-export async function signupUser(data: UserData): Promise<ApiResponse> {
-    const url = `/users/signup`;
+export async function signupElder(data: UserData): Promise<ApiResponse> {
 
-    const requestData = {
-        name: data.name,
-        phoneNumber: data.phoneNumber,
-    };
+    const url = `/api/users/register/elder`;
+    console.log('dataㅇㄹ호ㅎㄹㅇㄹㅎㄹㅇ:', data);
 
-    return await CanvasClient.post(url, JSON.stringify(requestData), {
+    return await CanvasClient.post(url, JSON.stringify(data), {
         method: "POST",
         headers: {
             "Content-Type": "application/json", // JSON 요청임을 명시
@@ -71,7 +68,7 @@ export async function getElderInfo(): Promise<ApiResponse> {
     const url = `/api/users/getelderinfo`;
 
     return await CanvasClient.get(url);
-    
+
 }
 
 
@@ -80,7 +77,7 @@ const userAPI = {
     loginElder,
     logoutUser,
     refreshToken,
-    signupUser,
+    signupElder,
     getElderInfo
 };
 

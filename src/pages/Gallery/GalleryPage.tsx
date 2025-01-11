@@ -25,17 +25,18 @@ interface ElderInfo {
 }
 
 const GalleryPage = () => {
-    const { userRole } = useUserRole();
+    const [userRole, setUserRole] = useState<string | null>(null);
     const [audioUrl, setAudioUrl] = useState<string | undefined>(undefined);
     const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
 
     useEffect(() => {
-
+        //role 
         const fetchElderName = async () => {
             try {
                 const response = await API.userApi.getElderInfo();
                 if (response.status === 200) {
                     const elderData = response.data as ElderInfo;
+                    setUserRole(elderData.role);
                     setElderinfo(elderData);
                 }
             } catch (error) {

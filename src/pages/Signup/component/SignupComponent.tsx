@@ -2,7 +2,6 @@ import React, { ChangeEvent, FormEvent, useRef, useState } from "react";
 import Input from "@/components/InputBox/InputBox";
 import style from "./SignupComponent.module.css"; 
 import Button from "@/components/Button/Button";
-import RoleSelectionModal from "./RoleSelectionModal";
 
 interface SignupFormData {
     name: string;
@@ -63,7 +62,6 @@ const SignupComponent: React.FC<SignupProps> = ({ errormsg, success, onClickSubm
 
     return (
         <div className={style.container}>
-            {showModal && <RoleSelectionModal onSelect={handleRoleSelect} />}
             <div className={style.content}>
                 <form onSubmit={handleSubmit} className={style.formContainer}>
                     <h1>회원가입</h1>
