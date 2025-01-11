@@ -6,9 +6,10 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 interface SpeechButtonProps {
     onTranscriptComplete: (transcript: string) => void;
     onAudioComplete?: (audioBlob: Blob) => void;
+    onCloseTutorial: () => void;
 }
 
-const SpeechButton = ({ onTranscriptComplete, onAudioComplete }: SpeechButtonProps) => {
+const SpeechButton = ({ onTranscriptComplete, onAudioComplete, onCloseTutorial }: SpeechButtonProps) => {
     const [isListening, setIsListening] = useState(false);
     const mediaRecorder = useRef<MediaRecorder | null>(null);
     const audioChunks = useRef<Blob[]>([]);
@@ -54,6 +55,7 @@ const SpeechButton = ({ onTranscriptComplete, onAudioComplete }: SpeechButtonPro
             await startRecording();
             console.log("startListening");
             SpeechRecognition.startListening({ continuous: true, language: 'ko-KR' });
+            onCloseTutorial();
         } catch (error) {
             console.error('Error starting recording:', error);
             setIsListening(false);
@@ -114,7 +116,8 @@ const SpeechButton = ({ onTranscriptComplete, onAudioComplete }: SpeechButtonPro
     }
 
     return (
-        <div>
+        <div className={style.container}>
+            {/* <p className={style.guide}>마이크를 눌러 인사해주세요</p> */}
             <Button 
                 type="button" 
                 className={`${style.speechButton} ${isListening ? style.listening : ''}`}
@@ -125,13 +128,6 @@ const SpeechButton = ({ onTranscriptComplete, onAudioComplete }: SpeechButtonPro
                     <path d="M73.7,60.7v-6.6h13.7v-8.6H73.7V39h13.7v-8.6H73.7v-6.6h13.6C86.9,12.7,77.8,3.7,66.6,3.7h-4.2c-11.2,0-20.3,9-20.6,20.1h13.1v6.6H41.7V39h13.2v6.6H41.7v8.6h13.2v6.6H41.7v0.6C41.7,72.7,51,82,62.4,82h4.2c11.4,0,20.7-9.3,20.7-20.7v-0.6H73.7z"/>
                 </svg>
             </Button>
-
-            {/* {audioBlob && (
-                <audio controls>
-                    <source src={URL.createObjectURL(audioBlob)} type="audio/wav" />
-                    Your browser does not support the audio element.
-                </audio>
-            )} */}
         </div>
     );
 };

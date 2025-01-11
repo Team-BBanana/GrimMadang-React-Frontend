@@ -1,11 +1,11 @@
 import SpeechButton from "./component/SpeechButton/SpeechButton";
 import API from "@/api";
-import { useUserRole } from '@/hooks/UserContext';
 import { useEffect, useState } from 'react';
 
 import './component/Card/carousel/module/embla.css'
 import './component/Card/carousel/module/base.css'
 import GalleryComponent from "./component/Gallery/GalleryComponent";
+import Tutorial from "./component/Tutorial/Tutorial";
 
 interface WelcomeFlowData {
     sessionId: string;
@@ -28,6 +28,7 @@ const GalleryPage = () => {
     const [userRole, setUserRole] = useState<string | null>(null);
     const [audioUrl, setAudioUrl] = useState<string | undefined>(undefined);
     const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
+    const [showTutorial, setShowTutorial] = useState(false);
 
     useEffect(() => {
         //role 
@@ -38,6 +39,12 @@ const GalleryPage = () => {
                     const elderData = response.data as ElderInfo;
                     setUserRole(elderData.role);
                     setElderinfo(elderData);
+                    
+                    // ROLE_ELDER이고 현재 세션에서 첫 방문인 경우에만 튜토리얼 표시
+                    if (elderData.role === 'ROLE_ELDER' && !document.cookie.includes('tutorialShown=true')) {
+                        setShowTutorial(true);
+                        document.cookie = 'tutorialShown=true; path=/; max-age=3600';
+                    }
                 }
             } catch (error) {
                 console.error('getElderName 실패:', error);
@@ -110,12 +117,16 @@ const GalleryPage = () => {
         <>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                 <GalleryComponent elderinfo={elderinfo} />
-                {userRole === 'ROLE_ELDER' && (
-                    <>
-                        <SpeechButton onTranscriptComplete={handleTranscriptComplete} />
-                    </>
+                {elderinfo?.role === 'ROLE_ELDER' && (
+                    <SpeechButton 
+                        onTranscriptComplete={handleTranscriptComplete} 
+                        onCloseTutorial={() => setShowTutorial(false)}
+                    />
                 )}
             </div>
+            {showTutorial && elderinfo?.role === 'ROLE_ELDER' && (
+                <Tutorial onClose={() => setShowTutorial(false)} />
+            )}
         </>
     );
 }

@@ -1,10 +1,10 @@
 import EraserCursor from "@/assets/svgs/eraserMouseCursor.svg";
+import { BrushIcon, EraserIcon, SelectIcon, MoveIcon } from '@/components/icons';
 
 import { fabric } from "fabric";
 import { useEffect, useCallback } from "react";
 
 import ToolButton from "@/pages/canvas/components/toolBar/ToolButton";
-import { IconBrush, IconEraser, IconSelect, IconArrowsMove } from '@tabler/icons-react';
 
 import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
 import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
@@ -134,46 +134,39 @@ const Toolbar = () => {
         <div className={style.toolSet}>
           <div className={style.toolButton}>
             <ToolButton
-                onClick={() => {
-                  setActiveTool("pen");
-                }}
+                onClick={() => setActiveTool("pen")}
                 disabled={activeTool === "pen"}
                 title="Pen Tool"
-            ><IconBrush/>
-            <span className={style.toolTitle}>그리기</span>
+            >
+                <BrushIcon />
+                <span className={style.toolTitle}>그리기</span>
             </ToolButton>
 
             <ToolButton
-                onClick={() => {
-                  setActiveTool("eraser");
-                }}
+                onClick={() => setActiveTool("eraser")}
                 disabled={activeTool === "eraser"}
                 title="Eraser Tool"
             >
-            <IconEraser/>
-            <span className={style.toolTitle}>지우개</span>
+                <EraserIcon />
+                <span className={style.toolTitle}>지우개</span>
             </ToolButton>
 
             <ToolButton
-                onClick={() => {
-                  setActiveTool("select");
-                }}
+                onClick={() => setActiveTool("select")}
                 disabled={activeTool === "select"}
                 title="Select Tool"
             >
-            <IconSelect/>
-            <span className={style.toolTitle}>선택하기</span>
+                <SelectIcon />
+                <span className={style.toolTitle}>선택하기</span>
             </ToolButton>
 
             <ToolButton
-                onClick={() => {
-                  setActiveTool("hand");
-                }}
+                onClick={() => setActiveTool("hand")}
                 disabled={activeTool === "hand"}
                 title="Hand Tool"
             >
-            <IconArrowsMove/>
-            <span className={style.toolTitle}>움직이기</span>
+                <MoveIcon />
+                <span className={style.toolTitle}>움직이기</span>
             </ToolButton>
           </div>
         </div>
