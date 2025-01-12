@@ -14,7 +14,7 @@ import DisplayPage from './pages/Display/DisplayPage.tsx';
 
 function AppContent() {
   const location = useLocation(); 
-  const fullBrowserRoutes = ['/canvas', '/gallery', '/gallery/*']; 
+  const fullBrowserRoutes = ['/', '/canvas', '/gallery', '/gallery/*']; 
   const isFullBrowserRoutes = fullBrowserRoutes.some(route => 
       location.pathname === route || 
       (route.endsWith('*') && location.pathname.startsWith(route.slice(0, -1)))
