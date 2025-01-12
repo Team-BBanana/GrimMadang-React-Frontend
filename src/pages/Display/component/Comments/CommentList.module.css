@@ -1,0 +1,86 @@
+.carouselContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.commentCarousel {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* 화살표 스타일 */
+.prevArrow,
+.nextArrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    background: none;
+    border: none;
+    color: #a8d5ba;
+    cursor: pointer;
+    padding: 8px;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.prevArrow {
+    left: -150px;
+}
+
+.nextArrow {
+    right: -150px;
+}
+
+/* 슬라이더 컨테이너 스타일 */
+.slider {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.slideWrapper {
+    padding: 0 20px;
+}
+
+/* Slick 기본 스타일 커스터마이징 */
+:global(.slick-slider) {
+    width: 100%;
+    position: relative;
+    margin: 0;
+}
+
+:global(.slick-list) {
+    margin: 0 auto;
+    height: 100%;
+}
+
+:global(.slick-track) {
+    display: flex;
+    align-items: center;
+}
+
+:global(.slick-dots) {
+    bottom: -25px;
+}
+
+:global(.slick-dots li button:before) {
+    color: #a8d5ba;
+    opacity: 0.3;
+    font-size: 12px;
+}
+
+:global(.slick-dots li.slick-active button:before) {
+    color: #a8d5ba;
+    opacity: 1;
+} 

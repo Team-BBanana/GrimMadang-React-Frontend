@@ -1,6 +1,7 @@
 .inputBoxContainer {
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
 .inputBox {
@@ -17,6 +18,5 @@
 .inputBox:focus {
     border-color: #2D2D2D;
     outline: none;
-    background-color: #f0f0f0;
 }
 

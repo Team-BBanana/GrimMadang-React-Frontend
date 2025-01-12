@@ -6,13 +6,6 @@
     padding: 20px;
 }
 
-.title {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 20px;
-}
-
 .content {
     width: 100%;
     max-width: 800px; /* 최대 너비 설정 */

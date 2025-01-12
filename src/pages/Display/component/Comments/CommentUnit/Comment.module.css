@@ -1,77 +1,56 @@
 .wrapper {
     display: flex;
-    align-items: flex-start;
-    padding: 12px 16px;
-    margin-bottom: 8px;
-    background-color: #ffffff;
+    gap: 16px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.4);
     border-radius: 12px;
-    width: 100%;
-    box-shadow: none;
-    border: 1px solid #efefef;
-    transition: background-color 0.2s ease;
-    box-sizing: border-box;
+    transition: background 0.2s ease;
+    height: 100%;
 }
 
 .wrapper:hover {
-    background-color: #fafafa;
-}
-
-.commentList {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    overflow-y: auto;
-    height: 100%;
-    box-sizing: border-box;
-}
-
-.ElderCommentList {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    overflow-y: auto;
-    height: calc(100% - 50px);  /* 뷰포트 높이에서 여유 공간 확보 */
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .imageContainer {
-    margin-right: 12px;
+    flex-shrink: 0;
 }
 
 .image {
-    width: 32px;
-    height: 32px;
+    width: 50px;
+    height: 50px;
+    background-color: #ffffff;
+    padding: 5px;   
     border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid #efefef;
+    object-fit: contain;
+    border: 2px solid rgba(168, 213, 186, 0.3);
 }
 
 .contentContainer {
     display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-.headerContainer {
-    display: flex;
+    align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: 16px;
+    width: 100%;
+    position: relative;
 }
 
 .nameText {
-    font-size: 0.9rem;
+    font-size: 3rem;
     font-weight: 600;
-    color: #262626;
+    color: #a8d5ba;
+    margin-right: 16px;
 }
 
 .commentText {
-    font-size: 0.9rem;
-    color: #262626;
-    line-height: 1.5;
+    font-size: 3rem;
+    color: #ffffff;
+    line-height: 1.6;
+    word-break: break-word;
+    flex-grow: 1;
 }
 
 .dateText {
-    font-size: 0.8em;
-    color: #888;
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.6);
 }
