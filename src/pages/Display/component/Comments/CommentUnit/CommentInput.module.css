@@ -7,30 +7,42 @@
     box-sizing: border-box;
     position: sticky;
     bottom: 0;
-    background-color: white;
+    background-color: transparent;
     padding: 15px 0px;
-    border-top: 1px solid #efefef;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: auto;
 }
 
 .inputWrapper input {
     width: 100%;
     padding: 8px 12px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 20px;
     font-size: 14px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.inputWrapper input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .commentButton {
-    background-color: #68a85c;
-    color: white;
+    background-color: #a8d5ba;
+    color: #022216;
     border: none;
     border-radius: 20px;
     padding: 8px 16px;
     font-size: 12px;
     white-space: nowrap;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
 }
 
-/* 반응형 디자인 */
+.commentButton:hover {
+    background-color: #8fc3a3;
+}
+
 @media (max-width: 768px) {
     .inputWrapper {
         padding: 8px;
