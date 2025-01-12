@@ -10,7 +10,7 @@ import Tutorial from "./component/Tutorial/Tutorial";
 interface WelcomeFlowData {
     sessionId: string;
     name: string;
-    userRequestWavWelcome: string;
+    userRequestWelcomeWav: string;
     attendanceTotal: number;
     attendanceStreak: number;
 }
@@ -28,17 +28,18 @@ const GalleryPage = () => {
     const [userRole, setUserRole] = useState<string | null>(null);
     const [audioUrl, setAudioUrl] = useState<string | undefined>(undefined);
     const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
-    const [showTutorial, setShowTutorial] = useState(false);
+    const [showTutorial, setShowTutorial] = useState(true);
 
     useEffect(() => {
-        //role 
+        // Fetch elder information and set user role
         const fetchElderName = async () => {
             try {
                 const response = await API.userApi.getElderInfo();
                 if (response.status === 200) {
                     const elderData = response.data as ElderInfo;
-                    setUserRole(elderData.role);
+                    console.log('elderData:', elderData);
                     setElderinfo(elderData);
+                    setUserRole(elderData.role);
                     
                     // ROLE_ELDER이고 현재 세션에서 첫 방문인 경우에만 튜토리얼 표시
                     if (elderData.role === 'ROLE_ELDER' && !document.cookie.includes('tutorialShown=true')) {
@@ -52,40 +53,46 @@ const GalleryPage = () => {
         };
 
         fetchElderName();
-
-        const fetchWelcomeFlow = async () => {
-            if (!elderinfo) return;
-
-            try {
-                const data: WelcomeFlowData = {
-                    sessionId: elderinfo.elderId,
-                    name: elderinfo.name,
-                    userRequestWavWelcome: "first",
-                    attendanceTotal: elderinfo.attendance_total,
-                    attendanceStreak: elderinfo.attendance_streak
-                };
-                const response = await API.canvasApi.welcomeFlow(data);
-                console.log('Welcome flow response:', response.data);
-
-                const audioData = response.data.data.aiResponseWelcomeWav.data;
-                console.log('audioData:', audioData);
-
-                if (audioData) {
-                    const audioBlob = new Blob([new Uint8Array(audioData)], { type: 'audio/wav' });
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    console.log('Generated audio URL:', audioUrl);
-
-                    setAudioUrl(audioUrl);
-                } else {
-                    console.error('audioData가 정의되지 않았거나 응답에 없습니다.');
-                }
-            } catch (error) {
-                console.error('환영 흐름 중 오류 발생:', error);
-            }
-        };
-
-        fetchWelcomeFlow();
     }, []);
+
+    useEffect(() => {
+        // Call fetchWelcomeFlow when elderinfo is set
+        if (elderinfo) {
+            console.log('elderinfo:', elderinfo.elderId);
+            fetchWelcomeFlow();
+        }
+    }, [elderinfo]); // Dependency array includes elderinfo
+
+    const fetchWelcomeFlow = async () => {
+        if (!elderinfo) return;
+
+        try {
+            const data: WelcomeFlowData = {
+                sessionId: elderinfo.elderId,
+                name: elderinfo.name,
+                userRequestWelcomeWav: "first",
+                attendanceTotal: elderinfo.attendance_total,
+                attendanceStreak: elderinfo.attendance_streak
+            };
+            const response = await API.canvasApi.welcomeFlow(data);
+            console.log('Welcome flow response:', response.data);
+
+            const audioData = response.data.data.aiResponseWelcomeWav.data;
+            console.log('audioData:', audioData);
+
+            if (audioData) {
+                const audioBlob = new Blob([new Uint8Array(audioData)], { type: 'audio/wav' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                console.log('Generated audio URL:', audioUrl);
+
+                setAudioUrl(audioUrl);
+            } else {
+                console.error('audioData가 정의되지 않았거나 응답에 없습니다.');
+            }
+        } catch (error) {
+            console.error('환영 흐름 중 오류 발생:', error);
+        }
+    };
 
     const playAudio = () => {
         if (audioUrl) {
@@ -125,7 +132,7 @@ const GalleryPage = () => {
                 )}
             </div>
             {showTutorial && elderinfo?.role === 'ROLE_ELDER' && (
-                <Tutorial onClose={() => setShowTutorial(false)} />
+                <Tutorial onClose={() => setShowTutorial(true)} />
             )}
         </>
     );

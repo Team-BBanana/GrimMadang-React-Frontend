@@ -3,7 +3,7 @@ import { CanvasClient, AIClient } from '..';
 interface WelcomeFlowData {
     sessionId: string;
     name: string;
-    userRequestWavWelcome: string;
+    userRequestWelcomeWav: string;
     attendanceTotal: number;
     attendanceStreak: number;
 }
