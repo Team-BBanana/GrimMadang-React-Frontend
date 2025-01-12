@@ -1,23 +1,22 @@
 import React, { useState } from 'react';
 import style from './DisplayComponent.module.css';
-import FamilyCommentList from './Comments/FamilyCommentList';
-import ElderCommentList from './Comments/ElderCommentList';
-import { useUserRole } from '@/hooks/UserContext';
 
+import CommentList from './Comments/CommentList';
 interface DisplayComponentProps {
     title: string;
     imageUrl: string;
     createdTime: string;
     aiComment: string;
+    userRole?: string;
 }
 
 const DisplayComponent: React.FC<DisplayComponentProps> = ({ 
     title, 
     imageUrl, 
     createdTime, 
-    aiComment 
+    aiComment,
+    userRole = 'ROLE_FAMILY'
 }) => {
-    const { userRole } = useUserRole();
     const [commentCount, setCommentCount] = useState<number>(0);
 
     const handleCommentCountUpdate = (count: number) => {
@@ -51,12 +50,7 @@ const DisplayComponent: React.FC<DisplayComponentProps> = ({
                     </div>
                 </div>
                 <div className={style.bottomSection}>
-                    {userRole === 'ROLE_FAMILY' ? 
-                        <FamilyCommentList onCommentCountUpdate={handleCommentCountUpdate} /> : 
-                        null}
-                    {userRole === 'ROLE_ELDER' ? 
-                        <ElderCommentList onCommentCountUpdate={handleCommentCountUpdate} /> : 
-                        null}
+                    <CommentList onCommentCountUpdate={handleCommentCountUpdate} userRole={userRole} />
                 </div>
             </div>
         </div>

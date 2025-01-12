@@ -1,143 +1,56 @@
-.carouselContainer {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    gap: 20px;
-}
-
-.commentCarousel {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    height: 100%;
-    padding: 0 10px;
-}
-
-.commentsWrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    height: 100%;
-}
-
-.carouselButton {
-    background: none;
-    border: none;
-    color: #a8d5ba;
-    cursor: pointer;
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s ease;
-}
-
-.carouselButton:hover {
-    color: #8fc3a3;
-}
-
-.carouselButton svg {
-    width: 24px;
-    height: 24px;
-}
-
 .wrapper {
     display: flex;
-    align-items: flex-start;
+    gap: 16px;
     padding: 16px;
-    background-color: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.4);
     border-radius: 12px;
-    width: 100%;
-    box-shadow: none;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-    height: calc(100% / 3 - 8px);
+    transition: background 0.2s ease;
+    height: 100%;
 }
 
 .wrapper:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-}
-
-.commentList {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    overflow-y: auto;
-    height: calc(100vh - 300px);
-    box-sizing: border-box;
-    padding-right: 10px;
-}
-
-.ElderCommentList {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    overflow-y: auto;
-    height: calc(100vh - 300px);
-    box-sizing: border-box;
-    padding-right: 10px;
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .imageContainer {
-    margin-right: 12px;
+    flex-shrink: 0;
 }
 
 .image {
-    width: 32px;
-    height: 32px;
+    width: 50px;
+    height: 50px;
+    background-color: #ffffff;
+    padding: 5px;   
     border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    object-fit: contain;
+    border: 2px solid rgba(168, 213, 186, 0.3);
 }
 
 .contentContainer {
     display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-.headerContainer {
-    display: flex;
+    align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: 16px;
+    width: 100%;
+    position: relative;
 }
 
 .nameText {
-    font-size: 0.9rem;
+    font-size: 3rem;
     font-weight: 600;
     color: #a8d5ba;
+    margin-right: 16px;
 }
 
 .commentText {
-    font-size: 0.9rem;
+    font-size: 3rem;
     color: #ffffff;
-    line-height: 1.5;
+    line-height: 1.6;
+    word-break: break-word;
+    flex-grow: 1;
 }
 
 .dateText {
-    font-size: 0.8em;
+    font-size: 3rem;
     color: rgba(255, 255, 255, 0.6);
-}
-
-/* 스크롤바 스타일링 */
-.commentList::-webkit-scrollbar,
-.ElderCommentList::-webkit-scrollbar {
-    width: 6px;
-}
-
-.commentList::-webkit-scrollbar-track,
-.ElderCommentList::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-}
-
-.commentList::-webkit-scrollbar-thumb,
-.ElderCommentList::-webkit-scrollbar-thumb {
-    background: rgba(168, 213, 186, 0.5);
-    border-radius: 3px;
 }
