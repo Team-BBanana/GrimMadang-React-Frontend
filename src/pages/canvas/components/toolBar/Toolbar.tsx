@@ -1,7 +1,7 @@
-import EraserCursor from "@/assets/svgs/eraserMouseCursor.svg";
-import { BrushIcon, EraserIcon, SelectIcon, MoveIcon } from '@/components/icons';
+import { BrushIcon, EraserIcon, SelectIcon, MoveIcon, FillIcon } from '@/components/icons';
 
 import { fabric } from "fabric";
+import "fabric-eraser-brush";
 import { useEffect, useCallback } from "react";
 
 import ToolButton from "@/pages/canvas/components/toolBar/ToolButton";
@@ -9,12 +9,18 @@ import ToolButton from "@/pages/canvas/components/toolBar/ToolButton";
 import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
 import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
 import { useAtom, useAtomValue } from "jotai";
+import colorAtom from "@/store/atoms/canvas/colorAtom";
 
 import style from "./module/toolBar.module.css"
 
-const Toolbar = () => {
+interface ToolbarProps {
+  brushWidth: number;
+}
+
+const Toolbar = ({ brushWidth }: ToolbarProps) => {
   const [activeTool, setActiveTool] = useAtom(activeToolAtom);
   const canvas = useAtomValue(canvasInstanceAtom);
+  const fillColor = useAtomValue(colorAtom);
 
   /**
    * @description 화이트 보드에 그려져 있는 요소들을 클릭을 통해 선택 가능한지 여부를 제어하기 위한 함수입니다.
@@ -46,35 +52,52 @@ const Toolbar = () => {
 
   const handlePen = useCallback(() => {
     if (!(canvas instanceof fabric.Canvas)) return;
-
-    canvas.freeDrawingBrush.width = 10;
     canvas.isDrawingMode = true;
-  }, [canvas]);
+    canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+    canvas.freeDrawingBrush.width = brushWidth;
+    canvas.freeDrawingBrush.color = fillColor;
+    
+    canvas.freeDrawingCursor = `url('/brushCursor.svg'), auto`;
+
+  }, [canvas, fillColor, brushWidth]);
+
+  const handleFill = useCallback(() => {
+    if (!(canvas instanceof fabric.Canvas)) return;
+    canvas.defaultCursor = `url('/paintCursor.svg'), auto`;
+    canvas.freeDrawingCursor = `url('/paintCursor.svg'), auto`;
+
+    canvas.forEachObject((obj) => {
+        obj.hoverCursor = `url('/paintCursor.svg'), auto`;
+    });
+
+    canvas.on('object:added', (e) => {
+        if (e.target) {
+            e.target.hoverCursor = `url('/paintCursor.svg'), auto`;
+        }
+    });
+
+    const handleMouseDown = (event: fabric.IEvent<MouseEvent>) => {
+      const target = event.target;
+      if (target) {
+        target.set('fill', fillColor);
+        canvas.renderAll();
+      }
+    };
+
+    canvas.on("mouse:down", handleMouseDown);
+  }, [canvas, fillColor]);
 
   const handleEraser = useCallback(() => {
+
     if (!(canvas instanceof fabric.Canvas)) return;
-
+    canvas.freeDrawingCursor = `url('/eraserMouseCursor.svg'), auto`;
     setIsObjectSelectable(true);
-    canvas.selection = true;
 
-    canvas.defaultCursor = `url("${EraserCursor}"), auto`;
-
-    const handleMouseUp = (target: fabric.Object | undefined) => {
-      if (!target) return;
-      canvas.remove(target);
-    };
-
-    const handleSelectionCreated = (selected: fabric.Object[] | undefined) => {
-      if (activeTool === "eraser") {
-        selected?.forEach((object) => canvas.remove(object));
-      }
-      canvas.discardActiveObject().renderAll();
-    };
-
-    canvas.on("mouse:up", ({ target }) => handleMouseUp(target));
-
-    canvas.on("selection:created", ({ selected }) => handleSelectionCreated(selected));
-  }, [canvas, activeTool, setIsObjectSelectable]);
+    canvas.isDrawingMode = true;
+    canvas.freeDrawingBrush = new fabric.EraserBrush(canvas);
+    canvas.freeDrawingBrush.width = brushWidth;
+    
+  }, [canvas, setIsObjectSelectable, brushWidth]);
 
   const handleHand = useCallback(() => {
     if (!(canvas instanceof fabric.Canvas)) return;
@@ -117,7 +140,8 @@ const Toolbar = () => {
         handlePen();
         break;
 
-      case "stickyNote":
+      case "fill":
+        handleFill();
         break;
 
       case "eraser":
@@ -128,7 +152,7 @@ const Toolbar = () => {
         handleHand();
         break;
     }
-  }, [activeTool, canvas, handleEraser, handleHand, handlePen, handleSelect, resetCanvasOption]);
+  }, [activeTool, canvas, handleEraser, handleHand, handlePen, handleSelect, handleFill, resetCanvasOption]);
 
   return (
         <div className={style.toolSet}>
@@ -140,6 +164,15 @@ const Toolbar = () => {
             >
                 <BrushIcon />
                 <span className={style.toolTitle}>그리기</span>
+            </ToolButton>
+
+            <ToolButton
+                onClick={() => setActiveTool("fill")}
+                disabled={activeTool === "fill"}
+                title="Fill Tool"
+            >
+                <FillIcon />
+                <span className={style.toolTitle}>채우기</span>
             </ToolButton>
 
             <ToolButton

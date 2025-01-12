@@ -13,7 +13,7 @@ function BrushWidth({ brushWidth, onChange }: BrushWidthProps) {
 
     return (
         <div className={style.container}>
-            <label htmlFor="brushWidth" className={style.label}>붓 두께: {brushWidth}</label>
+            <label htmlFor="brushWidth" className={style.label}>두께: {brushWidth}</label>
             <input
                 id="brushWidth"
                 type="range"
