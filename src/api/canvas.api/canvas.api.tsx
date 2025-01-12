@@ -42,9 +42,9 @@ const createCanvas = async(data: {title: string}) => {
 }
 
 const exploreCanvas = async(data: exploreCanvasData) => {
-    const url = `/api/conversation/exploreCanvas`;
+    const url = `/api/topics/explore`;
 
-    return await CanvasClient.post(url,JSON.stringify(data),{
+    return await AIClient.post(url,JSON.stringify(data),{
         method: "POST",
         headers: {
             "Content-Type": "application/json", // JSON 요청임을 명시

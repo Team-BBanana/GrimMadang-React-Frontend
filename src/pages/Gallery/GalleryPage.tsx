@@ -10,7 +10,7 @@ import Tutorial from "./component/Tutorial/Tutorial";
 interface WelcomeFlowData {
     sessionId: string;
     name: string;
-    userRequestWelcomeWav: string | number[];
+    userRequestWelcomeWav: string;
     attendanceTotal: number;
     attendanceStreak: number;
 }
@@ -39,6 +39,7 @@ const GalleryPage = () => {
     const [showTutorial, setShowTutorial] = useState(false);
     const [timerStarted, setTimerStarted] = useState(false);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const [isExploreMode, setIsExploreMode] = useState(false);
 
     // 3분 타이머 함수
     const startThreeMinuteTimer = () => {
@@ -49,9 +50,9 @@ const GalleryPage = () => {
         setTimerStarted(true);
         timerRef.current = setTimeout(() => {
             console.log("3분이 경과했습니다.");
-            // 여기에 3분 후 실행할 로직 추가
-            // 예: 다음 프로세스로 이동
-        }, 3 * 60 * 1000); // 3분을 밀리초로 변환
+            setIsExploreMode(true);
+            handleExploreChat("", true);  // 타임아웃으로 인한 요청
+        }, 3 * 60 * 1000);
     };
 
     // 컴포넌트 언마운트 시 타이머 정리
@@ -134,40 +135,15 @@ const GalleryPage = () => {
         }
     };
 
-    
 
-    const handleTranscriptComplete = async (transcript: string) => {
-        console.log('음성 인식 결과:', transcript);
-
-        try {
-            const data = { transcript };
-            const response = await API.galleryApi.voiceChat(data);
-
-            if (response.status === 200) {
-                console.log('음성 채팅 성공:', response.data);
-            }
-        } catch (error) {
-            console.error('음성 채팅 중 오류 발생:', error);
-        }
-    };
-
-    const fetchVoiceChat = async (audioBlob: Blob) => {
-        if (!elderinfo) return;
+    const fetchVoiceChat = async (transcript: string) => {
+        if (!elderinfo || isExploreMode) return;
 
         try {
-            // WAV 형식으로 변환
-            const wavBlob = new Blob([audioBlob], { type: 'audio/wav' });
-            console.log('wavBlob:', wavBlob);
-
-            // Blob을 바이너리 데이터로 변환
-            const arrayBuffer = await wavBlob.arrayBuffer();
-            const binaryData = new Uint8Array(arrayBuffer);
-            console.log('binaryData:', binaryData);
-
             const data: WelcomeFlowData = {
                 sessionId: elderinfo.elderId || '',
                 name: elderinfo.name || '',
-                userRequestWelcomeWav: Array.from(binaryData),  // 바이너리 데이터를 배열로 변환하여 전송
+                userRequestWelcomeWav: transcript,
                 attendanceTotal: elderinfo.attendance_total || 0,
                 attendanceStreak: elderinfo.attendance_streak || 0
             };
@@ -186,6 +162,8 @@ const GalleryPage = () => {
 
                 if (response.data.data.choice) {
                     console.log("사용자가 그림 그리기를 원합니다.");
+                    setIsExploreMode(true);
+                    handleExploreChat(transcript, false);  // choice로 인한 요청
                 }
             }
         } catch (error) {
@@ -193,39 +171,51 @@ const GalleryPage = () => {
         }
     };
 
-    const handleTopicChat = async () => {
+    const handleExploreChat = async (transcript: string, isTimeout: boolean = false) => {
         if (!elderinfo) return;
 
         const data: exploreCanvasData = {
             sessionId: elderinfo.elderId || '',
             name: elderinfo.name || '',
             rejectedCount: 0,
-            userRequestExploreWav: "first",
-            isTimedOut: "false"
+            userRequestExploreWav: isExploreMode ? transcript : "first",
+            isTimedOut: isTimeout ? "true" : "false"
         };
 
         try {
             const response = await API.canvasApi.exploreCanvas(data);
+            console.log('Explore chat response:', response.data);
 
-            console.log('Topic chat response:', response.data);
+            const responseAudioData = response.data.aiResponseExploreWav.data;
+            
+            if (responseAudioData) {
+                const audioBlob = new Blob([new Uint8Array(responseAudioData)], { type: 'audio/wav' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                setAudioUrl(audioUrl);
+                await playAudioAndWait(audioUrl);
+            }
         } catch (error) {
-            console.error('Topic chat error:', error);
+            console.error('Explore chat error:', error);
         }
     };
 
-    
+    const handleTranscript = async (transcript: string) => {
+        if (isExploreMode) {
+            handleExploreChat(transcript, false);  // 일반적인 explore 모드 요청
+        } else {
+            fetchVoiceChat(transcript);
+        }
+    };
 
-    
     return (
         <>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                 <GalleryComponent elderinfo={elderinfo} />
                 {elderinfo?.role === 'ROLE_ELDER' && (
                     <SpeechButton 
-                        onTranscriptComplete={handleTranscriptComplete} 
+                        onTranscriptComplete={handleTranscript}
                         onCloseTutorial={() => setShowTutorial(false)}
                         onInitialClick={fetchWelcomeFlow}
-                        onAudioComplete={fetchVoiceChat}
                     />
                 )}
             </div>
