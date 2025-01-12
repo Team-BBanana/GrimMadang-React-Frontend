@@ -1,18 +1,18 @@
 import { CanvasClient, AIClient } from '..';
 
 interface WelcomeFlowData {
-    sessionId: string;
-    name: string;
-    userRequestWelcomeWav: string;
-    attendanceTotal: number;
-    attendanceStreak: number;
+    sessionId: string | undefined;
+    name: string | undefined;
+    userRequestWelcomeWav: string | number[];
+    attendanceTotal: number | undefined;
+    attendanceStreak: number | undefined;
 }
 
 interface exploreCanvasData {
     sessionId: string;
     name: string;
     rejectedCount: number;
-    userRequestWav: string;
+    userRequestExploreWav: string;
     isTimedOut: string;
 }
 
