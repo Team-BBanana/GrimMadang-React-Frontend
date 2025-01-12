@@ -1,6 +1,7 @@
 import SpeechButton from "./component/SpeechButton/SpeechButton";
 import API from "@/api";
 import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import './component/Card/carousel/module/embla.css'
 import './component/Card/carousel/module/base.css'
@@ -33,6 +34,7 @@ interface exploreCanvasData {
 }
 
 const GalleryPage = () => {
+    const navigate = useNavigate();
     const [userRole, setUserRole] = useState<string | null>(null);
     const [audioUrl, setAudioUrl] = useState<string | undefined>(undefined);
     const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
@@ -162,8 +164,13 @@ const GalleryPage = () => {
 
                 if (response.data.data.choice) {
                     console.log("사용자가 그림 그리기를 원합니다.");
-                    setIsExploreMode(true);
-                    handleExploreChat(transcript, false);  // choice로 인한 요청
+                    // setIsExploreMode(true);
+                    // handleExploreChat(transcript, false);  // choice로 인한 요청
+                    navigate('/canvas', { 
+                        state: { 
+                            topics: response.data.topics 
+                        }
+                    });
                 }
             }
         } catch (error) {
@@ -193,6 +200,17 @@ const GalleryPage = () => {
                 const audioUrl = URL.createObjectURL(audioBlob);
                 setAudioUrl(audioUrl);
                 await playAudioAndWait(audioUrl);
+            }
+
+            console.log("fdsfsdfsdfsad" + response.data.select);
+            console.log("fdsfsdfsdfsad" + response.data.topics);
+
+            if(response.data.select){
+                navigate('/canvas', { 
+                    state: { 
+                        topics: response.data.topics 
+                    }
+                });
             }
         } catch (error) {
             console.error('Explore chat error:', error);
