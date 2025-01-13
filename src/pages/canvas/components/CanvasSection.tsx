@@ -28,15 +28,15 @@ const ChevronIcon = () => (
     </svg>
 );
 
-const CanvasSection = ({ onUpload, canvasRef, onChange, feedbackData, onFinalSave }: CanvasSectionProps) => {
+const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSectionProps) => {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [canvas, setCanvas] = useAtom(canvasInstanceAtom);
   const [isDragging, setIsDragging] = useState(true);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [offset] = useState({ x: 0, y: 0 });
   const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });
   const [step, setStep] = useState(1);
   const [isPanelVisible, setIsPanelVisible] = useState(false);
-  const [brushWidth, setBrushWidth] = useState(10);
+  const [brushWidth] = useState(10);
 
   const [imageData, setImageData] = useState<any>(null);
   const [currentFeedback, setCurrentFeedback] = useState<any>(null);

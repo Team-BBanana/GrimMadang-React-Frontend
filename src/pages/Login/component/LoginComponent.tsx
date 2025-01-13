@@ -3,7 +3,6 @@ import style from './LoginComponent.module.css';
 import Input from '@/components/InputBox/InputBox.tsx';
 import Button from '@/components/Button/Button.tsx';
 import LogoImage from '@/assets/imgs/logo.svg';
-import RoleSelectionModal from './RoleSelectionModal';
 import Footer from '@/components/Footer/Footer';
 
 interface LoginFormData {
@@ -25,7 +24,34 @@ const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit
     
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+
+        if (name === 'phoneNumber') {
+            // 숫자만 추출
+            const numbers = value.replace(/[^0-9]/g, '');
+            
+            // 최대 11자리로 제한
+            const limitedNumbers = numbers.slice(0, 11);
+            
+            // 하이픈 추가
+            let formattedNumber = '';
+            if (limitedNumbers.length <= 3) {
+                formattedNumber = limitedNumbers;
+            } else if (limitedNumbers.length <= 7) {
+                formattedNumber = `${limitedNumbers.slice(0, 3)}-${limitedNumbers.slice(3)}`;
+            } else {
+                formattedNumber = `${limitedNumbers.slice(0, 3)}-${limitedNumbers.slice(3, 7)}-${limitedNumbers.slice(7)}`;
+            }
+            
+            setFormData(prev => ({
+                ...prev,
+                [name]: formattedNumber
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
     };
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
