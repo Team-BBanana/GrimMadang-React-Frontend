@@ -3,7 +3,11 @@ import Button from '@/components/Button/Button';
 import style from './CommentInput.module.css';
 import Input from '@/components/InputBox/InputBox';
 
-const CommentInput: React.FC = () => {
+interface CommentInputProps {
+    onSubmit: (comment: string) => void;
+}
+
+const CommentInput: React.FC<CommentInputProps> = ({ onSubmit }) => {
     const [comment, setComment] = useState<string>("");
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -11,9 +15,8 @@ const CommentInput: React.FC = () => {
     };
 
     const handleSubmit = () => {
-        console.log('등록하기:', comment);
-        // 입력 후 상태 초기화
-        setComment("");
+        onSubmit(comment);  // 부모 컴포넌트로 코멘트 전달
+        setComment("");     // 입력 후 상태 초기화
     };
 
     return (
@@ -29,6 +32,6 @@ const CommentInput: React.FC = () => {
             <Button type='button' onClick={handleSubmit} className={style.commentButton}>응원하기</Button>
         </div>
     );
-};  
+};
 
 export default CommentInput;

@@ -1,60 +1,94 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Slider from 'react-slick';
-import Comment from "./CommentUnit/Comment";
+import CommentItem from "./CommentUnit/Comment";
 import CommentInput from "./CommentUnit/CommentInput";
 import style from "./CommentList.module.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons';
 
-interface CommentListProps {
-  onCommentCountUpdate: (count: number) => void;
-  userRole: string;
+interface Comment {
+    id: string;
+    content: string;
+    createdAt: string;
+    user: {
+        id: string;
+        name: string;
+        role: string;
+    };
 }
 
-const CommentList = ({ onCommentCountUpdate, userRole }: CommentListProps) => {
-  const comments = [
+interface CommentListProps {
+    onCommentCountUpdate: (count: number) => void;
+    userRole: string;
+    onCommentSubmit: (comment: string) => void;
+    comments: Comment[];
+}
+
+const CommentList: React.FC<CommentListProps> = ({ 
+    onCommentCountUpdate, 
+    userRole,
+    onCommentSubmit,
+    comments 
+}) => {
+  const mockComments: Comment[] = [
     {
-      name: "딸",
-      role: "daughter",
-      comment: "정말 멋있는 그림이에요!",
-      date: "2023-10-15"
+      id: 'mock1',
+      user: {
+        id: '1',
+        name: "딸",
+        role: "daughter"
+      },
+      content: "정말 멋있는 그림이에요!",
+      createdAt: "2023-10-15"
     },
     {
-      name: "손자",
-      role: "grandSon",
-      comment: "호랑이 너무 무서워요",
-      date: "2023-10-15"
+      id: 'mock2',
+      user: {
+        id: '2',
+        name: "손자",
+        role: "grandSon"
+      },
+      content: "호랑이 너무 무서워요",
+      createdAt: "2023-10-15"
     },
     {
-      name: "아들",
-      role: "son",
-      comment: "따봉",
-      date: "2023-10-15"
+      id: 'mock3',
+      user: {
+        id: '3',
+        name: "아들",
+        role: "son"
+      },
+      content: "따봉",
+      createdAt: "2023-10-15"
     },
     {
-      name: "아들",
-      role: "son",
-      comment: "따봉",
-      date: "2023-10-15"
+      id: 'mock4',
+      user: {
+        id: '4',
+        name: "아들",
+        role: "son"
+      },
+      content: "따봉",
+      createdAt: "2023-10-15"
     },
     {
-      name: "아들",
-      role: "son",
-      comment: "짜앙",
-      date: "2023-10-15"
-    },
-    {
-      name: "아들",
-      role: "son",
-      comment: "짜앙",
-      date: "2023-10-15"
-    },
+      id: 'mock5',
+      user: {
+        id: '5',
+        name: "아들",
+        role: "son"
+      },
+      content: "짜앙",
+      createdAt: "2023-10-15"
+    }
   ];
 
-  React.useEffect(() => {
-    onCommentCountUpdate(comments.length);
-  }, [onCommentCountUpdate]);
+  const allComments = [...comments, ...mockComments];
+
+  useEffect(() => {
+    onCommentCountUpdate(allComments.length);
+  }, [allComments, onCommentCountUpdate]);
 
   const CustomPrevArrow = (props: any) => {
     const { onClick } = props;
@@ -92,16 +126,16 @@ const CommentList = ({ onCommentCountUpdate, userRole }: CommentListProps) => {
         <Slider {...settings}>
           {userRole === 'ROLE_FAMILY' && (
             <div className={style.slideWrapper}>
-              <CommentInput />
+              <CommentInput onSubmit={onCommentSubmit} />
             </div>
           )}
-          {comments.map((comment, index) => (
-            <div key={index} className={style.slideWrapper}>
-              <Comment
-                role={comment.role}
-                name={comment.name}
-                comment={comment.comment}
-                date={comment.date}
+          {allComments.map((comment) => (
+            <div key={comment.id} className={style.slideWrapper}>
+              <CommentItem
+                role={comment.user.role}
+                name={comment.user.name}
+                comment={comment.content}
+                date={comment.createdAt}
               />
             </div>
           ))}

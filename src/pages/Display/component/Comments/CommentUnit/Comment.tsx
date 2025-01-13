@@ -33,6 +33,11 @@ function Comment(props: CommentProps) {
         }
     };
 
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0];  // yyyy-mm-dd 형식으로 변환
+    };
+
     return (
         <div className={style.wrapper}>
             <div className={style.imageContainer}>
@@ -44,7 +49,7 @@ function Comment(props: CommentProps) {
                     <span className={style.nameText}>{props.name}</span>
                     <span className={style.commentText}>{props.comment}</span>
                 </div>
-                <span className={style.dateText}>{props.date}</span>
+                <span className={style.dateText}>{formatDate(props.date)}</span>
             </div>
         </div>
     );
