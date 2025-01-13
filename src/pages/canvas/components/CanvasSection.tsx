@@ -45,7 +45,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, feedbackData, onFinalSav
 
   const feedbackData1 = {
     title: "도움말",
-    description: "그림에서 바나나의 형태가 잘 드러나도록 곡선을 자연스럽게 표현하신 점이 인상적입니다. 특히 밝고 생동감 있는 노란색은 바나나의 신선함과 활기를 잘 전달하고 있어요.(개선점 제안) 주제를 바나나로 더 명확하게 표현하려면 다음을 고려해 보세요 끝부분 디테일: 바나나의 양 끝부분(꼭지와 끝부분)을 약간 어둡게 처리하면 실제 바나나의 느낌을 더 살릴 수 있을 것 같습니다."
+    description: "그림에서 바나나의 형태가 잘 드러나도록 곡선을 자연스럽게 표현하신 점이 인상적입니다. (개선점 제안) 주제를 바나나로 더 명확하게 표현하려면 다음을 고려해 보세요 바나나의 양 끝부분(꼭지와 끝부분)을 약간 어둡게 처리하면 실제 바나나의 느낌을 더 살릴 수 있을 것 같습니다."
   };
 
   const feedbackData2 = {
@@ -67,7 +67,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, feedbackData, onFinalSav
 
   useEffect(() => {
     const handleStepChange = async () => {
-      if (step === 5) {
+      if (step === 2) {
         setCurrentFeedback(feedbackData1);
         setIsPanelVisible(true);
         await playAudio('4.wav');
@@ -143,34 +143,34 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, feedbackData, onFinalSav
     // 캔버스의 객체 확인
     const objects = canvas.getObjects();
     if (objects.length === 0) {
-      alert("그림을 그려주세요!");
-      return;
+        alert("그림을 그려주세요!");
+        return;
     }
 
     // 경계 상자를 수동으로 계산
     const boundingBox = objects.reduce((acc, obj) => {
-      const objBoundingBox = obj.getBoundingRect();
-      return {
-        left: Math.min(acc.left, objBoundingBox.left),
-        top: Math.min(acc.top, objBoundingBox.top),
-        right: Math.max(acc.right, objBoundingBox.left + objBoundingBox.width),
-        bottom: Math.max(acc.bottom, objBoundingBox.top + objBoundingBox.height),
-      };
+        const objBoundingBox = obj.getBoundingRect();
+        return {
+            left: Math.min(acc.left, objBoundingBox.left),
+            top: Math.min(acc.top, objBoundingBox.top),
+            right: Math.max(acc.right, objBoundingBox.left + objBoundingBox.width),
+            bottom: Math.max(acc.bottom, objBoundingBox.top + objBoundingBox.height),
+        };
     }, {
-      left: Infinity,
-      top: Infinity,
-      right: -Infinity,
-      bottom: -Infinity,
+        left: Infinity,
+        top: Infinity,
+        right: -Infinity,
+        bottom: -Infinity,
     });
 
     // 경계 상자를 표시하는 사각형 추가
     const rect = new fabric.Rect({
-      left: boundingBox.left - 50,  // 왼쪽 마진
-      top: boundingBox.top - 50,    // 위쪽 마진
-      width: (boundingBox.right - boundingBox.left) + 100,   // 오른쪽 마진 포함
-      height: (boundingBox.bottom - boundingBox.top) + 100,  // 아래쪽 마진 포함
-      strokeWidth: 2,
-      fill: 'transparent',
+        left: boundingBox.left - 50,
+        top: boundingBox.top - 50,
+        width: (boundingBox.right - boundingBox.left) + 100,
+        height: (boundingBox.bottom - boundingBox.top) + 100,
+        strokeWidth: 2,
+        fill: 'transparent',
     });
 
     canvas.add(rect);
@@ -178,12 +178,12 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, feedbackData, onFinalSav
 
     // 경계 상자 크기로 이미지 저장
     const dataURL = canvas.toDataURL({
-      format: 'png',
-      quality: 1.0,
-      left: boundingBox.left - 50,
-      top: boundingBox.top - 50,
-      width: (boundingBox.right - boundingBox.left) + 100,
-      height: (boundingBox.bottom - boundingBox.top) + 100,
+        format: 'png',
+        quality: 1.0,
+        left: boundingBox.left - 50,
+        top: boundingBox.top - 50,
+        width: (boundingBox.right - boundingBox.left) + 100,
+        height: (boundingBox.bottom - boundingBox.top) + 100,
     });
 
     // 사각형 제거
@@ -191,18 +191,15 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, feedbackData, onFinalSav
     canvas.renderAll();
 
     if (step === 1) {
-      await onUpload(dataURL, step);
-      setStep(5);
-    } else if (step === 5) {
-      setIsPanelVisible(false);
-      setStep(2);
-      canvas.clear();
+        await onUpload(dataURL, step);
+        setStep(2);
+        setIsPanelVisible(true);
     } else if (step === 2) {
-      await onUpload(dataURL, step);
-      setStep(3);
+        await onUpload(dataURL, step);
+        setStep(3);
     } else if (step === 3) {
-      setIsPanelVisible(false);
-      await handleFinalSave();
+        setIsPanelVisible(false);
+        await handleFinalSave();
     }
   };
   
