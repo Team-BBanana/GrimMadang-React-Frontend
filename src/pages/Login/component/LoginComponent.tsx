@@ -22,8 +22,7 @@ const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit
         username: '',
         phoneNumber: '',
     });
-    const [isModalVisible, setIsModalVisible] = useState(false);
-
+    
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -32,14 +31,6 @@ const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         onClickSubmit(formData);
-    };
-
-    const handleOpenModal = () => {
-        setIsModalVisible(true);
-    };
-
-    const handleSelectRole = (role: 'ROLE_FAMILY' | 'ROLE_ELDER', phoneNumber: string) => {
-        setIsModalVisible(false);
     };
 
     return (
@@ -86,22 +77,9 @@ const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit
                         {errormsg && <p className="error" style={{ color: '#ff6b6b', marginTop: '10px' }}>{errormsg}</p>}
                         {success && <p className="success" style={{ color: '#a8d5ba', marginTop: '10px' }}>{success}</p>}
 
-                        <div className={style.signupContainer}>
-                            <Button
-                                type="button"
-                                className={style.loginFamily}
-                                onClick={handleOpenModal}
-                            >
-                                우리 가족의 그림을 보러 왔어요!
-                            </Button>
-                        </div>
                     </form>
                 </div>
             </div>
-
-            {isModalVisible && (
-                <RoleSelectionModal onSelect={handleSelectRole} />
-            )}
             <Footer />
         </div>
     );

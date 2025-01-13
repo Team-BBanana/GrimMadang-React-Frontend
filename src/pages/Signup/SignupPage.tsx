@@ -1,67 +1,43 @@
-import SignupComponent from "./component/SignupComponent";
-import {useState} from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import API from "@/api";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import API from '@/api';
+import SignupComponent from './component/SignupComponent';
+import axios from 'axios';
 
-interface SignupFormData {
-    name: string;
-    phoneNumber: string;
-}
-
-
-const SignupPage = () => {
-
-    const [error, setError] = useState<string| null>(null);
-    const [success, setSuccess] = useState<string | null>(null);
+const SignupPage: React.FC = () => {
     const navigate = useNavigate();
+    const [error, setError] = useState<string | null>(null);
 
-
-    const handleSubmit = async (formData: SignupFormData) => {
-        console.log(formData);
+    const handleSignup = async (formData: {
+        username: string;
+        phoneNumber: string;
+        elderPhoneNumber: string;
+        relationship: string;
+    }) => {
         try {
-            const result = await API.userApi.signupUser({
-                name: formData.name,
-                phoneNumber: formData.phoneNumber,
-            });
-            if ( result.status == 201){
-                setSuccess('회원가입이 완료되었습니다!');
-                setError(null);
-                navigate('/login');
-                return;
-            }
-            if (typeof result.data === 'object' && result.data !== null && 'body' in result.data) {
-                setError((result.data as {body: string}).body);
-            }
-
-        } catch (err) {
-            console.log(err);
-            if (axios.isAxiosError(err) && err.response) {
-                const data = err.response.data.errors;
-                const errors: string[] = [];
-
-                if (data.name) {
-                    errors.push(data.name);
-                }
-                if (data.phoneNumber) {
-                    errors.push(data.phoneNumber);
-                }
-
-
-                setError(errors.join('\n'));
+            const response = await API.userApi.signupFamily(formData);
+            
+            if (response.status === 200) {
+                navigate('/');
             } else {
-                setError('회원가입에 실패했습니다. 다시 시도해주세요.');
+                setError(response.data as string);
             }
-            setSuccess(null);
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                setError(error.response.data);
+            } else {
+                setError('회원가입 중 오류가 발생했습니다.');
+            }
+            console.error('Signup error:', error);
         }
     };
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%'}}>
-            <SignupComponent errormsg = {error} success = {success} onClickSubmit={handleSubmit} />
-        </div>
-    )
-
-}
+        <SignupComponent 
+            onSubmit={handleSignup}
+            error={error}
+        />
+    );
+};
 
 export default SignupPage;

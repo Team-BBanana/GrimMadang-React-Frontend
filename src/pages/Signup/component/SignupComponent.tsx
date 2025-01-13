@@ -1,124 +1,92 @@
-import React, { ChangeEvent, FormEvent, useRef, useState } from "react";
-import Input from "@/components/InputBox/InputBox";
-import style from "./SignupComponent.module.css"; 
-import Button from "@/components/Button/Button";
+import React, { useState } from 'react';
+import Input from '@/components/InputBox/InputBox';
+import Button from '@/components/Button/Button';
+import style from './SignupComponent.module.css';
 
-interface SignupFormData {
-    name: string;
-    phoneNumber: string;
-    phoneNumberConfirm: string;
-    role: 'ROLE_FAMILY' | 'ROLE_ELDER' | null;
-    relation?: string;
+interface SignupComponentProps {
+    onSubmit: (data: {
+        username: string;
+        phoneNumber: string;
+        elderPhoneNumber: string;
+        relationship: string;
+    }) => void;
+    error: string | null;
 }
 
-interface SignupProps {
-    errormsg: string | null;
-    success: string | null;
-    onClickSubmit: (formData: SignupFormData) => void;
-}
-
-const SignupComponent: React.FC<SignupProps> = ({ errormsg, success, onClickSubmit }) => {
-    const phoneNumberRef = useRef<HTMLInputElement>(null);
-    const [showModal, setShowModal] = useState(true);
-    const [formData, setFormData] = useState<SignupFormData>({
-        name: '',
+const SignupComponent: React.FC<SignupComponentProps> = ({ onSubmit, error }) => {
+    const [formData, setFormData] = useState({
+        username: '',
         phoneNumber: '',
-        phoneNumberConfirm: '',
-        role: null,
-        relation: ''
+        elderPhoneNumber: '',
+        relationship: 'son'  // 기본값
     });
 
-    const [phoneNumberError, setPhoneNumberError] = useState<string>('');
-
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-        
-        if (name === 'phoneNumberConfirm' || name === 'phoneNumber') {
-            if (formData.phoneNumber !== value && name === 'phoneNumberConfirm') {
-                setPhoneNumberError('전화번호가 일치하지 않습니다');
-            } else {
-                setPhoneNumberError('');
-            }
-        }
-    };
-
-    const handleRoleSelect = (role: 'ROLE_FAMILY' | 'ROLE_ELDER') => {
-        setFormData(prev => ({ ...prev, role }));
-        setShowModal(false);
-    };
-
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (formData.phoneNumber !== formData.phoneNumberConfirm) {
-            setPhoneNumberError('전화번호가 일치하지 않습니다');
-            return;
-        }
-        if (!formData.role) {
-            return;
-        }
-        onClickSubmit({ ...formData });
+        onSubmit(formData);
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
     return (
         <div className={style.container}>
             <div className={style.content}>
-                <form onSubmit={handleSubmit} className={style.formContainer}>
-                    <h1>회원가입</h1>
+                <h1>가족 회원가입</h1>
+                <form onSubmit={handleSubmit}>
                     <Input
                         type="text"
-                        id="name"
-                        name="name"
+                        id="username"
+                        name="username"
                         placeholder="이름"
-                        value={formData.name}
+                        value={formData.username}
                         onChange={handleChange}
                         required
                     />
                     <Input
-                        type="text"
+                        type="tel"
                         id="phoneNumber"
                         name="phoneNumber"
                         placeholder="전화번호"
                         value={formData.phoneNumber}
                         onChange={handleChange}
-                        ref={phoneNumberRef}
                         required
                     />
                     <Input
-                        type="text"
-                        id="phoneNumberConfirm"
-                        name="phoneNumberConfirm"
-                        placeholder="전화번호 확인"
-                        value={formData.phoneNumberConfirm}
+                        type="tel"
+                        id="elderPhoneNumber"
+                        name="elderPhoneNumber"
+                        placeholder="어르신 전화번호"
+                        value={formData.elderPhoneNumber}
                         onChange={handleChange}
                         required
                     />
-                    {formData.role === 'ROLE_FAMILY' && (
-                        <select
-                            name="relation"
-                            value={formData.relation}
-                            onChange={handleChange}
-                            className={style.select}
-                            required
-                        >
-                            <option value="" disabled>당신은 누구신가요?</option>
-                            <option value="daughter">딸</option>
-                            <option value="son">아들</option>
-                            <option value="wife">아내</option>
-                            <option value="husband">남편</option>
-                            <option value="sibling">형제/자매</option>
-                            <option value="granddaughter">손녀</option>
-                            <option value="grandson">손자</option>
-                        </select>
-                    )}
-                    {phoneNumberError && <p className={style.error}>{phoneNumberError}</p>}
-                    <div className={style.buttonContainer}>
-                        <Button type="submit">회원가입</Button>
-                    </div>
+                    <select
+                        name="relationship"
+                        value={formData.relationship}
+                        onChange={handleChange}
+                        className={style.select}
+                    >
+                        <option value="son">아들</option>
+                        <option value="daughter">딸</option>
+                        <option value="grandSon">손자</option>
+                        <option value="grandDaughter">손녀</option>
+                        <option value="husband">남편</option>
+                        <option value="wife">아내</option>
+                    </select>
+
+                    {error && <p className={style.error}>{error}</p>}
+
+                    <Button type="submit">
+                        가입하기
+                    </Button>
                 </form>
             </div>
-            {errormsg && <p className="error">{errormsg}</p>}
-            {success && <p className="success">{success}</p>}
         </div>
     );
 };
