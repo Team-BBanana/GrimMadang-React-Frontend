@@ -12,9 +12,10 @@ interface CanvasSectionProps {
   canvasRef: React.RefObject<HTMLCanvasElement>;
   onChange: () => void;
   feedbackData: any;
+  onFinalSave?: () => void;
 }
 
-const CanvasSection = ({  onUpload, canvasRef, onChange, feedbackData}: CanvasSectionProps) => {
+const CanvasSection = ({ onUpload, canvasRef, onChange, feedbackData, onFinalSave }: CanvasSectionProps) => {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [canvas, setCanvas] = useAtom(canvasInstanceAtom);
   const [isDragging, setIsDragging] = useState(true);
@@ -25,6 +26,47 @@ const CanvasSection = ({  onUpload, canvasRef, onChange, feedbackData}: CanvasSe
   const [brushWidth, setBrushWidth] = useState(10);
 
   const [imageData, setImageData] = useState<any>(null);
+  const [currentFeedback, setCurrentFeedback] = useState<any>(null);
+
+  const feedbackData1 = {
+    title: "피드백",
+    description: "그림에서 바나나의 형태가 잘 드러나도록 곡선을 자연스럽게 표현하신 점이 인상적입니다. 특히 밝고 생동감 있는 노란색은 바나나의 신선함과 활기를 잘 전달하고 있어요.(개선점 제안) 주제를 바나나로 더 명확하게 표현하려면 다음을 고려해 보세요 끝부분 디테일: 바나나의 양 끝부분(꼭지와 끝부분)을 약간 어둡게 처리하면 실제 바나나의 느낌을 더 살릴 수 있을 것 같습니다."
+  };
+
+  const feedbackData2 = {
+    title: "피드백",
+    description: "그림에서 바나나의 양 끝부분(꼭지와 끝부분)을 약간 어둡게 처리하신 점이 정말 돋보입니다! 🎨 바나나의 실제감을 훌륭히 표현해 주셨고, 끝부분의 어두운 디테일이 신선한 바나나의 느낌을 더 생동감 있게 전달하고 있어요. 특히 색상의 톤 변화가 자연스러워서 그림에 깊이를 더한 점이 인상적입니다. 😊"
+  };
+
+  const playAudio = async (filename: string) => {
+    const audio = new Audio(`/public/display_Mock_Image/${filename}`);
+    try {
+      await audio.play();
+      return new Promise<void>((resolve) => {
+        audio.onended = () => resolve();
+      });
+    } catch (error) {
+      console.error('Error playing audio:', error);
+    }
+  };
+
+  useEffect(() => {
+    const handleStepChange = async () => {
+      if (step === 5) {
+        setCurrentFeedback(feedbackData1);
+        setIsPanelVisible(true);
+        await playAudio('4.wav');
+      } else if (step === 3) {
+        setCurrentFeedback(feedbackData2);
+        setIsPanelVisible(true);
+        await playAudio('5.wav');
+      } else {
+        setIsPanelVisible(false);
+      }
+    };
+
+    handleStepChange();
+  }, [step]);
 
   useEffect(() => {
     if (!canvasContainerRef.current || !canvasRef.current) return;
@@ -64,7 +106,8 @@ const CanvasSection = ({  onUpload, canvasRef, onChange, feedbackData}: CanvasSe
 
     setImageData({
       title: "Banana",
-      description: "A banana is an elongated, edible fruit produced by several kinds of large herbaceous flowering plants in the genus Musa."
+      description: "바나나 달콤하고 부드러운 맛을 가진 노란색의 열대 과일로, 곡선 모양의 특징적인 형태를 가지고 있습니다.",
+      image : "public/MockImage/메타_목_데이터.png"
     });
 
     return () => {
@@ -73,81 +116,79 @@ const CanvasSection = ({  onUpload, canvasRef, onChange, feedbackData}: CanvasSe
     };
   }, [canvasRef, setCanvas]);
 
-  useEffect(() => {
-    if (feedbackData) {
-      setIsPanelVisible(true);
-      console.log("feedbackData", feedbackData); // Feedback API가 호출된 후 패널을 표시
+  const handleFinalSave = async () => {
+    if (onFinalSave) {
+      onFinalSave();
     }
-  }, [feedbackData]);
+  };
 
   const saveCanvasAsImage = async () => {
     if (!canvas) return;
 
-    // 캔버스의 모든 객체를 가져옵니다.
+    // 캔버스의 객체 확인
     const objects = canvas.getObjects();
-    if (objects.length === 0) return;
-
-    // 경계 상자를 수동으로 계산합니다.
-    const boundingBox = objects.reduce((acc, obj) => {
-        const objBoundingBox = obj.getBoundingRect();
-        return {
-            left: Math.min(acc.left, objBoundingBox.left),
-            top: Math.min(acc.top, objBoundingBox.top),
-            right: Math.max(acc.right, objBoundingBox.left + objBoundingBox.width),
-            bottom: Math.max(acc.bottom, objBoundingBox.top + objBoundingBox.height),
-        };
-    }, {
-        left: Infinity,
-        top: Infinity,
-        right: -Infinity,
-        bottom: -Infinity,
-    });
-
-    const rect = new fabric.Rect({
-        left: boundingBox.left - 50, // 왼쪽 마진
-        top: boundingBox.top - 50, // 위쪽 마진
-        width: (boundingBox.right - boundingBox.left) + 100, // 오른쪽 마진 + 왼쪽 마진
-        height: (boundingBox.bottom - boundingBox.top) + 100, // 아래쪽 마진 + 위쪽 마진
-        strokeWidth: 2,
-        fill: 'transparent', // 사각형 내부 색상
-    });
-
-    canvas.add(rect); // 캔버스에 사각형 추가
-    canvas.renderAll(); // 캔버스를 다시 렌더링
-
-    // 빨간색 박스의 크기로 이미지를 저장합니다.
-    const dataURL = canvas.toDataURL({
-        format: 'png',
-        quality: 1.0,
-        left: boundingBox.left - 50,
-        top: boundingBox.top - 50,
-        width: (boundingBox.right - boundingBox.left) + 100,
-        height: (boundingBox.bottom - boundingBox.top) + 100,
-    });
-
-
-    if (step === 1) {
-        await onUpload(dataURL, step);
-        setStep(5);
-    } else if (step === 5) {
-        setIsPanelVisible(false);
-        setStep(2);
-        canvas.clear(); // 캔버스 초기화
-    } else if (step === 2) {
-        await onUpload(dataURL, step);
-        setStep(3);
-    } else if (step === 3) {
-        await handleFinalSave();
+    if (objects.length === 0) {
+      alert("그림을 그려주세요!");
+      return;
     }
 
-    // 사각형을 캔버스에서 제거합니다.
+    // 경계 상자를 수동으로 계산
+    const boundingBox = objects.reduce((acc, obj) => {
+      const objBoundingBox = obj.getBoundingRect();
+      return {
+        left: Math.min(acc.left, objBoundingBox.left),
+        top: Math.min(acc.top, objBoundingBox.top),
+        right: Math.max(acc.right, objBoundingBox.left + objBoundingBox.width),
+        bottom: Math.max(acc.bottom, objBoundingBox.top + objBoundingBox.height),
+      };
+    }, {
+      left: Infinity,
+      top: Infinity,
+      right: -Infinity,
+      bottom: -Infinity,
+    });
+
+    // 경계 상자를 표시하는 사각형 추가
+    const rect = new fabric.Rect({
+      left: boundingBox.left - 50,  // 왼쪽 마진
+      top: boundingBox.top - 50,    // 위쪽 마진
+      width: (boundingBox.right - boundingBox.left) + 100,   // 오른쪽 마진 포함
+      height: (boundingBox.bottom - boundingBox.top) + 100,  // 아래쪽 마진 포함
+      strokeWidth: 2,
+      fill: 'transparent',
+    });
+
+    canvas.add(rect);
+    canvas.renderAll();
+
+    // 경계 상자 크기로 이미지 저장
+    const dataURL = canvas.toDataURL({
+      format: 'png',
+      quality: 1.0,
+      left: boundingBox.left - 50,
+      top: boundingBox.top - 50,
+      width: (boundingBox.right - boundingBox.left) + 100,
+      height: (boundingBox.bottom - boundingBox.top) + 100,
+    });
+
+    // 사각형 제거
     canvas.remove(rect);
-    canvas.renderAll(); // 캔버스를 다시 렌더링
-  };
+    canvas.renderAll();
 
-
-  const handleFinalSave = async () => {
-    console.log("Final save to API");
+    if (step === 1) {
+      await onUpload(dataURL, step);
+      setStep(5);
+    } else if (step === 5) {
+      setIsPanelVisible(false);
+      setStep(2);
+      canvas.clear();
+    } else if (step === 2) {
+      await onUpload(dataURL, step);
+      setStep(3);
+    } else if (step === 3) {
+      setIsPanelVisible(false);
+      await handleFinalSave();
+    }
   };
 
   const handleBrushWidthChange = (width: number) => {
@@ -183,16 +224,17 @@ const CanvasSection = ({  onUpload, canvasRef, onChange, feedbackData}: CanvasSe
           <div className={style.imageData}>
             <h3>{imageData.title}</h3>
             <p>{imageData.description}</p>
+            <img src={imageData.image} alt="Image" />
           </div>
         )}
       {isPanelVisible && (
         <div className={`${style.slidePanel} ${isPanelVisible ? style.visible : style.hidden}`}>
-                {feedbackData && (
-                  <div className={style.feedback}>
-                    <h3>{feedbackData.title}</h3>
-                    <p>{feedbackData.description}</p>
-                  </div>
-                )}
+          {currentFeedback && (
+            <div className={style.feedback}>
+              <h3>{currentFeedback.title}</h3>
+              <p>{currentFeedback.description}</p>
+            </div>
+          )}
         </div>
       )}
     </div>

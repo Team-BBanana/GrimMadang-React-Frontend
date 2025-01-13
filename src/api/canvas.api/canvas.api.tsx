@@ -29,6 +29,15 @@ interface feedBackData {
     imageData: string;
 }
 
+interface saveCanvasData {
+    description: string;
+    imageUrl1: string;
+    imageUrl2: string;
+    title: string;
+    feedback1: string;
+    feedback2: string;
+}
+
 const createCanvas = async(data: {title: string}) => {
     const url = `/canvas/createCanvas`;
 
@@ -89,6 +98,18 @@ const feedBack = async(data: feedBackData) => {
     });
 }
 
+const saveCanvas = async(data: saveCanvasData) => {
+    const url = `/api/drawings/save`;
+
+    return await CanvasClient.post(url,JSON.stringify(data),{
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json", // JSON 요청임을 명시
+        },
+        withCredentials: true,
+    });
+}
+
 
 const canvasApi = {
     exploreCanvas,
@@ -96,6 +117,7 @@ const canvasApi = {
     welcomeFlow,
     ImagemetaData,
     feedBack,
+    saveCanvas
 };
 
 export default canvasApi;
