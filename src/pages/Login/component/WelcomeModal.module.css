@@ -18,7 +18,116 @@
     border-radius: 20px;
     text-align: center;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    max-width: 500px;
+    max-width: 600px;
     width: 90%;
     animation: modalFadeIn 0.3s ease-out;
+}
+
+.modalContent h2 {
+    font-size: 3rem;
+    margin-bottom: 40px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.3;
+}
+
+.checkboxWrapper {
+    margin: 0 0 40px 0;
+}
+
+.checkboxLabel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.checkboxLabel:hover {
+    color: #8fc3a3;
+}
+
+.checkbox {
+    width: 24px;
+    height: 24px;
+    accent-color: #a8d5ba;
+    cursor: pointer;
+}
+
+/* Button 컴포넌트 스타일 오버라이드 */
+.modalContent button {
+    width: 260px;
+    padding: 12px 20px;
+    border-radius: 20px;
+    font-size: 2rem;
+    font-weight: 500;
+    background-color: #a8d5ba;
+    color: #022216;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.modalContent button:hover {
+    background-color: #8fc3a3;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .modalContent {
+        padding: 40px 30px;
+        margin: 20px;
+    }
+
+    .modalContent h2 {
+        font-size: 2.8rem;
+        margin-bottom: 30px;
+    }
+
+    .checkboxLabel {
+        font-size: 1.8rem;
+    }
+
+    .checkbox {
+        width: 20px;
+        height: 20px;
+    }
+
+    .modalContent button {
+        width: 220px;
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .modalContent {
+        padding: 30px 20px;
+    }
+
+    .modalContent h2 {
+        font-size: 2.4rem;
+        margin-bottom: 25px;
+        letter-spacing: 1px;
+    }
+
+    .checkboxLabel {
+        font-size: 1.6rem;
+    }
+
+    .modalContent button {
+        width: 200px;
+        font-size: 1.6rem;
+    }
 }
