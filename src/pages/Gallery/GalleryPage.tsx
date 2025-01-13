@@ -33,6 +33,20 @@ interface exploreCanvasData {
     isTimedOut: string;
 }
 
+interface Drawing {
+    id: number;
+    user: {
+        id: number;
+        name: string;
+    };
+    title: string;
+    imageUrl1: string;
+    imageUrl2: string;
+    description: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 const GalleryPage = () => {
     const navigate = useNavigate();
     const [userRole, setUserRole] = useState<string | null>(null);
@@ -42,6 +56,7 @@ const GalleryPage = () => {
     const [timerStarted, setTimerStarted] = useState(false);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const [isExploreMode, setIsExploreMode] = useState(false);
+    const [drawings, setDrawings] = useState<Drawing[]>([]);
 
     // 3분 타이머 함수
     const startThreeMinuteTimer = () => {
@@ -64,6 +79,19 @@ const GalleryPage = () => {
                 clearTimeout(timerRef.current);
             }
         };
+    }, []);
+
+    useEffect(() => {
+        const fetchDrawings = async () => {
+            try {
+                const response = await API.galleryApi.getDrawings();
+                console.log('Drawings response:', response.data);
+                setDrawings(response.data);
+            } catch (error) {
+                console.error('Fetching drawings failed:', error);
+            }
+        };
+        fetchDrawings();
     }, []);
 
     useEffect(() => {
@@ -228,7 +256,10 @@ const GalleryPage = () => {
     return (
         <>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                <GalleryComponent elderinfo={elderinfo} />
+                <GalleryComponent 
+                    elderinfo={elderinfo} 
+                    drawings={drawings as any} // Fixing type incompatibility issue
+                />
                 {elderinfo?.role === 'ROLE_ELDER' && (
                     <SpeechButton 
                         onTranscriptComplete={handleTranscript}

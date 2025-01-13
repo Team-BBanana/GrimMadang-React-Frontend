@@ -13,12 +13,29 @@ interface ElderInfo {
     attendance_total: number | null;
 }
 
+interface Drawing {
+  id: string;
+  user: {
+    id: string;
+    name: string;
+  };
+  title: string;
+  imageUrl1: string;
+  imageUrl2: string;
+  description: string;
+  feedback1: string;
+  feedback2: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface GalleryComponentProps {
     elderinfo: ElderInfo | null;
+    drawings: Drawing[];
 }
 
 
-const GalleryComponent: React.FC<GalleryComponentProps> = ({ elderinfo }) => {
+const GalleryComponent: React.FC<GalleryComponentProps> = ({ elderinfo, drawings }) => {
     const navigate = useNavigate();
     
     const handleCreateNewCanvas = () => {
@@ -26,6 +43,13 @@ const GalleryComponent: React.FC<GalleryComponentProps> = ({ elderinfo }) => {
     };
 
     const OPTIONS: EmblaOptionsType = {loop: true};
+
+    // Carousel에 필요한 형식으로 drawings 데이터 변환
+    const carouselSlides = drawings.map((drawing, index) => ({
+        imageUrl: drawing.imageUrl1,  // Carousel이 필요로 하는 imageUrl
+        title: drawing.title,         // Carousel이 필요로 하는 title
+        onClick: () => navigate(`/gallery/${drawing.id}`)
+    }));
 
     return (
         <div className={style.container}>
@@ -36,10 +60,7 @@ const GalleryComponent: React.FC<GalleryComponentProps> = ({ elderinfo }) => {
             <div className={style.carouselContainer}>
                 <Carousel
                     slides={[
-                        ...cardData.map((card, index) => ({
-                            ...card,
-                            onClick: () => navigate(`/gallery/${index + 1}`)
-                        })),
+                        ...carouselSlides,
                         ...(elderinfo?.role === 'ROLE_ELDER' ? [{
                             imageUrl: '',
                             title: '새 캔버스 만들기',
