@@ -13,6 +13,13 @@ interface UserData {
     phoneNumber: string;
 }
 
+interface FamilySignupData {
+    username: string;
+    phoneNumber: string;
+    elderPhoneNumber: string;  // 연결할 어르신 ID
+    relationship: string;  // 가족 관계 (son, daughter 등)
+}
+
 export async function getUserInfo(): Promise<ApiResponse> {
     const url = `/user/auth/`;
     return await CanvasClient.get(url);
@@ -71,6 +78,17 @@ export async function getElderInfo(): Promise<ApiResponse> {
 
 }
 
+// 가족 회원 가입
+export async function signupFamily(data: FamilySignupData): Promise<ApiResponse> {
+    const url = `/api/users/register/family`;
+    
+    return await CanvasClient.post(url, JSON.stringify(data), {
+        headers: {
+            "Content-Type": "application/json",
+        },
+        withCredentials: true,
+    });
+}
 
 const userAPI = {
     getUserInfo,
@@ -78,7 +96,8 @@ const userAPI = {
     logoutUser,
     refreshToken,
     signupElder,
-    getElderInfo
+    getElderInfo,
+    signupFamily
 };
 
 export default userAPI;
