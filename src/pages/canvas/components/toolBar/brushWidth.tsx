@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import style from './module/brushWidth.module.css';
 
 interface BrushWidthProps {
@@ -6,23 +6,28 @@ interface BrushWidthProps {
     onChange: (width: number) => void;
 }
 
-function BrushWidth({ brushWidth, onChange }: BrushWidthProps) {
-    const handleBrushWidthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        onChange(parseInt(event.target.value, 10));
+const brushSizes = [5, 13, 21, 29, 37, 45];
+
+function BrushWidth({ onChange }: BrushWidthProps) {
+    const [selectedBrushWidth, setSelectedBrushWidth] = useState(brushSizes[1]);
+
+    const handleCircleClick = (size: number) => {
+        setSelectedBrushWidth(size);
+        onChange(size);
     };
 
     return (
         <div className={style.container}>
-            <label htmlFor="brushWidth" className={style.label}>두께: {brushWidth}</label>
-            <input
-                id="brushWidth"
-                type="range"
-                min="1"
-                max="50"
-                value={brushWidth}
-                onChange={handleBrushWidthChange}
-                className={style.slider}
-            />
+            <div className={style.circleContainer}>
+                {brushSizes.map(size => (
+                    <div
+                        key={size}
+                        className={`${style.circle} ${selectedBrushWidth === size ? style.active : ''}`}
+                        data-size={size}
+                        onClick={() => handleCircleClick(size)}
+                    />
+                ))}
+            </div>
         </div>
     );
 }
