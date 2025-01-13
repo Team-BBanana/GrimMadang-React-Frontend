@@ -4,17 +4,23 @@
     display: flex;
     flex-direction: row;
     overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;    
 }
 
 .bannerSection {
     width: 30%;
+    max-width: 250px;
+    min-width: 150px;
     height: 100vh;
     background: #347050;
     padding: 20px;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: 20px;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
 }
 
 .canvas-section {
@@ -24,6 +30,7 @@
     align-items: center;
     background-color: #f5f5f5;
     position: relative;
+    overflow: hidden;
 }
 
 .bannerButton {
@@ -39,7 +46,7 @@
     transition: all 0.3s ease;
     font-size: 20px;
     width: 100%;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .bannerButton svg {
@@ -57,56 +64,184 @@
     color: white;
 }
 .stepButton {
+    background-color: transparent;
+    border: 2px solid #ffffff;
     margin-top: auto;
-    font-size: 22px;
+    font-size: 2.5rem;
+    font-family: 'Noto Sans KR';
     padding: 18px;
     border-radius: 12px;
-    border: none;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
 }
 
 .stepButton:hover {
-    background-color: #66BB6A;
     transform: translateY(-3px);
+    background-color: #f1f1f1;
+    border-color: #1B5E20;
+    color: #1B5E20;
 }
-
 .slidePanel {
-    position: fixed;
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    right: -320px;
-    width: 320px;
-    min-height: 420px;
-    background-color: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(12px);
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 110;
-    padding: 30px;
-}
-
-.imageData {
-    display: flex;
-    flex-direction: row;
-    height: 200px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: auto;
+    max-width: 300px;
+    min-width: 200px;
     background-color: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(15px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 40px;
-    text-align: center;
+    padding: 20px;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    z-index: 100;
+}
+
+.feedbackContent {
+    display: grid;
+    grid-template-columns: 1fr;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feedbackRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.feedbackRow h3 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+.feedbackDescription {
+    max-height: 500px;
+    opacity: 1;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.feedbackContent.collapsed .feedbackDescription {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.feedbackDescription p {
+    margin: 15px 0 0 0;
+    line-height: 1.6;
+    color: #444;
+    font-size: 2rem;
+}
+
+.imageData {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: auto;
+    max-width: 300px;
+    min-width: 200px;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    padding: 10px 5px 10px 10px;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    z-index: 100;
+}
+
+.imageDataCollapsed {
+    transform: translateY(calc(100% - 60px));
+}
+
+.imageDataHeader {
+    grid-column: 1 / -1;
+    border-bottom: 2px solid rgba(27, 94, 32, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.imageDataContent {
+    display: grid;
+    grid-template-columns: 1fr;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.imageRow {
+    display: flex;
+    align-items:flex-start;
+    justify-content: center;
+}
+
+.imageDataContent.collapsed {
+    grid-template-columns: 1fr;
+}
+
+.imageDataContent.collapsed .description {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.imageDataContent img {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: contain;
+}
+
+.description {
+    max-height: 500px;
+    opacity: 1;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.toggleIcon {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggleIconRotated {
+    transform: rotate(45deg);
+}
+
+.imageData h3 {
+    grid-column: 1 / -1;
+    color: #424242;
+    margin-top: 10px;
+    margin-bottom: 0px; 
+    font-size: 2.5rem;
+}
+
+.imageData img {
+    max-height: 200px;
+    object-fit: contain;
+}
+
+.imageData p {
+    margin: 0;
+    line-height: 1.6;
+    color: #444;
+    font-size: 2rem;
 }
 
 .visible {
     right: 0;
+    opacity: 1;
+    transform: translateY(-50%);
 }
 
 .hidden {
-    right: -320px;
+    right: -380px;
+    opacity: 0;
+    transform: translateY(-50%) translateX(20px);
 }
 
 .feedback {
@@ -117,7 +252,6 @@
 
 .feedback h3 {
     color: #1B5E20;
-    font-size: 1.6rem;
     font-weight: 700;
     margin: 0;
     padding-bottom: 14px;
@@ -154,4 +288,62 @@
 .feedback::-webkit-scrollbar-thumb {
     background-color: #1B5E20;
     border-radius: 4px;
+}
+
+.stepIndicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    height: 20px;
+}
+
+.stepTitle {
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 2rem;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.3s ease;
+}
+
+.stepNumber {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.step.active {
+    color: white;
+}
+
+.step.active .stepNumber {
+    border-color: white;
+    background-color: white;
+    color: #347050;
+}
+
+.stepDivider {
+    width: 40px;
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.6);
+    margin-top: -20px;
+}
+
+.step span {
+    font-size: 14px;
+    white-space: nowrap;
 }

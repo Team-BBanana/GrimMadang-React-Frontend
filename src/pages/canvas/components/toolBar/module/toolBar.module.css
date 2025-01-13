@@ -3,6 +3,7 @@
   flex-direction: column;
   align-items: center;
   cursor: pointer;
+  border-bottom: 1px solid #ddd;
 }
 
 .toolButton button {

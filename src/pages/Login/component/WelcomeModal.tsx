@@ -19,11 +19,16 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose }) => {
         }
     };
 
+    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget) {
+            onClose();
+        }
+    };
+
     return (
-        <div className={style.modalOverlay}>
+        <div className={style.modalOverlay} onClick={handleOverlayClick}>
             <div className={style.modalContent}>
-                <h2>저희 서비스를 처음 와주셨군요!</h2>
-                <p>사용해보시겠어요?</p>
+                <h2>저희 서비스에 처음 방문해주셨네요!</h2>
                 <div className={style.checkboxWrapper}>
                     <label className={style.checkboxLabel}>
                         <input

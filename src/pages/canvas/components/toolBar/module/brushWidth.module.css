@@ -1,13 +1,11 @@
 .container {
-    padding: 0px 10px 10px 10px;
+    padding: 10px;
     background: rgba(255, 255, 255, 0.9);
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(4px);
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-items: center;
 }
 
 .label {
@@ -15,36 +13,33 @@
     color: #333;
     font-size: 1.5em;
     text-align: center;
+    margin-bottom: 10px;
 }
 
-.slider {
-    margin-right: 10px;
-    margin-top: 10px;
-    cursor: pointer;
-    -webkit-appearance: none;
-    appearance: none;
-    height: 4px;
-    border: 1px solid #bdbdbd;
+.circleContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 10px;
+}
+
+.circle {
     background: #e0e0e0;
-    border-radius: 2px;
-    align-self: center;
-}
-
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    background: #347050;
+    border: 1px solid #347050;
     border-radius: 50%;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: background 0.2s, transform 0.2s;
 }
 
-.slider::-webkit-slider-thumb:hover {
-    transform: scale(1.1);
+.circle.active {
+    background: #347050;
+    border: 1px solid #347050;
 }
 
-.value {
-    font-weight: 500;
-    font-size: 1em;
-}
+.circle[data-size="5"] { width: 10px; height: 10px; }
+.circle[data-size="13"] { width: 15px; height: 15px; }
+.circle[data-size="21"] { width: 20px; height: 20px; }
+.circle[data-size="29"] { width: 25px; height: 25px; }
+.circle[data-size="37"] { width: 30px; height: 30px; }
+.circle[data-size="45"] { width: 35px; height: 35px; }

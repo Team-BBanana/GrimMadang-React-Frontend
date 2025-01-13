@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Input from '@/components/InputBox/InputBox';
 import Button from '@/components/Button/Button';
 import style from './SignupComponent.module.css';
+import Footer from '@/components/Footer/Footer';
 
 interface SignupComponentProps {
     onSubmit: (data: {
@@ -18,7 +19,7 @@ const SignupComponent: React.FC<SignupComponentProps> = ({ onSubmit, error }) =>
         username: '',
         phoneNumber: '',
         elderPhoneNumber: '',
-        relationship: 'son'  // 기본값
+        relationship: ''  // 빈 문자열로 초기화
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -28,10 +29,34 @@ const SignupComponent: React.FC<SignupComponentProps> = ({ onSubmit, error }) =>
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        
+        if (name === 'phoneNumber' || name === 'elderPhoneNumber') {
+            // 숫자만 추출
+            const numbers = value.replace(/[^0-9]/g, '');
+            
+            // 최대 11자리로 제한
+            const limitedNumbers = numbers.slice(0, 11);
+            
+            // 하이픈 추가
+            let formattedNumber = '';
+            if (limitedNumbers.length <= 3) {
+                formattedNumber = limitedNumbers;
+            } else if (limitedNumbers.length <= 7) {
+                formattedNumber = `${limitedNumbers.slice(0, 3)}-${limitedNumbers.slice(3)}`;
+            } else {
+                formattedNumber = `${limitedNumbers.slice(0, 3)}-${limitedNumbers.slice(3, 7)}-${limitedNumbers.slice(7)}`;
+            }
+            
+            setFormData(prev => ({
+                ...prev,
+                [name]: formattedNumber
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
     };
 
     return (
@@ -72,6 +97,7 @@ const SignupComponent: React.FC<SignupComponentProps> = ({ onSubmit, error }) =>
                         onChange={handleChange}
                         className={style.select}
                     >
+                        <option value="" disabled>어르신과의 관계</option>
                         <option value="son">아들</option>
                         <option value="daughter">딸</option>
                         <option value="grandSon">손자</option>
@@ -87,6 +113,7 @@ const SignupComponent: React.FC<SignupComponentProps> = ({ onSubmit, error }) =>
                     </Button>
                 </form>
             </div>
+            <Footer />  
         </div>
     );
 };
