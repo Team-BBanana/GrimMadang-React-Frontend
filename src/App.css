@@ -13,7 +13,7 @@
 }
 
 .main-content {
-    overflow: auto;
+    overflow: hidden;
     justify-content: center;
     height: calc(100% - 50px);
 }

@@ -121,26 +121,24 @@ const CommentList: React.FC<CommentListProps> = ({
   };
 
   return (
-    <div className={style.carouselContainer}>
-      <div className={style.commentCarousel}>
-        <Slider {...settings}>
-          {userRole === 'ROLE_FAMILY' && (
-            <div className={style.slideWrapper}>
-              <CommentInput onSubmit={onCommentSubmit} />
-            </div>
-          )}
-          {allComments.map((comment) => (
-            <div key={comment.id} className={style.slideWrapper}>
-              <CommentItem
-                role={comment.user.role}
-                name={comment.user.name}
-                comment={comment.content}
-                date={comment.createdAt}
-              />
-            </div>
-          ))}
-        </Slider>
-      </div>
+    <div className={style.commentCarousel}>
+      <Slider {...settings}>
+        {userRole === 'ROLE_FAMILY' && (
+          <div className={style.slideWrapper}>
+            <CommentInput onSubmit={onCommentSubmit} />
+          </div>
+        )}
+        {allComments.map((comment) => (
+          <div key={comment.id} className={style.slideWrapper}>
+            <CommentItem
+              role={comment.user.role}
+              name={comment.user.name}
+              comment={comment.content}
+              date={comment.createdAt}
+            />
+          </div>
+        ))}
+      </Slider>
     </div>
   );
 };

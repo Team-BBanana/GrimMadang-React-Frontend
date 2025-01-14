@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import style from "./GalleryComponent.module.css";
-import { cardData } from "../Card/cardData";
 import Carousel from '../Card/carousel/Carousel';
 import { EmblaOptionsType } from 'embla-carousel'
 
@@ -45,7 +44,7 @@ const GalleryComponent: React.FC<GalleryComponentProps> = ({ elderinfo, drawings
     const OPTIONS: EmblaOptionsType = {loop: true};
 
     // Carousel에 필요한 형식으로 drawings 데이터 변환
-    const carouselSlides = drawings.map((drawing, index) => ({
+    const carouselSlides = drawings.map((drawing) => ({
         imageUrl: drawing.imageUrl1,  // Carousel이 필요로 하는 imageUrl
         title: drawing.title,         // Carousel이 필요로 하는 title
         onClick: () => navigate(`/gallery/${drawing.id}`)

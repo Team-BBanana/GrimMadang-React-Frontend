@@ -25,7 +25,7 @@
 }
 
 .rightInfo {
-    width: 40%;
+    width: 50%;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -79,7 +79,7 @@
     padding: 20px;
     backdrop-filter: blur(10px);
     display: flex;
-    flex-direction: row ;
+    flex-direction: column;
 }
 
 .titleRow {
@@ -101,12 +101,6 @@
     margin-left: 8px;
 }
 
-.commentCount {
-    align-self: flex-end;
-    width: 100%;
-    justify-content: flex-end;
-}
-
 .aiCommentSection {
     flex: 1;
     background: rgba(255, 255, 255, 0.1);
@@ -120,7 +114,7 @@
 
 .aiCommentSection .scrollableContent {
     overflow-y: auto;
-    max-height: calc(100% - 40px);
+    max-height: calc(100% - 100px);
     padding-right: 12px;
     
     /* 스크롤바 스타일링 */
@@ -144,13 +138,15 @@
 }
 
 .aiCommentSection .scrollableContent p {
-    font-size: 2.5rem;
+    margin: 0;
+    font-size: 2rem;
 }
 
 .bottomSection {
-    min-height: 100px;
+    display: flex;
+    flex-direction: row;
     border-radius: 12px;
-    padding: 20px 120px;
+    padding: 20px 50px;
     display: flex;
     flex-direction: row;
     position: relative;
@@ -159,7 +155,7 @@
 
 .title {
     font-family: 'Song Myung', serif;
-    font-size: 4rem;
+    font-size: 60px;
     color: #a8d5ba;
     margin: 0;
     display: flex;
@@ -171,6 +167,8 @@
     color: rgba(255, 255, 255, 0.6);
     display: flex;
     flex-direction: row;
+    justify-content: flex-end;
+    width: 100%;
     gap: 10px;
 }
 
@@ -179,6 +177,15 @@
     display: flex;
     flex-direction: row;
     gap: 10px;
+    width: 100%;
+    justify-content: flex-end;
+}
+
+.feedbackSection {
+    overflow-y: auto;
+    max-height: 100%;
+    padding-right: 12px;
+    box-sizing: border-box;
 }
 
 @media (max-width: 768px) {

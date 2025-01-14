@@ -11,10 +11,11 @@ import LoginPage from './pages/Login/LoginPage.tsx';
 import SignupPage from './pages/Signup/SignupPage.tsx';
 import FamilyPage from './pages/Family/FamilyPage.tsx';
 import DisplayPage from './pages/Display/DisplayPage.tsx';
+import PostCardPage from './pages/PostCard/PostCardPage.tsx';
 
 function AppContent() {
   const location = useLocation(); 
-  const fullBrowserRoutes = ['/', '/canvas', '/gallery', '/gallery/*', '/signup']; 
+  const fullBrowserRoutes = ['/', '/canvas', '/gallery', '/gallery/*', '/signup', '/postcard']; 
   const isFullBrowserRoutes = fullBrowserRoutes.some(route => 
       location.pathname === route || 
       (route.endsWith('*') && location.pathname.startsWith(route.slice(0, -1)))
@@ -33,6 +34,7 @@ function AppContent() {
           <Route path='/gallery' element={<GalleryPage/>} />
           <Route path='/family' element={<FamilyPage />} />
           <Route path="/gallery/:id" element={<DisplayPage />} />
+          <Route path="/postcard" element={<PostCardPage />} />
         </Routes>
       </div>
       {!isFullBrowserRoutes && <div className="footer"><Footer /></div>}
