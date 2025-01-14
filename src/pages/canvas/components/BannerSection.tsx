@@ -13,7 +13,7 @@ interface BannerSectionProps {
 }
 
 function BannerSection({ onSave, step }: BannerSectionProps) {
-    const [brushWidth, setBrushWidth] = useState(10);
+    const [brushWidth, setBrushWidth] = useState(6);
     const canvas = useAtomValue(canvasInstanceAtom);
 
     const handleBrushWidthChange = (width: number) => {
@@ -50,12 +50,14 @@ function BannerSection({ onSave, step }: BannerSectionProps) {
                 />
             </div>
             <Toolbar brushWidth={brushWidth}/>
-            <StepIndicator currentStep={step === 5 ? 1 : step} />
-            <Button type="button" className={style.stepButton} onClick={onSave}>
-                {step === 1 ? "1단계 완료하기" : 
-                 step === 2 ? "2단계 완료하기" : 
+            <div className={style.stepContainer}>   
+                <StepIndicator currentStep={step === 5 ? 1 : step} />
+                <Button type="button" className={style.stepButton} onClick={onSave}>
+                {step === 1 ? "1단계 완료" : 
+                 step === 2 ? "2단계 완료" : 
                  step === 5 ? "다음 단계로" : "저장하기"}
             </Button>
+            </div>
         </div>
     );
 }

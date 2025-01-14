@@ -24,7 +24,7 @@
 }
 
 .modalContent h2 {
-    font-size: 3rem;
+    font-size: 50px;
     margin-bottom: 40px;
     font-weight: 500;
     text-align: center;
@@ -40,7 +40,7 @@
     justify-content: center;
     align-items: center;
     gap: 12px;
-    font-size: 2rem;
+    font-size: 30px;
     cursor: pointer;
     transition: color 0.2s ease;
 }
@@ -61,7 +61,7 @@
     width: 260px;
     padding: 12px 20px;
     border-radius: 20px;
-    font-size: 2rem;
+    font-size: 30px;
     font-weight: 500;
     background-color: #a8d5ba;
     color: #022216;

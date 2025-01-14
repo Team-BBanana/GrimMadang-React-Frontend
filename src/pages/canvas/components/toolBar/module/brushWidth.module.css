@@ -37,9 +37,9 @@
     border: 1px solid #347050;
 }
 
-.circle[data-size="5"] { width: 10px; height: 10px; }
-.circle[data-size="13"] { width: 15px; height: 15px; }
-.circle[data-size="21"] { width: 20px; height: 20px; }
-.circle[data-size="29"] { width: 25px; height: 25px; }
-.circle[data-size="37"] { width: 30px; height: 30px; }
-.circle[data-size="45"] { width: 35px; height: 35px; }
+.circle[data-size="2"] { width: 10px; height: 10px; }
+.circle[data-size="6"] { width: 15px; height: 15px; }
+.circle[data-size="12"] { width: 20px; height: 20px; }
+.circle[data-size="18"] { width: 25px; height: 25px; }
+.circle[data-size="24"] { width: 30px; height: 30px; }
+.circle[data-size="30"] { width: 35px; height: 35px; }

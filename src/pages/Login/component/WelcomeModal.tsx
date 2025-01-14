@@ -28,7 +28,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose }) => {
     return (
         <div className={style.modalOverlay} onClick={handleOverlayClick}>
             <div className={style.modalContent}>
-                <h2>저희 서비스에 처음 방문해주셨네요!</h2>
+                <h2>처음 방문해주셨네요!</h2>
                 <div className={style.checkboxWrapper}>
                     <label className={style.checkboxLabel}>
                         <input
