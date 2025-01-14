@@ -42,36 +42,7 @@ const CommentList: React.FC<CommentListProps> = ({
       content: "정말 멋있는 그림이에요!",
       createdAt: "2023-10-15"
     },
-    {
-      id: 'mock2',
-      user: {
-        id: '2',
-        name: "손자",
-        role: "grandSon"
-      },
-      content: "호랑이 너무 무서워요",
-      createdAt: "2023-10-15"
-    },
-    {
-      id: 'mock3',
-      user: {
-        id: '3',
-        name: "아들",
-        role: "son"
-      },
-      content: "따봉",
-      createdAt: "2023-10-15"
-    },
-    {
-      id: 'mock4',
-      user: {
-        id: '4',
-        name: "아들",
-        role: "son"
-      },
-      content: "따봉",
-      createdAt: "2023-10-15"
-    },
+  
     {
       id: 'mock5',
       user: {

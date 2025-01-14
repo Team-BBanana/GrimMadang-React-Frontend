@@ -5,6 +5,12 @@ import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
 import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
 import style from "../CanvasPage.module.css";
 import API from "@/api";
+import ImagePanelSection from "./PanelSection";
+import FeedbackSection from "./FeedbackSection";
+import { makeFrame } from '../utils/makeFrame';
+import debounce from 'lodash/debounce';
+import { useAudio } from '@/context/AudioContext';
+import Overlay from './Overlay';
 
 interface CanvasSectionProps {
   className?: string;
@@ -14,19 +20,6 @@ interface CanvasSectionProps {
   feedbackData: any;
   onFinalSave?: () => void;
 }
-
-const ChevronIcon = () => (
-    <svg 
-        width="24" 
-        height="24" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        strokeWidth="2"
-    >
-        <path d="M18 6L6 18M6 6l12 12" />
-    </svg>
-);
 
 const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSectionProps) => {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
@@ -43,9 +36,18 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
   const [isImageCardCollapsed, setIsImageCardCollapsed] = useState(false);
   const [isFeedbackCardCollapsed, setIsFeedbackCardCollapsed] = useState(false);
 
+  const [currentAudioIndex, setCurrentAudioIndex] = useState(0);
+  const [playedAudios, setPlayedAudios] = useState<Set<number>>(new Set());
+  const { dispatch, state } = useAudio();
+  const { isPlaying } = state;
+
+  const [overlay, setOverlay] = useState<string | null>(null);
+
+  const [currentPlayingFile, setCurrentPlayingFile] = useState<string | null>(null);
+
   const feedbackData1 = {
     title: "도움말",
-    description: "그림에서 바나나의 형태가 잘 드러나도록 곡선을 자연스럽게 표현하신 점이 인상적입니다. (개선점 제안) 주제를 바나나로 더 명확하게 표현하려면 다음을 고려해 보세요 바나나의 양 끝부분(꼭지와 끝부분)을 약간 어둡게 처리하면 실제 바나나의 느낌을 더 살릴 수 있을 것 같습니다."
+    description: "그림에서 바나나의 형태가 잘 드러나도록 곡선을 자연스럽게 표현하신 점이 인상적입니다. 주제를 바나나로 더 명확하게 표현하려면 다음을 고려해 보세요 바나나의 양 끝부분(꼭지와 끝부분)을 약간 어둡게 처리하면 실제 바나나의 느낌을 더 살릴 수 있을 것 같습니다."
   };
 
   const feedbackData2 = {
@@ -53,28 +55,56 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
     description: "그림에서 바나나의 양 끝부분(꼭지와 끝부분)을 약간 어둡게 처리하신 점이 정말 돋보입니다! 🎨 바나나의 실제감을 훌륭히 표현해 주셨고, 끝부분의 어두운 디테일이 신선한 바나나의 느낌을 더 생동감 있게 전달하고 있어요. 특히 색상의 톤 변화가 자연스러워서 그림에 깊이를 더한 점이 인상적입니다. 😊"
   };
 
-  const playAudio = async (filename: string) => {
-    const audio = new Audio(`/public/display_Mock_Image/${filename}`);
-    try {
-      await audio.play();
-      return new Promise<void>((resolve) => {
-        audio.onended = () => resolve();
-      });
-    } catch (error) {
-      console.error('Error playing audio:', error);
-    }
+  const audioFiles = [
+    '/canvasTutorial/eraser.wav',
+    '/canvasTutorial/brushWidth.wav',
+    '/canvasTutorial/colorPanel.wav',
+    '/canvasTutorial/stepOne.wav',
+    '/canvasTutorial/acceptFeedback.wav',
+    '/canvasTutorial/fill.wav',
+    '/canvasTutorial/specificDraw.wav',
+    '/canvasTutorial/stepTwo.wav',
+    '/canvasTutorial/acceptFeedback2.wav',
+    '/canvasTutorial/save.wav',
+  ];
+
+  const playAudio = (index: number) => {
+    console.log("index: ", index);
+    if (playedAudios.has(index) || index >= audioFiles.length) return;
+    
+    dispatch({ type: 'ADD_TO_QUEUE', payload: audioFiles[index] });
+    setPlayedAudios(prev => new Set([...prev, index]));
+    const nextIndex = index + 1;
+    setCurrentAudioIndex(nextIndex);
+};
+
+  const debouncedAudioPlay = useRef(
+    debounce((currentIndex: number) => {
+        playAudio(currentIndex);
+    }, 5000)
+  ).current;
+
+  const handleChange = () => {
+    onChange();
+    debouncedAudioPlay(currentAudioIndex);
   };
+
+  useEffect(() => {
+    return () => {
+      debouncedAudioPlay.cancel();
+    };
+  }, [debouncedAudioPlay]);
 
   useEffect(() => {
     const handleStepChange = async () => {
       if (step === 2) {
         setCurrentFeedback(feedbackData1);
         setIsPanelVisible(true);
-        await playAudio('4.wav');
+        // await playAudio('4.wav');
       } else if (step === 3) {
         setCurrentFeedback(feedbackData2);
         setIsPanelVisible(true);
-        await playAudio('5.wav');
+        // await playAudio('5.wav');
       } else {
         setIsPanelVisible(false);
       }
@@ -106,7 +136,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
 
     window.addEventListener("resize", handleResize);
 
-    // 애는 최초 여야함 
     const fetchImageMetaData = async () => {
       try {
         const response = await API.canvasApi.ImagemetaData({ sessionId: "your_session_id", topic: "your_topic" });
@@ -115,7 +144,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
         console.error('Error fetching image metadata:', error);
       }
     };
-
     fetchImageMetaData();
 
 
@@ -143,63 +171,22 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
     // 캔버스의 객체 확인
     const objects = canvas.getObjects();
     if (objects.length === 0) {
-        alert("그림을 그려주세요!");
-        return;
+      alert("그림을 그려주세요!");
+      return;
     }
 
-    // 경계 상자를 수동으로 계산
-    const boundingBox = objects.reduce((acc, obj) => {
-        const objBoundingBox = obj.getBoundingRect();
-        return {
-            left: Math.min(acc.left, objBoundingBox.left),
-            top: Math.min(acc.top, objBoundingBox.top),
-            right: Math.max(acc.right, objBoundingBox.left + objBoundingBox.width),
-            bottom: Math.max(acc.bottom, objBoundingBox.top + objBoundingBox.height),
-        };
-    }, {
-        left: Infinity,
-        top: Infinity,
-        right: -Infinity,
-        bottom: -Infinity,
-    });
-
-    // 경계 상자를 표시하는 사각형 추가
-    const rect = new fabric.Rect({
-        left: boundingBox.left - 50,
-        top: boundingBox.top - 50,
-        width: (boundingBox.right - boundingBox.left) + 100,
-        height: (boundingBox.bottom - boundingBox.top) + 100,
-        strokeWidth: 2,
-        fill: 'transparent',
-    });
-
-    canvas.add(rect);
-    canvas.renderAll();
-
-    // 경계 상자 크기로 이미지 저장
-    const dataURL = canvas.toDataURL({
-        format: 'png',
-        quality: 1.0,
-        left: boundingBox.left - 50,
-        top: boundingBox.top - 50,
-        width: (boundingBox.right - boundingBox.left) + 100,
-        height: (boundingBox.bottom - boundingBox.top) + 100,
-    });
-
-    // 사각형 제거
-    canvas.remove(rect);
-    canvas.renderAll();
+    const dataURL = makeFrame(canvas);
 
     if (step === 1) {
-        await onUpload(dataURL, step);
-        setStep(2);
-        setIsPanelVisible(true);
+      await onUpload(dataURL, step);
+      setStep(2);
+      setIsPanelVisible(true);
     } else if (step === 2) {
-        await onUpload(dataURL, step);
-        setStep(3);
+      await onUpload(dataURL, step);
+      setStep(3);
     } else if (step === 3) {
-        setIsPanelVisible(false);
-        await handleFinalSave();
+      setIsPanelVisible(false);
+      await handleFinalSave();
     }
   };
   
@@ -209,10 +196,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
       const newY = e.clientY - offset.y;
       setPanelPosition({ x: newX, y: newY });
     }
-  };
-
-  const handleChange = () => {
-    onChange();
   };
 
   const handleMouseUp = () => {
@@ -230,47 +213,75 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
     setIsFeedbackCardCollapsed(!isFeedbackCardCollapsed);
   };
 
+  useEffect(() => {
+    if (!isPlaying) {
+      setOverlay(null);
+      return;
+    }
+
+    const audioFileName = state.queue[0]?.split('/').pop()?.replace('.wav', '');
+    setCurrentPlayingFile(audioFileName || null);
+
+    switch (audioFileName) {
+      case 'eraser':
+        setOverlay('eraser');
+        break;
+      case 'brushWidth':
+        setOverlay('brushWidth');
+        break;
+      case 'colorPanel':
+        setOverlay('colorPanel');
+        break;
+      case 'stepOne':
+        setOverlay('save');
+        break;
+      case 'fill':
+        setOverlay('fill');
+        break;
+      case 'stepTwo':
+        setOverlay('save');
+        break;
+      case 'save':
+        setOverlay('save');
+        break;
+      default:
+        setOverlay(null);
+    }
+  }, [isPlaying, state.queue]);
+
+  useEffect(() => {
+    console.log('Audio State:', {
+      isPlaying,
+      currentPlayingFile,
+      overlay,
+      queue: state.queue
+    });
+  }, [isPlaying, currentPlayingFile, overlay, state.queue]);
+
   return (
-    <div className={style.canvasContainer} ref={canvasContainerRef} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
+    <div 
+      className={style.canvasContainer} 
+      ref={canvasContainerRef} 
+      onMouseMove={handleMouseMove} 
+      onMouseUp={handleMouseUp}
+    >
       <BannerSection onSave={saveCanvasAsImage} step={step} />
-        <canvas ref={canvasRef} className={style.canvas} onTouchEnd={handleChange} id="mycanvas"/>
-        {imageData && (
-            <div 
-                className={`${style.imageData}`}
-                onClick={toggleImageCard}
-            >
-                <div className={`${style.imageDataContent} ${isImageCardCollapsed ? style.collapsed : ''}`}>
-                    <div className={style.imageRow}>
-                        <img src={imageData.image} alt={imageData.title} />
-                        <div className={`${style.toggleIcon} ${isImageCardCollapsed ? style.toggleIconRotated : ''}`}>
-                            <ChevronIcon />
-                        </div>
-                    </div>
-                    <div className={style.description}>
-                        <h3>주제: {imageData.title}</h3>
-                        <p>{imageData.description}</p>
-                    </div>
-                </div>
-            </div>
-        )}
-      {currentFeedback && isPanelVisible && (
-        <div 
-            className={`${style.slidePanel}`}
-            onClick={toggleFeedbackCard}
-        >
-            <div className={`${style.feedbackContent} ${isFeedbackCardCollapsed ? style.collapsed : ''}`}>
-                <div className={style.feedbackRow}>
-                    <h3>{currentFeedback.title}</h3>
-                    <div className={`${style.toggleIcon} ${isFeedbackCardCollapsed ? style.toggleIconRotated : ''}`}>
-                        <ChevronIcon />
-                    </div>
-                </div>
-                <div className={style.feedbackDescription}>
-                    <p>{currentFeedback.description}</p>
-                </div>
-            </div>
-        </div>
+      <canvas ref={canvasRef} className={style.canvas} onTouchEnd={handleChange} id="mycanvas"/>
+      {imageData && (
+        <ImagePanelSection 
+          imageData={imageData}
+          isImageCardCollapsed={isImageCardCollapsed}
+          toggleImageCard={toggleImageCard}
+        />
       )}
+      {currentFeedback && isPanelVisible && (
+        <FeedbackSection 
+          currentFeedback={currentFeedback}
+          isFeedbackCardCollapsed={isFeedbackCardCollapsed}
+          toggleFeedbackCard={toggleFeedbackCard}
+        />
+      )}
+      {isPlaying && overlay && <Overlay type={overlay} isVisible={true} />}
     </div>
   );
 };

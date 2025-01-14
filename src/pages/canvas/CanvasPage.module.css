@@ -71,9 +71,9 @@
     border: 2px solid #ffffff;
     width: 100%;
     margin-top: auto;
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-family: 'Noto Sans KR';
-    padding: 18px;
+    padding: 10px;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -140,7 +140,7 @@
     margin: 15px 0 0 0;
     line-height: 1.6;
     color: #444;
-    font-size: 2rem;
+    font-size: 1.5rem;
 }
 
 .imageData {
@@ -222,7 +222,7 @@
     grid-column: 1 / -1;
     color: #424242;
     margin: 0px; 
-    font-size: 2.5rem;
+    font-size: 2rem;
 }
 
 .imageData img {
@@ -234,7 +234,7 @@
     margin: 0;
     line-height: 1.6;
     color: #444;
-    font-size: 2rem;
+    font-size: 1.5rem;
 }
 
 .visible {
@@ -265,7 +265,7 @@
 
 .feedback p {
     color: #444;
-    font-size: 1.1rem;
+    font-size: 1rem;
     line-height: 1.8;
     margin: 0;
     white-space: pre-wrap;
@@ -317,7 +317,7 @@
 .stepTitle {
     color: #ffffff;
     font-weight: 500;
-    font-size: 2rem;
+    font-size: 20px;
 }
 
 .step {
@@ -362,4 +362,24 @@
 .step span {
     font-size: 14px;
     white-space: nowrap;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    pointer-events: all;
+}
+
+.overlayContent {
+    color: white;
+    font-size: 24px;
+    text-align: center;
 }

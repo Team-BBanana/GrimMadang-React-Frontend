@@ -19,7 +19,7 @@ function ColorPanel({ className }: ColorPanelProps) {
   }, [canvas, color]);
 
   return (
-    <div className={`${className} bg-white rounded-lg shadow-lg p-3 flex flex-col items-center gap-2`}>
+    <div className={`${className} bg-white rounded-lg shadow-lg p-3 flex flex-col items-center gap-2`} data-tool="colorPanel">
         <HexColorPicker color={color} onChange={setColor} />
         <div 
           className="w-10 h-10 rounded-full border-2 border-gray-200"

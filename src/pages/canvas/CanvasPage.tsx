@@ -3,8 +3,10 @@ import CanvasSection from "./components/CanvasSection";
 import style from "./CanvasPage.module.css";
 import API from "@/api";
 import { useLocation, useNavigate } from 'react-router-dom';
-// import API from "@/api";
-
+import helloAudio from "/canvasTutorial/canvasHelloAudio.wav"
+import bgmAudio from "/canvasTutorial/bgm.mp3"
+import { AudioProvider, useAudio } from '@/context/AudioContext';
+import { ToolPositionProvider } from '@/context/ToolPositionContext';
 
 interface feedBackData {
   sessionId: string;
@@ -52,6 +54,39 @@ const CanvasPage = () => {
   const [step, setStep] = useState(1);
   const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
+  const helloAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    bgmRef.current = new Audio(bgmAudio);
+    bgmRef.current.loop = true;
+    bgmRef.current.volume = 0.4;
+
+    const playBGM = () => {
+      bgmRef.current?.play().catch(error => console.error('BGM play error:', error));
+    };
+
+    document.addEventListener('click', playBGM, { once: true });
+
+    return () => {
+      bgmRef.current?.pause();
+      bgmRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    helloAudioRef.current = new Audio(helloAudio);
+    const timer = setTimeout(() => {
+      helloAudioRef.current?.play().catch(error => console.error('Audio play error:', error));
+    }, 1000);
+
+    return () => {
+      clearTimeout(timer);
+      helloAudioRef.current?.pause();
+      helloAudioRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     // Fetch elder information and set user role
@@ -184,16 +219,20 @@ const CanvasPage = () => {
   };
 
   return (
-    <div className={style.canvasContainer}>
-      <CanvasSection 
-        className={style.canvasSection} 
-        canvasRef={canvasRef}
-        onUpload={uploadCanvasImage}
-        onChange={() => {}}
-        feedbackData={FeedBackData}
-        onFinalSave={handleSaveCanvas}
-      />
-    </div>
+    <ToolPositionProvider>
+      <AudioProvider>
+        <div className={style.canvasContainer}>
+          <CanvasSection 
+            className={style.canvasSection} 
+            canvasRef={canvasRef}
+            onUpload={uploadCanvasImage}
+            onChange={() => {}}
+            feedbackData={FeedBackData}
+            onFinalSave={handleSaveCanvas}
+          />
+        </div>
+      </AudioProvider>
+    </ToolPositionProvider>
   );
 };
 

@@ -2,18 +2,19 @@ import React from "react";
 
 interface ToolButtonProps {
   onClick: () => void;
-  disabled: boolean;
-  title: string;
-  children?: React.ReactNode; 
+  disabled?: boolean;
+  title?: string;
+  children: React.ReactNode;
+  'data-tool'?: string;
 }
 
-const ToolButton: React.FC<ToolButtonProps> = ({ onClick, disabled = false, title, children }) => {
+const ToolButton: React.FC<ToolButtonProps> = ({ onClick, disabled, title, children, 'data-tool': dataTool }) => {
   return (
     <button
-      type="button"
       onClick={onClick}
       disabled={disabled}
       title={title}
+      data-tool={dataTool}
     >
       {children}
     </button>

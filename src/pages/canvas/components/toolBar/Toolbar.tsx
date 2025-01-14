@@ -161,6 +161,7 @@ const Toolbar = ({ brushWidth }: ToolbarProps) => {
                 onClick={() => setActiveTool("pen")}
                 disabled={activeTool === "pen"}
                 title="Pen Tool"
+                data-tool="pen"
             >
                 <BrushIcon />
                 <span className={style.toolTitle}>그리기</span>
@@ -170,6 +171,7 @@ const Toolbar = ({ brushWidth }: ToolbarProps) => {
                 onClick={() => setActiveTool("fill")}
                 disabled={activeTool === "fill"}
                 title="Fill Tool"
+                data-tool="fill"
             >
                 <FillIcon />
                 <span className={style.toolTitle}>채우기</span>
@@ -179,6 +181,7 @@ const Toolbar = ({ brushWidth }: ToolbarProps) => {
                 onClick={() => setActiveTool("eraser")}
                 disabled={activeTool === "eraser"}
                 title="Eraser Tool"
+                data-tool="eraser"
             >
                 <EraserIcon />
                 <span className={style.toolTitle}>지우개</span>
@@ -188,6 +191,7 @@ const Toolbar = ({ brushWidth }: ToolbarProps) => {
                 onClick={() => setActiveTool("select")}
                 disabled={activeTool === "select"}
                 title="Select Tool"
+                data-tool="select"
             >
                 <SelectIcon />
                 <span className={style.toolTitle}>선택하기</span>
@@ -197,6 +201,7 @@ const Toolbar = ({ brushWidth }: ToolbarProps) => {
                 onClick={() => setActiveTool("hand")}
                 disabled={activeTool === "hand"}
                 title="Hand Tool"
+                data-tool="hand"
             >
                 <MoveIcon />
                 <span className={style.toolTitle}>움직이기</span>

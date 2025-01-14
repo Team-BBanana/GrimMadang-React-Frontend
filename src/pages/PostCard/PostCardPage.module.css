@@ -1,0 +1,51 @@
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(90deg, #022216, #1a3b2a, #284e3a, #1a3b2a, #022216);
+}
+
+.errorContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background: linear-gradient(90deg, #022216, #1a3b2a, #284e3a, #1a3b2a, #022216);
+    color: #a8d5ba;
+    text-align: center;
+}
+
+.errorMessage {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    font-family: 'Song Myung';
+}
+
+.backButton {
+    padding: 12px 24px;
+    font-size: 1.6rem;
+    background-color: #347050;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.backButton:hover {
+    background-color: #2a5a40;
+}
+
+@media (max-width: 768px) {
+    .errorMessage {
+        font-size: 1.6rem;
+    }
+
+    .backButton {
+        font-size: 1.4rem;
+        padding: 10px 20px;
+    }
+} 
