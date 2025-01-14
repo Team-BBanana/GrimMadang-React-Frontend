@@ -11,12 +11,13 @@
 
 .title {
     font-family: 'Song Myung', serif;
-    font-size: 4rem;
+    font-size: 70px;
     text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
     font-weight: 700;
     color: #a8d5ba;
-    letter-spacing: 5px;
-    margin-bottom: 0px;
+    letter-spacing: 14.5px;
+    margin: 0px;
+    padding-top: 30px;
 }
 
 .carouselContainer {
@@ -28,9 +29,10 @@
 }
 
 .explaination {
-    font-size: 1.8rem;
+    font-size: 40px;
     color: #a8d5ba;
     text-align: center;
+    margin-bottom: 20px;
 }
 
 .explaination p {

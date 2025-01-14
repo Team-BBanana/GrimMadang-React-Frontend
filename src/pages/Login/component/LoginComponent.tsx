@@ -64,7 +64,7 @@ const LoginComponent: React.FC<LoginProps> = ({ errormsg, success, onClickSubmit
             <div className={style.content}>
                 <div className={style.logoSection}>
                     <img src={LogoImage} className={style.MindinCanvasImage} alt="artGround" />
-                    <p>나만의 전시회를 만들어보세요</p>
+                    <p>나만의 전시회를 만들어요</p>
                     <h1>그림마당</h1>
                 </div>
                 <div className={style.loginSection}>

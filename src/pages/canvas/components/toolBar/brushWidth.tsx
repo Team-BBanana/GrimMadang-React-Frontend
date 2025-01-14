@@ -6,7 +6,7 @@ interface BrushWidthProps {
     onChange: (width: number) => void;
 }
 
-const brushSizes = [5, 13, 21, 29, 37, 45];
+const brushSizes = [2, 6, 12, 18, 24, 30];
 
 function BrushWidth({ onChange }: BrushWidthProps) {
     const [selectedBrushWidth, setSelectedBrushWidth] = useState(brushSizes[1]);
