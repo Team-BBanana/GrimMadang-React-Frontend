@@ -5,16 +5,14 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 
 interface SpeechButtonProps {
     onTranscriptComplete: (transcript: string) => void;
-    onAudioComplete?: (audioBlob: Blob) => void;
     onCloseTutorial: () => void;
     onInitialClick: () => void;
 }
 
-const SpeechButton = ({ onTranscriptComplete, onAudioComplete, onInitialClick }: SpeechButtonProps) => {
+const SpeechButton = ({ onTranscriptComplete, onInitialClick }: SpeechButtonProps) => {
     const [isListening, setIsListening] = useState(false);
     const [isInitial, setIsInitial] = useState(true);
     const mediaRecorder = useRef<MediaRecorder | null>(null);
-    const audioChunks = useRef<Blob[]>([]);
     // const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
 
     const {

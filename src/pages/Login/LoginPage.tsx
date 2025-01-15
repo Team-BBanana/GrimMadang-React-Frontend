@@ -9,11 +9,6 @@ interface FormData {
     phoneNumber: string;
 }
 
-interface elderInfo {
-    name: string;
-    phoneNumber: string;
-}
-
 const LoginPage = () => {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);

@@ -53,7 +53,6 @@ const CanvasPage = () => {
   const [FeedBackData, setFeedBackData] = useState<FeedbackResponse[]>([]);
   const [step, setStep] = useState(1);
   const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
 
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const helloAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -97,7 +96,6 @@ const CanvasPage = () => {
                 const elderData = response.data as ElderInfo;
                 console.log('elderData:', elderData);
                 setElderinfo(elderData);
-                setUserRole(elderData.role);
             }
         } catch (error) {
             console.error('getElderName 실패:', error);
@@ -128,7 +126,7 @@ const CanvasPage = () => {
       `canvas-image-step-${step}-${elderinfo?.elderId}-${randomStr}.png`
     );
 
-    fetch('http://localhost:3001/upload', {
+    fetch(`${import.meta.env.VITE_UPLOAD_SERVER_URL}/upload`, {
       method: 'POST',
       body: formData,
     })
