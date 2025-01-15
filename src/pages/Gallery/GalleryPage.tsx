@@ -269,7 +269,7 @@ const GalleryPage = () => {
                 )}
             </div>
             {showTutorial && elderinfo?.role === 'ROLE_ELDER' && (
-                <Tutorial onClose={() => setShowTutorial(true)} />
+                <Tutorial onClose={() => setShowTutorial(false)} />
             )}
         </>
     );

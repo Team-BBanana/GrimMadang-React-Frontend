@@ -1,5 +1,5 @@
 import { fabric } from "fabric";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAtomValue, useAtom } from "jotai";
 import { HexColorPicker } from "react-colorful";
 import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
