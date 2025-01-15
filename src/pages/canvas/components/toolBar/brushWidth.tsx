@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import style from './module/brushWidth.module.css';
 
 interface BrushWidthProps {
@@ -17,7 +17,7 @@ function BrushWidth({ onChange }: BrushWidthProps) {
     };
 
     return (
-        <div className={style.container}>
+        <div data-tool="brushWidth" className={style.container}>
             <div className={style.circleContainer}>
                 {brushSizes.map(size => (
                     <div

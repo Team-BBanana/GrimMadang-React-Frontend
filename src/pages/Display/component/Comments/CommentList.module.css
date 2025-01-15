@@ -7,11 +7,13 @@
 
 .commentCarousel {
     flex: 1;
-    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 10px;
+    width: 100%;
+    padding: 0;
+    margin: 0;
 }
 
 /* 화살표 스타일 */
@@ -35,18 +37,17 @@
 }
 
 .prevArrow {
-    left: -150px;
+    left: -80px;
 }
 
 .nextArrow {
-    right: -150px;
+    right: -80px;
 }
 
 /* 슬라이더 컨테이너 스타일 */
 .slider {
     width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
+    box-sizing: border-box;
 }
 
 .slideWrapper {
@@ -56,18 +57,22 @@
 /* Slick 기본 스타일 커스터마이징 */
 :global(.slick-slider) {
     width: 100%;
+    display: flex;
     position: relative;
     margin: 0;
+    align-items: center;
 }
 
 :global(.slick-list) {
     margin: 0 auto;
     height: 100%;
+    width: 100%;
+    align-items: center;
 }
 
 :global(.slick-track) {
-    display: flex;
     align-items: center;
+    width: 100%;
 }
 
 :global(.slick-dots) {

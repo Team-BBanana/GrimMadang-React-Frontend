@@ -55,9 +55,9 @@ const DisplayComponent: React.FC<DisplayComponentProps> = ({
                         </div>
                     </div>
                     <div className={style.rightInfo}>
-                        <div className={style.aiCommentSection}>
+                        <div className={`${style.aiCommentSection} ${style.scrollableContent}`}>
                             <h2 className={style.title}>작품 설명</h2>
-                            <div className={style.feedbackSection}>
+                            <div className={`${style.feedbackSection} ${style.scrollableContent}`}>
                                 <div className={style.feedback}>
                                     <p>{feedback2}</p>
                                 </div>
@@ -73,12 +73,12 @@ const DisplayComponent: React.FC<DisplayComponentProps> = ({
                     </div>
                 </div>
                 <div className={style.bottomSection}>
-                    <CommentList 
-                        onCommentCountUpdate={handleCommentCountUpdate} 
-                        userRole={userRole}
-                        onCommentSubmit={onCommentSubmit}
-                        comments={comments}
-                    />
+                        <CommentList 
+                            onCommentCountUpdate={handleCommentCountUpdate} 
+                            userRole={userRole}
+                            onCommentSubmit={onCommentSubmit}
+                            comments={comments}
+                        />
                 </div>
             </div>
         </div>

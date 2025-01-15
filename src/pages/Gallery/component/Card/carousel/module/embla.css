@@ -13,11 +13,10 @@
   display: flex;
   touch-action: pan-y pinch-zoom;
   margin-left: calc(var(--slide-spacing) * -1);
-  height: 40rem;
+  height: 30rem;
 }
 .embla__slide {
-  height: inherit;
-
+  height: 90%;
   flex: 0 0 var(--slide-size);
   margin: 0 3rem;
   background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(0, 0, 0, 0.5));
@@ -115,7 +114,7 @@
   position: relative;
   width: 100%;
   display: inline-block;
-  height: inherit;
+  height: 100%;
   cursor: pointer;
 }
 
