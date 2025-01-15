@@ -125,7 +125,7 @@ const DisplayPage: React.FC = () => {
         <>
             <DisplayComponent 
                 title={imageData.title} 
-                imageUrl={imageData.imageUrl1} 
+                imageUrl={imageData.imageUrl2} 
                 createdTime={imageData.createdAt} 
                 feedback2={feedback.feedback2}
                 userRole={elderinfo.role}

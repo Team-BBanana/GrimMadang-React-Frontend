@@ -49,14 +49,13 @@ interface Drawing {
 
 const GalleryPage = () => {
     const navigate = useNavigate();
-    const [userRole, setUserRole] = useState<string | null>(null);
-    const [audioUrl, setAudioUrl] = useState<string | undefined>(undefined);
     const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
     const [showTutorial, setShowTutorial] = useState(false);
     const [timerStarted, setTimerStarted] = useState(false);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const [isExploreMode, setIsExploreMode] = useState(false);
     const [drawings, setDrawings] = useState<Drawing[]>([]);
+    const [topic,setTopic] = useState<string | null>(null);
 
     // 3분 타이머 함수
     const startThreeMinuteTimer = () => {
@@ -102,9 +101,7 @@ const GalleryPage = () => {
                 if (response.status === 200) {
                     const elderData = response.data as ElderInfo;
                     console.log('elderData:', elderData);
-                    setElderinfo(elderData);
-                    setUserRole(elderData.role);
-                    
+                    setElderinfo(elderData);                    
                     // ROLE_ELDER이고 현재 세션에서 첫 방문인 경우에만 튜토리얼 표시
                     if (elderData.role === 'ROLE_ELDER' && !document.cookie.includes('tutorialShown=true')) {
                         setShowTutorial(true);
@@ -149,8 +146,6 @@ const GalleryPage = () => {
                 const audioBlob = new Blob([new Uint8Array(audioData)], { type: 'audio/wav' });
                 const audioUrl = URL.createObjectURL(audioBlob);
                 console.log('Generated audio URL:', audioUrl);
-
-                setAudioUrl(audioUrl);
                 
                 // 오디오 재생 및 타이머 시작
                 await playAudioAndWait(audioUrl);
@@ -181,24 +176,24 @@ const GalleryPage = () => {
             const response = await API.canvasApi.welcomeFlow(data);
             console.log('Voice chat response:', response.data);
 
+            // 토픽 설정을 response 처리 전에 수행
+            const newTopic = response.data.data.wantedTopic;
+            setTopic(newTopic);
+            console.log("설정된 topic:", newTopic); // 토픽이 제대로 설정되었는지 확인
+
             const responseAudioData = response.data.data.aiResponseWelcomeWav.data;
             
             if (responseAudioData) {
                 const audioBlob = new Blob([new Uint8Array(responseAudioData)], { type: 'audio/wav' });
                 const audioUrl = URL.createObjectURL(audioBlob);
-                setAudioUrl(audioUrl);
                 
                 await playAudioAndWait(audioUrl);
 
                 if (response.data.data.choice) {
                     console.log("사용자가 그림 그리기를 원합니다.");
-                    // setIsExploreMode(true);
-                    // handleExploreChat(transcript, false);  // choice로 인한 요청
-                    navigate('/canvas', { 
-                        state: { 
-                            topics: response.data.topics 
-                        }
-                    });
+                    setIsExploreMode(true);
+                    // topic 값을 직접 전�
+                    handleExploreChat(transcript, false, newTopic);
                 }
             }
         } catch (error) {
@@ -206,14 +201,17 @@ const GalleryPage = () => {
         }
     };
 
-    const handleExploreChat = async (transcript: string, isTimeout: boolean = false) => {
+    const handleExploreChat = async (_transcript: string, isTimeout: boolean = false, currentTopic: string | null = null) => {
         if (!elderinfo) return;
+
+        const topicToUse = currentTopic || topic; // 전�받은 topic이 있으면 사용, 없으면 state의 topic 사용
+        console.log("handleExploreChat에서 사용하는 topic:", topicToUse);
 
         const data: exploreCanvasData = {
             sessionId: elderinfo.elderId || '',
             name: elderinfo.name || '',
             rejectedCount: 0,
-            userRequestExploreWav: isExploreMode ? transcript : "first",
+            userRequestExploreWav: topicToUse || 'first',
             isTimedOut: isTimeout ? "true" : "false"
         };
 
@@ -226,17 +224,14 @@ const GalleryPage = () => {
             if (responseAudioData) {
                 const audioBlob = new Blob([new Uint8Array(responseAudioData)], { type: 'audio/wav' });
                 const audioUrl = URL.createObjectURL(audioBlob);
-                setAudioUrl(audioUrl);
                 await playAudioAndWait(audioUrl);
             }
 
-            console.log("fdsfsdfsdfsad" + response.data.select);
-            console.log("fdsfsdfsdfsad" + response.data.topics);
-
-            if(response.data.select){
+            if(response.data.select === "true") {
+                // topic 값을 명시적으로 전달
                 navigate('/canvas', { 
                     state: { 
-                        topics: response.data.topics 
+                        topics: topicToUse || response.data.topics 
                     }
                 });
             }
