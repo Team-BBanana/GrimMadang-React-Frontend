@@ -4,6 +4,7 @@ import { useAtom } from "jotai";
 import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
 import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
 import style from "../CanvasPage.module.css";
+import API from "@/api";
 import ImagePanelSection from "./PanelSection";
 import FeedbackSection from "./FeedbackSection";
 import { makeFrame } from '../utils/makeFrame';
@@ -110,35 +111,17 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
   };
 
   useEffect(() => {
+    if (metadata) {
+      setImageData({
+        title: metadata.topic,
+        description: metadata.guidelines,
+        image: metadata.imageUrl
+      });
 
-    // if (metadata) {
-    //   setImageData({
-    //     title: metadata.topic,
-    //     description: metadata.guidelines,
-    //     image: metadata.imageUrl
-    //   });
-    // 임시 데이터 설정
-    const testMetadata = {
-      imageUrl: "https://bbanana.s3.ap-northeast-2.amazonaws.com/topics/바나나/1736961006882.png",
-      guidelines: JSON.stringify([
-        { step: 1, title: "바나나 모양 그리기", instruction: "바나나의 곡선 모양을 그리고 위에 작은 원을 추가하여 기본 형태를 만듭니다." },
-        { step: 2, title: "바나나의 곡선 완성", instruction: "곡선을 따라 상세한 형태를 그리고, 하단에 작은 꼬리 모양을 추가합니다." },
-        { step: 3, title: "바나나 표면 선 그리기", instruction: "바나나 표면에 세부적인 선을 그려 중심 부분을 자세히 표현합니다." },
-        { step: 4, title: "그림자와 하이라이트 추가", instruction: "그림자를 그려 입체감을 부여하고, 하이라이트로 광택을 표현해 생동감을 더합니다." },
-        { step: 5, title: "바나나 색칠하기", instruction: "노란색으로 바나나를 채우고, 그림자에는 연한 갈색을 입히며 마무리합니다. 완성작 감상!" }
-      ]),
-      topic: "바나나"
-    };
-
-    setImageData({
-      title: testMetadata.topic,
-      description: testMetadata.guidelines,
-      image: testMetadata.imageUrl
-    });
-
-    const parsedInstructions = JSON.parse(testMetadata.guidelines).map((item: any) => item.instruction);
-    setInstructions(parsedInstructions);
-  }, []);
+      const parsedInstructions = JSON.parse(metadata.guidelines).map((item: any) => item.instruction);
+      setInstructions(parsedInstructions);
+    }
+  }, [metadata]);
 
   // 첫 튜토리얼 메시지는 한 번만 재생
   useEffect(() => {
@@ -285,6 +268,24 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
     }
   }, [tutorialStep, setOverlay]);
 
+  // Toolbar에서 도구 선택 시 오버레이 제거
+  const handleToolSelect = useCallback((tool: string) => {
+    setOverlay(null);  // 도구 선택 시 오버레이 제거
+    switch (tool) {
+      case 'brushWidth':
+        if (tutorialStep === 1) {
+          handleBrushWidthChange();
+        }
+        break;
+      case 'eraser':
+        // 지우개는 사용 시 이벤트로 처리
+        break;
+      case 'fill':
+        // 채우기는 사용 시 이벤트로 처리
+        break;
+    }
+  }, [tutorialStep, handleBrushWidthChange]);
+
   useEffect(() => {
     if (!canvasContainerRef.current || !canvasRef.current) return;
 
@@ -309,20 +310,58 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
 
     window.addEventListener("resize", handleResize);
 
+    // 테스트용 메타데이터
+    const testMetadata = {
+      imageUrl: "https://bbanana.s3.ap-northeast-2.amazonaws.com/topics/바나나/1736961006882.png",
+      guidelines: `[
+        {
+          "step": 1,
+          "title": "바나나 모양 그리기",
+          "instruction": "바나나의 곡선 모양을 그리고 위에 작은 원을 추가하여 기본 형태를 만듭니다."
+        },
+        {
+          "step": 2,
+          "title": "바나나의 곡선 완성",
+          "instruction": "곡선을 따라 상세한 형태를 그리고, 하단에 작은 꼬리 모양을 추가합니다."
+        },
+        {
+          "step": 3,
+          "title": "바나나 표면 선 그리기",
+          "instruction": "바나나 표면에 세부적인 선을 그려 중심 부분을 자세히 표현합니다."
+        },
+        {
+          "step": 4,
+          "title": "그림자와 하이라이트 추가",
+          "instruction": "그림자를 그려 입체감을 부여하고, 하이라이트로 광택을 표현해 생동감을 더합니다."
+        },
+        {
+          "step": 5,
+          "title": "바나나 색칠하기",
+          "instruction": "노란색으로 바나나를 채우고, 그림자에는 연한 갈색을 입히며 마무리합니다. 완성작 감상!"
+        }
+      ]`,
+      topic: "바나나"
+    };
 
-    if (metadata) {
-      setImageData({
-        title: metadata.topic,
-        description: metadata.guidelines,
-        image: metadata.imageUrl
-      });
-    }
+    // 테스트 메타데이터 설정
+    setImageData({
+      title: testMetadata.topic,
+      description: testMetadata.guidelines,
+      image: testMetadata.imageUrl
+    });
+
+
+    
+
+    // guidelines 파싱 및 설정
+    const parsedInstructions = JSON.parse(testMetadata.guidelines).map((item: any) => item.instruction);
+    setInstructions(parsedInstructions);
 
     return () => {
       newCanvas.dispose();
       window.removeEventListener("resize", handleResize);
     };
-  }, [canvasRef, setCanvas, metadata]);
+  }, [canvasRef, setCanvas]);
 
   const handleFinalSave = async () => {
     if (onFinalSave) {
