@@ -5,7 +5,7 @@ import API from "@/api";
 import { useLocation, useNavigate } from 'react-router-dom';
 import helloAudio from "/canvasTutorial/canvasHelloAudio.wav"
 import bgmAudio from "/canvasTutorial/bgm.mp3"
-import { AudioProvider, useAudio } from '@/context/AudioContext';
+import { AudioProvider} from '@/context/AudioContext';
 import { ToolPositionProvider } from '@/context/ToolPositionContext';
 
 interface feedBackData {

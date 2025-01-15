@@ -24,6 +24,7 @@
     "express": "^4.21.2",
     "fabric": "^5.3.0",
     "fabric-eraser-brush": "^1.0.1",
+    "html2canvas": "^1.4.1",
     "jotai": "^2.11.0",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
