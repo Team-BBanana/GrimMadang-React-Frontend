@@ -49,8 +49,6 @@ interface Drawing {
 
 const GalleryPage = () => {
     const navigate = useNavigate();
-    const [userRole, setUserRole] = useState<string | null>(null);
-    const [audioUrl, setAudioUrl] = useState<string | undefined>(undefined);
     const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
     const [showTutorial, setShowTutorial] = useState(false);
     const [timerStarted, setTimerStarted] = useState(false);
@@ -103,9 +101,7 @@ const GalleryPage = () => {
                 if (response.status === 200) {
                     const elderData = response.data as ElderInfo;
                     console.log('elderData:', elderData);
-                    setElderinfo(elderData);
-                    setUserRole(elderData.role);
-                    
+                    setElderinfo(elderData);                    
                     // ROLE_ELDER이고 현재 세션에서 첫 방문인 경우에만 튜토리얼 표시
                     if (elderData.role === 'ROLE_ELDER' && !document.cookie.includes('tutorialShown=true')) {
                         setShowTutorial(true);
@@ -150,8 +146,6 @@ const GalleryPage = () => {
                 const audioBlob = new Blob([new Uint8Array(audioData)], { type: 'audio/wav' });
                 const audioUrl = URL.createObjectURL(audioBlob);
                 console.log('Generated audio URL:', audioUrl);
-
-                setAudioUrl(audioUrl);
                 
                 // 오디오 재생 및 타이머 시작
                 await playAudioAndWait(audioUrl);
@@ -207,7 +201,7 @@ const GalleryPage = () => {
         }
     };
 
-    const handleExploreChat = async (transcript: string, isTimeout: boolean = false, currentTopic: string | null = null) => {
+    const handleExploreChat = async (_transcript: string, isTimeout: boolean = false, currentTopic: string | null = null) => {
         if (!elderinfo) return;
 
         const topicToUse = currentTopic || topic; // 전�받은 topic이 있으면 사용, 없으면 state의 topic 사용
@@ -230,7 +224,6 @@ const GalleryPage = () => {
             if (responseAudioData) {
                 const audioBlob = new Blob([new Uint8Array(responseAudioData)], { type: 'audio/wav' });
                 const audioUrl = URL.createObjectURL(audioBlob);
-                setAudioUrl(audioUrl);
                 await playAudioAndWait(audioUrl);
             }
 

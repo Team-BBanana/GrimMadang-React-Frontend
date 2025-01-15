@@ -17,6 +17,12 @@ interface ToolbarProps {
   brushWidth: number;
 }
 
+declare module 'fabric' {
+    interface ICanvas extends fabric.Canvas {
+        EraserBrush: any;
+    }
+}
+
 const Toolbar = ({ brushWidth }: ToolbarProps) => {
   const [activeTool, setActiveTool] = useAtom(activeToolAtom);
   const canvas = useAtomValue(canvasInstanceAtom);
