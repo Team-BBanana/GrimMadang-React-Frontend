@@ -51,11 +51,11 @@ const GalleryPage = () => {
     const navigate = useNavigate();
     const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
     const [showTutorial, setShowTutorial] = useState(false);
-    const [timerStarted, setTimerStarted] = useState(false);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const [isExploreMode, setIsExploreMode] = useState(false);
     const [drawings, setDrawings] = useState<Drawing[]>([]);
     const [topic,setTopic] = useState<string | null>(null);
+    const [metadata, setMetadata] = useState(null);
 
     // 3분 타이머 함수
     const startThreeMinuteTimer = () => {
@@ -63,7 +63,6 @@ const GalleryPage = () => {
             clearTimeout(timerRef.current);
         }
 
-        setTimerStarted(true);
         timerRef.current = setTimeout(() => {
             console.log("3분이 경과했습니다.");
             setIsExploreMode(true);
@@ -80,6 +79,7 @@ const GalleryPage = () => {
         };
     }, []);
 
+    
     useEffect(() => {
         const fetchDrawings = async () => {
             try {
@@ -93,11 +93,13 @@ const GalleryPage = () => {
         fetchDrawings();
     }, []);
 
+
     useEffect(() => {
         // Fetch elder information and set user role
         const fetchElderName = async () => {
             try {
                 const response = await API.userApi.getElderInfo();
+
                 if (response.status === 200) {
                     const elderData = response.data as ElderInfo;
                     console.log('elderData:', elderData);
@@ -108,6 +110,7 @@ const GalleryPage = () => {
                         document.cookie = 'tutorialShown=true; path=/; max-age=3600';
                     }
                 }
+
             } catch (error) {
                 console.error('getElderName 실패:', error);
             }
@@ -117,12 +120,14 @@ const GalleryPage = () => {
     }, []);
 
     const playAudioAndWait = async (audioUrl: string): Promise<void> => {
+
         const audio = new Audio(audioUrl);
         await audio.play();
         
         return new Promise<void>((resolve) => {
             audio.onended = () => resolve();
         });
+
     };
 
     const fetchWelcomeFlow = async () => {
@@ -139,27 +144,77 @@ const GalleryPage = () => {
             const response = await API.canvasApi.welcomeFlow(data);
             console.log('Welcome flow response:', response.data);
 
-            const audioData = response.data.data.aiResponseWelcomeWav.data;
-            console.log('audioData:', audioData);
-
-            if (audioData) {
-                const audioBlob = new Blob([new Uint8Array(audioData)], { type: 'audio/wav' });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                console.log('Generated audio URL:', audioUrl);
-                
-                // 오디오 재생 및 타이머 시작
-                await playAudioAndWait(audioUrl);
-                if (!timerStarted) {
-                    startThreeMinuteTimer();  // 첫 음성 재생 후 타이머 시작
-                }
-            } else {
-                console.error('audioData가 정의되지 않았거나 응답에 없습니다.');
+            const textToSpeak = response.data.data.aiResponseWelcomeWav; // API 응답에서 텍스트 추출
+            if (textToSpeak) {
+                await speakText(textToSpeak);
             }
+
+            // const audioData = response.data.data.aiResponseWelcomeWav.data;
+            // console.log('audioData:', audioData);
+
+            // if (audioData) {
+            //     const audioBlob = new Blob([new Uint8Array(audioData)], { type: 'audio/wav' });
+            //     const audioUrl = URL.createObjectURL(audioBlob);
+            //     console.log('Generated audio URL:', audioUrl);
+                
+            //     // 오디오 재생 및 타이머 시작
+            //     await playAudioAndWait(audioUrl);
+            //     if (!timerStarted) {
+            //         startThreeMinuteTimer();  // 첫 음성 재생 후 타이머 시작
+            //     }
+            // } else {
+            //     console.error('audioData가 정의되지 않았거나 응답에 없습니다.');
+            // }
         } catch (error) {
             console.error('환영 흐름 중 오류 발생:', error);
         }
     };
 
+    const speakText = async (text: string) => {
+        console.log("speakText 호출됨:", text);
+        try {
+            // 서버에 음성 합성 요청
+            const response = await fetch('http://localhost:4174/synthesize-speech', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text })
+            });
+
+            if (!response.ok) {
+                throw new Error('Speech synthesis failed');
+            }
+
+            const data = await response.json();
+            
+            // Base64 디코딩 및 오디오 재생
+            const audioData = atob(data.audioContent);
+            const arrayBuffer = new Uint8Array(audioData.length);
+            for (let i = 0; i < audioData.length; i++) {
+                arrayBuffer[i] = audioData.charCodeAt(i);
+            }
+            
+            const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
+            const url = URL.createObjectURL(blob);
+            
+            return new Promise<void>((resolve) => {
+                const audio = new Audio(url);
+                audio.onended = () => {
+                    URL.revokeObjectURL(url);
+                    resolve();
+                };
+                audio.onerror = (error) => {
+                    console.error('Audio playback error:', error);
+                    URL.revokeObjectURL(url);
+                    resolve();
+                };
+                audio.play();
+            });
+        } catch (error) {
+            console.error('Speech synthesis error:', error);
+        }
+    };
 
     const fetchVoiceChat = async (transcript: string) => {
         if (!elderinfo || isExploreMode) return;
@@ -175,27 +230,23 @@ const GalleryPage = () => {
 
             const response = await API.canvasApi.welcomeFlow(data);
             console.log('Voice chat response:', response.data);
-
-            // 토픽 설정을 response 처리 전에 수행
-            const newTopic = response.data.data.wantedTopic;
-            setTopic(newTopic);
-            console.log("설정된 topic:", newTopic); // 토픽이 제대로 설정되었는지 확인
-
-            const responseAudioData = response.data.data.aiResponseWelcomeWav.data;
             
-            if (responseAudioData) {
-                const audioBlob = new Blob([new Uint8Array(responseAudioData)], { type: 'audio/wav' });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                
-                await playAudioAndWait(audioUrl);
+            const newTopic = response.data.data.wantedTopic;
+            const textToSpeak = response.data.data.aiResponseWelcomeWav;
 
-                if (response.data.data.choice) {
-                    console.log("사용자가 그림 그리기를 원합니다.");
+            if (textToSpeak) {
+                await speakText(textToSpeak);
+                // 음성 출력이 완료된 후에만 다음 단계로 진행
+                if (newTopic) {
+                    console.log("그림 그리기 주제가 선택됨:", newTopic);
+                    setTopic(newTopic);
                     setIsExploreMode(true);
-                    // topic 값을 직접 전�
-                    handleExploreChat(transcript, false, newTopic);
+                    setTimeout(async () => {
+                        await handleExploreChat(transcript, false, newTopic);
+                    }, 500); // 약간의 딜레이를 주어 상태 업데이트가 완료되도록 함
                 }
             }
+
         } catch (error) {
             console.error('Voice chat error:', error);
         }
@@ -204,7 +255,7 @@ const GalleryPage = () => {
     const handleExploreChat = async (_transcript: string, isTimeout: boolean = false, currentTopic: string | null = null) => {
         if (!elderinfo) return;
 
-        const topicToUse = currentTopic || topic; // 전�받은 topic이 있으면 사용, 없으면 state의 topic 사용
+        const topicToUse = currentTopic || topic; // 전받은 topic이 있으면 사용, 없으면 state의 topic 사용
         console.log("handleExploreChat에서 사용하는 topic:", topicToUse);
 
         const data: exploreCanvasData = {
@@ -219,21 +270,14 @@ const GalleryPage = () => {
             const response = await API.canvasApi.exploreCanvas(data);
             console.log('Explore chat response:', response.data);
 
-            const responseAudioData = response.data.aiResponseExploreWav.data;
-            
-            if (responseAudioData) {
-                const audioBlob = new Blob([new Uint8Array(responseAudioData)], { type: 'audio/wav' });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                await playAudioAndWait(audioUrl);
+            const textToSpeak = response.data.aiResponseExploreWav;
+            if (textToSpeak) {
+                await speakText(textToSpeak);
             }
 
-            if(response.data.select === "true") {
-                // topic 값을 명시적으로 전달
-                navigate('/canvas', { 
-                    state: { 
-                        topics: topicToUse || response.data.topics 
-                    }
-                });
+            if (response.data.select === "true") {
+                setMetadata(response.data.metadata);
+                navigate('/canvas', { state: { metadata: response.data.metadata } });
             }
         } catch (error) {
             console.error('Explore chat error:', error);

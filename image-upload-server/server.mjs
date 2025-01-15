@@ -4,21 +4,23 @@ import multer from 'multer';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
-dotenv.config(); // Load environment variables
+dotenv.config();
 
 const app = express();
 const PORT = 4174;
 
 app.use(cors());
+app.use(express.json());
 
-// AWS SDK configuration using environment variables
+// AWS SDK configuration
 AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION,
 });
 
 const s3 = new AWS.S3();
+const polly = new AWS.Polly();
 
 // Multer configuration
 const storage = multer.memoryStorage();
@@ -43,6 +45,31 @@ app.post('/upload', upload.single('file'), (req, res) => {
   });
 });
 
+// Polly 음성 합성 엔드포인트
+app.post('/synthesize-speech', async (req, res) => {
+    try {
+        const { text } = req.body;
+        
+        const params = {
+            Engine: 'neural',
+            LanguageCode: 'ko-KR',
+            OutputFormat: 'mp3',
+            Text: text,
+            TextType: 'text',
+            VoiceId: 'Seoyeon'
+        };
+
+        const data = await polly.synthesizeSpeech(params).promise();
+        
+        // AudioStream을 Base64로 인코딩하여 전송
+        const audioBase64 = data.AudioStream.toString('base64');
+        res.json({ audioContent: audioBase64 });
+    } catch (error) {
+        console.error('Speech synthesis error:', error);
+        res.status(500).json({ error: 'Speech synthesis failed' });
+    }
+});
+
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });

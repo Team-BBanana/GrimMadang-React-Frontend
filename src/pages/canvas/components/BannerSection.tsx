@@ -80,7 +80,9 @@ function BannerSection({ onSave, step }: BannerSectionProps) {
             <div>
                 <BrushWidth
                     brushWidth={brushWidth}
-                    onChange={handleBrushWidthChange}
+                    onChange={(newWidth) => {
+                        handleBrushWidthChange(newWidth);
+                    }}
                     data-tool="brushWidth"
                 />
             </div>

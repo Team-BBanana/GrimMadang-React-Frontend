@@ -1,16 +1,17 @@
 import { fabric } from "fabric";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useAtom } from "jotai";
 import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
 import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
 import style from "../CanvasPage.module.css";
-import API from "@/api";
 import ImagePanelSection from "./PanelSection";
 import FeedbackSection from "./FeedbackSection";
 import { makeFrame } from '../utils/makeFrame';
 import debounce from 'lodash/debounce';
-import { useAudio } from '@/context/AudioContext';
 import Overlay from './Overlay';
+import overlayAtom from '@/store/atoms/overlayAtom';
+import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
+import { useLocation } from 'react-router-dom';
 
 interface CanvasSectionProps {
   className?: string;
@@ -35,83 +36,254 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
   const [currentFeedback, setCurrentFeedback] = useState<any>(null);
   const [isImageCardCollapsed, setIsImageCardCollapsed] = useState(false);
   const [isFeedbackCardCollapsed, setIsFeedbackCardCollapsed] = useState(false);
+  const [overlay, setOverlay] = useAtom(overlayAtom);
+  const [tutorialStep, setTutorialStep] = useState(0);
+  const [activeTool] = useAtom(activeToolAtom);
+  const [instructions, setInstructions] = useState<string[]>([]);
+  
+  const hasInitialPlayedRef = useRef(false);
+  const currentAudio = useRef<HTMLAudioElement | null>(null);
 
-  const [currentAudioIndex, setCurrentAudioIndex] = useState(0);
-  const [playedAudios, setPlayedAudios] = useState<Set<number>>(new Set());
-  const { dispatch, state } = useAudio();
-  const { isPlaying } = state;
+  const location = useLocation();
+  const metadata = location.state?.metadata;
 
-  const [overlay, setOverlay] = useState<string | null>(null);
-
-  const [currentPlayingFile, setCurrentPlayingFile] = useState<string | null>(null);
-
-  const feedbackData1 = {
-    title: "도움말",
-    description: "그림에서 바나나의 형태가 잘 드러나도록 곡선을 자연스럽게 표현하신 점이 인상적입니다. 주제를 바나나로 더 명확하게 표현하려면 다음을 고려해 보세요 바나나의 양 끝부분(꼭지와 끝부분)을 약간 어둡게 처리하면 실제 바나나의 느낌을 더 살릴 수 있을 것 같습니다."
+  const tutorialMessages = {
+    canvasHello: "안녕하세요 저는 오늘 그림그리기를 도와줄 마당이라고 해요 차근차근 같이 멋진 작품 만들어 봐요 우리 그리기 버튼을 눌러 동그라미를 하나 그려볼까요?",
+    brushWidth: "더큰 동그라미를 선택해서 굵은 선을 그릴 수도 있어요",
+    eraser: "지우개 버튼을 눌러 마음에 안드는 부분을 지워볼까요",
+    fill: "채우기 버튼 을 눌러주세요 그린그림을 눌르면 넓은 면을 색칠 할 수 있어요",
+    startStep: "지금까지 그림판의 사용법을 알아보았어요 이제 그림을 그리러 가볼까요?",
+    nextStep: "이번 단계 는 어떠셨나요 ? 이제 다음 단계 로 가볼까요 ?"
   };
 
-  const feedbackData2 = {
-    title: "도움말",
-    description: "그림에서 바나나의 양 끝부분(꼭지와 끝부분)을 약간 어둡게 처리하신 점이 정말 돋보입니다! 🎨 바나나의 실제감을 훌륭히 표현해 주셨고, 끝부분의 어두운 디테일이 신선한 바나나의 느낌을 더 생동감 있게 전달하고 있어요. 특히 색상의 톤 변화가 자연스러워서 그림에 깊이를 더한 점이 인상적입니다. 😊"
-  };
+  const speakText = async (text: string) => {
+    console.log("speakText 호출됨:", text);
+    try {
+      if (currentAudio.current) {
+        currentAudio.current.pause();
+        currentAudio.current = null;
+      }
 
-  const audioFiles = [
-    '/canvasTutorial/eraser.wav',
-    '/canvasTutorial/brushWidth.wav',
-    '/canvasTutorial/colorPanel.wav',
-    '/canvasTutorial/stepOne.wav',
-    '/canvasTutorial/acceptFeedback.wav',
-    '/canvasTutorial/fill.wav',
-    '/canvasTutorial/specificDraw.wav',
-    '/canvasTutorial/stepTwo.wav',
-    '/canvasTutorial/acceptFeedback2.wav',
-    '/canvasTutorial/save.wav',
-  ];
+      const response = await fetch('http://localhost:4174/synthesize-speech', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text })
+      });
 
-  const playAudio = (index: number) => {
-    console.log("index: ", index);
-    if (playedAudios.has(index) || index >= audioFiles.length) return;
-    
-    dispatch({ type: 'ADD_TO_QUEUE', payload: audioFiles[index] });
-    setPlayedAudios(prev => new Set([...prev, index]));
-    const nextIndex = index + 1;
-    setCurrentAudioIndex(nextIndex);
-};
+      if (!response.ok) {
+        throw new Error('Speech synthesis failed');
+      }
 
-  const debouncedAudioPlay = useRef(
-    debounce((currentIndex: number) => {
-        playAudio(currentIndex);
-    }, 5000)
-  ).current;
+      const data = await response.json();
+      
+      const audioData = atob(data.audioContent);
+      const arrayBuffer = new Uint8Array(audioData.length);
+      for (let i = 0; i < audioData.length; i++) {
+        arrayBuffer[i] = audioData.charCodeAt(i);
+      }
+      
+      const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
+      const url = URL.createObjectURL(blob);
+      
+      return new Promise<void>((resolve) => {
+        const audio = new Audio(url);
+        currentAudio.current = audio;
 
-  const handleChange = () => {
-    onChange();
-    debouncedAudioPlay(currentAudioIndex);
+        audio.onended = () => {
+          URL.revokeObjectURL(url);
+          currentAudio.current = null;
+          resolve();
+        };
+        audio.onerror = (error) => {
+          console.error('Audio playback error:', error);
+          URL.revokeObjectURL(url);
+          currentAudio.current = null;
+          resolve();
+        };
+        audio.play();
+      });
+    } catch (error) {
+      console.error('Speech synthesis error:', error);
+    }
   };
 
   useEffect(() => {
-    return () => {
-      debouncedAudioPlay.cancel();
+
+    // if (metadata) {
+    //   setImageData({
+    //     title: metadata.topic,
+    //     description: metadata.guidelines,
+    //     image: metadata.imageUrl
+    //   });
+    // 임시 데이터 설정
+    const testMetadata = {
+      imageUrl: "https://bbanana.s3.ap-northeast-2.amazonaws.com/topics/바나나/1736961006882.png",
+      guidelines: JSON.stringify([
+        { step: 1, title: "바나나 모양 그리기", instruction: "바나나의 곡선 모양을 그리고 위에 작은 원을 추가하여 기본 형태를 만듭니다." },
+        { step: 2, title: "바나나의 곡선 완성", instruction: "곡선을 따라 상세한 형태를 그리고, 하단에 작은 꼬리 모양을 추가합니다." },
+        { step: 3, title: "바나나 표면 선 그리기", instruction: "바나나 표면에 세부적인 선을 그려 중심 부분을 자세히 표현합니다." },
+        { step: 4, title: "그림자와 하이라이트 추가", instruction: "그림자를 그려 입체감을 부여하고, 하이라이트로 광택을 표현해 생동감을 더합니다." },
+        { step: 5, title: "바나나 색칠하기", instruction: "노란색으로 바나나를 채우고, 그림자에는 연한 갈색을 입히며 마무리합니다. 완성작 감상!" }
+      ]),
+      topic: "바나나"
     };
-  }, [debouncedAudioPlay]);
 
+    setImageData({
+      title: testMetadata.topic,
+      description: testMetadata.guidelines,
+      image: testMetadata.imageUrl
+    });
+
+    const parsedInstructions = JSON.parse(testMetadata.guidelines).map((item: any) => item.instruction);
+    setInstructions(parsedInstructions);
+  }, []);
+
+  // 첫 튜토리얼 메시지는 한 번만 재생
   useEffect(() => {
-    const handleStepChange = async () => {
-      if (step === 2) {
-        setCurrentFeedback(feedbackData1);
-        setIsPanelVisible(true);
-        // await playAudio('4.wav');
-      } else if (step === 3) {
-        setCurrentFeedback(feedbackData2);
-        setIsPanelVisible(true);
-        // await playAudio('5.wav');
-      } else {
-        setIsPanelVisible(false);
+    const playInitialTutorial = async () => {
+      if (!hasInitialPlayedRef.current) {
+        hasInitialPlayedRef.current = true;
+        await speakText(tutorialMessages.canvasHello);
+        setOverlay('pen');  // 음성이 끝난 후 그리기 버튼 하이라이트
+      }
+    };
+    playInitialTutorial();
+  }, []);
+
+  // 캔버스 그리기 이벤트 감지
+  useEffect(() => {
+    if (!canvas) return;
+
+    const handlePathCreated = async () => {
+      if (tutorialStep === 0) {
+        setOverlay(null);  // 그리기 시작하면 오버레이 제거
+        setTutorialStep(1);
+        await speakText(tutorialMessages.brushWidth);
+        setOverlay('brushWidth');  // 음성이 끝난 후 두께 변경 요소 하이라이트
       }
     };
 
-    handleStepChange();
-  }, [step]);
+    canvas.on('path:created', handlePathCreated);
+
+    return () => {
+      canvas.off('path:created', handlePathCreated);
+    };
+  }, [canvas, tutorialStep]);
+
+  // 두께 변경과 그림 그리기 감지
+  useEffect(() => {
+    if (!canvas) return;
+
+    let isBrushWidthChanged = false;
+    let isPathCreated = false;
+
+    const handleBrushWidthChange = async () => {
+      if (tutorialStep === 1) {
+        setOverlay(null);  // 두께 변경 시 오버레이 해제
+        if (isBrushWidthChanged && isPathCreated) {
+          setTutorialStep(2);
+          await speakText(tutorialMessages.eraser);
+          setOverlay('eraser');  // 음성이 끝난 후 지우개 버튼 하이라이트
+        }
+      }
+    };
+
+    const checkBrushWidthChange = () => {
+      if (canvas.freeDrawingBrush && canvas.freeDrawingBrush.width !== brushWidth) {
+        isBrushWidthChanged = true;
+        handleBrushWidthChange();
+      }
+    };
+
+    const handlePathCreated = () => {
+      isPathCreated = true;
+      handleBrushWidthChange();
+    };
+
+    // 두께 변경 요소에 오버레이가 걸리도록 설정
+    const brushWidthElement = document.querySelector('[data-tool="brushWidth"]');
+    if (brushWidthElement) {
+      brushWidthElement.addEventListener('click', checkBrushWidthChange);
+    }
+
+    canvas.on('path:created', handlePathCreated);
+
+    return () => {
+      if (brushWidthElement) {
+        brushWidthElement.removeEventListener('click', checkBrushWidthChange);
+      }
+      canvas.off('path:created', handlePathCreated);
+    };
+  }, [canvas, tutorialStep, brushWidth]);
+
+  // 도구 선택 및 사용 감지
+  useEffect(() => {
+    if (!canvas) return;
+
+    const handleEraserUse = async () => {
+      if (tutorialStep === 2) {
+        setOverlay(null);
+        setTutorialStep(3);
+        await speakText(tutorialMessages.fill);
+        setOverlay('fill');  // 음성이 끝난 후 채우기 버튼 하이라이트
+      }
+    };
+
+    const handleFillUse = async () => {
+      if (tutorialStep === 3) {
+        setOverlay(null);  // 마지막 단계에서 오버레이 제거
+        setTutorialStep(4);
+        await speakText(tutorialMessages.startStep);  // startStep 음성 출력
+      }
+    };
+
+    const handlePathCreated = (e: fabric.IEvent) => {
+      if (activeTool === 'eraser') {
+        handleEraserUse();
+      }
+    };
+
+    canvas.on('path:created', handlePathCreated);
+
+    // fill 도구 사용 시 object:modified 이벤트로 감지
+    canvas.on('object:modified', (e) => {
+      if (activeTool === 'fill') {
+        handleFillUse();
+      }
+    });
+
+    return () => {
+      canvas.off('path:created', handlePathCreated);
+      canvas.off('object:modified');
+    };
+  }, [canvas, tutorialStep, activeTool]);
+
+  const handleBrushWidthChange = useCallback(async () => {
+    if (tutorialStep === 1) {
+      setOverlay(null);
+      setTutorialStep(2);
+      await speakText(tutorialMessages.eraser);
+      setOverlay('eraser');
+    }
+  }, [tutorialStep, speakText, setOverlay]);
+
+  const handleEraserUse = useCallback(async () => {
+    if (tutorialStep === 2) {
+      setOverlay(null);
+      setTutorialStep(3);
+      await speakText(tutorialMessages.fill);
+      setOverlay('fill');
+    }
+  }, [tutorialStep, speakText, setOverlay]);
+
+  const handleFillUse = useCallback(() => {
+    if (tutorialStep === 3) {
+      setOverlay(null);
+      setTutorialStep(4);
+    }
+  }, [tutorialStep, setOverlay]);
 
   useEffect(() => {
     if (!canvasContainerRef.current || !canvasRef.current) return;
@@ -124,8 +296,9 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
 
     setCanvas(newCanvas);
 
-    newCanvas.freeDrawingBrush.width = brushWidth;
-    newCanvas.isDrawingMode = true;
+    // 초기 상태에서는 그리기 모드 비활성화
+    newCanvas.isDrawingMode = false;
+    newCanvas.selection = false;
     newCanvas.renderAll();
 
     const handleResize = () => {
@@ -136,28 +309,20 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
 
     window.addEventListener("resize", handleResize);
 
-    const fetchImageMetaData = async () => {
-      try {
-        const response = await API.canvasApi.ImagemetaData({ sessionId: "your_session_id", topic: "your_topic" });
-        setImageData(response.data);
-      } catch (error) {
-        console.error('Error fetching image metadata:', error);
-      }
-    };
-    fetchImageMetaData();
 
-
-    setImageData({
-      title: "바나나",
-      description: "달콤하고 부드러운 맛을 가진 노란색의 열대 과일로, 곡선 모양의 특징적인 형태를 가지고 있습니다.",
-      image : "public/MockImage/메타_목_데이터.png"
-    });
+    if (metadata) {
+      setImageData({
+        title: metadata.topic,
+        description: metadata.guidelines,
+        image: metadata.imageUrl
+      });
+    }
 
     return () => {
       newCanvas.dispose();
       window.removeEventListener("resize", handleResize);
     };
-  }, [canvasRef, setCanvas]);
+  }, [canvasRef, setCanvas, metadata]);
 
   const handleFinalSave = async () => {
     if (onFinalSave) {
@@ -213,50 +378,19 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
     setIsFeedbackCardCollapsed(!isFeedbackCardCollapsed);
   };
 
+  const handleChange = () => {
+    onChange();
+  };
+
+  // 컴포넌트 언마운트 시 오디오 정리
   useEffect(() => {
-    if (!isPlaying) {
-      setOverlay(null);
-      return;
-    }
-
-    const audioFileName = state.queue[0]?.split('/').pop()?.replace('.wav', '');
-    setCurrentPlayingFile(audioFileName || null);
-
-    switch (audioFileName) {
-      case 'eraser':
-        setOverlay('eraser');
-        break;
-      case 'brushWidth':
-        setOverlay('brushWidth');
-        break;
-      case 'colorPanel':
-        setOverlay('colorPanel');
-        break;
-      case 'stepOne':
-        setOverlay('save');
-        break;
-      case 'fill':
-        setOverlay('fill');
-        break;
-      case 'stepTwo':
-        setOverlay('save');
-        break;
-      case 'save':
-        setOverlay('save');
-        break;
-      default:
-        setOverlay(null);
-    }
-  }, [isPlaying, state.queue]);
-
-  useEffect(() => {
-    console.log('Audio State:', {
-      isPlaying,
-      currentPlayingFile,
-      overlay,
-      queue: state.queue
-    });
-  }, [isPlaying, currentPlayingFile, overlay, state.queue]);
+    return () => {
+      if (currentAudio.current) {
+        currentAudio.current.pause();
+        currentAudio.current = null;
+      }
+    };
+  }, []);
 
   return (
     <div 
@@ -265,8 +399,15 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
       onMouseMove={handleMouseMove} 
       onMouseUp={handleMouseUp}
     >
-      <BannerSection onSave={saveCanvasAsImage} step={step} />
-      <canvas ref={canvasRef} className={style.canvas} onTouchEnd={handleChange} id="mycanvas"/>
+      <BannerSection 
+        onSave={saveCanvasAsImage} 
+        step={step} 
+      />
+      <canvas 
+        ref={canvasRef} 
+        className={style.canvas} 
+        id="mycanvas"
+      />
       {imageData && (
         <ImagePanelSection 
           imageData={imageData}
@@ -281,7 +422,16 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
           toggleFeedbackCard={toggleFeedbackCard}
         />
       )}
-      {isPlaying && overlay && <Overlay type={overlay} isVisible={true} />}
+      {overlay && <Overlay type={overlay} isVisible={true} />}
+      {instructions.length > 0 && (
+        <div className={style.instructions}>
+          {instructions.map((instruction, index) => (
+            <div key={index} className={style.instruction}>
+              {instruction}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -10,10 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@aws-sdk/client-polly": "^3.726.1",
     "@babel/runtime": "^7.26.0",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.15.10",
+    "@tanstack/react-query": "^5.64.1",
+    "@tanstack/react-query-devtools": "^5.64.1",
     "@types/react-speech-recognition": "^3.9.5",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.7.9",

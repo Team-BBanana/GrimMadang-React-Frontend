@@ -3,9 +3,7 @@ import CanvasSection from "./components/CanvasSection";
 import style from "./CanvasPage.module.css";
 import API from "@/api";
 import { useLocation, useNavigate } from 'react-router-dom';
-import helloAudio from "/canvasTutorial/canvasHelloAudio.wav"
 import bgmAudio from "/canvasTutorial/bgm.mp3"
-import { AudioProvider} from '@/context/AudioContext';
 import { ToolPositionProvider } from '@/context/ToolPositionContext';
 
 interface feedBackData {
@@ -75,7 +73,6 @@ const CanvasPage = () => {
   }, []);
 
   useEffect(() => {
-    helloAudioRef.current = new Audio(helloAudio);
     const timer = setTimeout(() => {
       helloAudioRef.current?.play().catch(error => console.error('Audio play error:', error));
     }, 1000);
@@ -218,7 +215,6 @@ const CanvasPage = () => {
 
   return (
     <ToolPositionProvider>
-      <AudioProvider>
         <div className={style.canvasContainer}>
           <CanvasSection 
             className={style.canvasSection} 
@@ -229,7 +225,6 @@ const CanvasPage = () => {
             onFinalSave={handleSaveCanvas}
           />
         </div>
-      </AudioProvider>
     </ToolPositionProvider>
   );
 };

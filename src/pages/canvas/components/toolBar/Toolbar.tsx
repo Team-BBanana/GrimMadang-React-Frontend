@@ -10,6 +10,7 @@ import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
 import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
 import { useAtom, useAtomValue } from "jotai";
 import colorAtom from "@/store/atoms/canvas/colorAtom";
+import overlayAtom from '@/store/atoms/overlayAtom';
 
 import style from "./module/toolBar.module.css"
 
@@ -18,8 +19,16 @@ interface ToolbarProps {
 }
 
 declare module 'fabric' {
-    interface ICanvas extends fabric.Canvas {
-        EraserBrush: any;
+    namespace fabric {
+        class EraserBrush extends BaseBrush {
+            constructor(canvas: fabric.Canvas);
+            width: number;
+            color: string;
+        }
+    }
+
+    interface Canvas {
+        freeDrawingBrush: fabric.BaseBrush | fabric.EraserBrush;
     }
 }
 
@@ -27,6 +36,7 @@ const Toolbar = ({ brushWidth }: ToolbarProps) => {
   const [activeTool, setActiveTool] = useAtom(activeToolAtom);
   const canvas = useAtomValue(canvasInstanceAtom);
   const fillColor = useAtomValue(colorAtom);
+  const [overlay, setOverlay] = useAtom(overlayAtom);
 
   /**
    * @description 화이트 보드에 그려져 있는 요소들을 클릭을 통해 선택 가능한지 여부를 제어하기 위한 함수입니다.
@@ -94,15 +104,14 @@ const Toolbar = ({ brushWidth }: ToolbarProps) => {
   }, [canvas, fillColor]);
 
   const handleEraser = useCallback(() => {
-
     if (!(canvas instanceof fabric.Canvas)) return;
     canvas.freeDrawingCursor = `url('/eraserMouseCursor.svg'), auto`;
     setIsObjectSelectable(true);
 
     canvas.isDrawingMode = true;
+    // @ts-ignore - EraserBrush는 런타임에 존재하지만 타입 시스템에서는 인식하지 못함
     canvas.freeDrawingBrush = new fabric.EraserBrush(canvas);
     canvas.freeDrawingBrush.width = brushWidth;
-    
   }, [canvas, setIsObjectSelectable, brushWidth]);
 
   const handleHand = useCallback(() => {
@@ -164,7 +173,12 @@ const Toolbar = ({ brushWidth }: ToolbarProps) => {
         <div className={style.toolSet}>
           <div className={style.toolButton}>
             <ToolButton
-                onClick={() => setActiveTool("pen")}
+                onClick={() => {
+                    if (overlay === 'pen') {
+                        setOverlay(null);
+                    }
+                    setActiveTool("pen");
+                }}
                 disabled={activeTool === "pen"}
                 title="Pen Tool"
                 data-tool="pen"
@@ -174,23 +188,33 @@ const Toolbar = ({ brushWidth }: ToolbarProps) => {
             </ToolButton>
 
             <ToolButton
-                onClick={() => setActiveTool("fill")}
-                disabled={activeTool === "fill"}
-                title="Fill Tool"
-                data-tool="fill"
-            >
-                <FillIcon />
-                <span className={style.toolTitle}>채우기</span>
-            </ToolButton>
-
-            <ToolButton
-                onClick={() => setActiveTool("eraser")}
+                onClick={() => {
+                    if (overlay === 'eraser') {
+                        setOverlay(null);
+                    }
+                    setActiveTool("eraser");
+                }}
                 disabled={activeTool === "eraser"}
-                title="Eraser Tool"
+                title="Eraser"
                 data-tool="eraser"
             >
                 <EraserIcon />
                 <span className={style.toolTitle}>지우개</span>
+            </ToolButton>
+
+            <ToolButton
+                onClick={() => {
+                    if (overlay === 'fill') {
+                        setOverlay(null);
+                    }
+                    setActiveTool("fill");
+                }}
+                disabled={activeTool === "fill"}
+                title="Fill"
+                data-tool="fill"
+            >
+                <FillIcon />
+                <span className={style.toolTitle}>채우기</span>
             </ToolButton>
 
             <ToolButton
