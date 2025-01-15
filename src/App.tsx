@@ -15,7 +15,7 @@ import PostCardPage from './pages/PostCard/PostCardPage.tsx';
 
 function AppContent() {
   const location = useLocation(); 
-  const fullBrowserRoutes = ['/', '/canvas', '/gallery', '/gallery/*', '/signup', '/postcard']; 
+  const fullBrowserRoutes = ['/', '/canvas', '/gallery', '/gallery/*', '/signup', '/postcard/*']; 
   const isFullBrowserRoutes = fullBrowserRoutes.some(route => 
       location.pathname === route || 
       (route.endsWith('*') && location.pathname.startsWith(route.slice(0, -1)))
@@ -34,7 +34,7 @@ function AppContent() {
           <Route path='/gallery' element={<GalleryPage/>} />
           <Route path='/family' element={<FamilyPage />} />
           <Route path="/gallery/:id" element={<DisplayPage />} />
-          <Route path="/postcard" element={<PostCardPage />} />
+          <Route path="/postcard/:id" element={<PostCardPage />} />
         </Routes>
       </div>
       {!isFullBrowserRoutes && <div className="footer"><Footer /></div>}

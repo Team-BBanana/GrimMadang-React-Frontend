@@ -2,68 +2,61 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PostCardComponent from './component/PostCardComponent';
 import API from '@/api';
-import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
 import style from './PostCardPage.module.css';
 
-interface PostCardData {
-    imageUrl: string;
-    title: string;
-    content: string;
+declare global {
+    interface Window {
+        Kakao: any;
+    }
 }
 
 const PostCardPage: React.FC = () => {
-    const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [backgroundImage, setBackgroundImage] = useState<string>('');
 
     useEffect(() => {
-        const fetchImage = async () => {
+        const fetchDrawing = async () => {
             try {
                 if (!id) throw new Error('이미지 ID가 없습니다.');
-                
-                setLoading(true);
-                const imageData = await API.galleryApi.getDrawing(id);
-                setBackgroundImage(imageData.data.imageUrl);
+
+                const response = await API.galleryApi.getDrawing(id);
+                setBackgroundImage(response.data.imageUrl1);
                 setError(null);
             } catch (err) {
                 setError(err instanceof Error ? err.message : '이미지를 불러오는데 실패했습니다.');
-            } finally {
-                setLoading(false);
-            }
+            } 
         };
 
-        fetchImage();
+        fetchDrawing();
     }, [id]);
 
-    const handleShare = async (title: string, content: string) => {
+    useEffect(() => {
+        if (!window.Kakao.isInitialized()) {
+            window.Kakao.init(import.meta.env.VITE_KAKAO_API_KEY);
+        }
+    }, []);
+
+    const handleShare = async (imageBlob: string) => {
         try {
-            if (!id) throw new Error('이미지 ID가 없습니다.');
-            
-            setLoading(true);
-            await API.postCardApi.sharePostCard({
-                imageId: id,
-                title,
-                content
+            const url = '/gallery/' + id;
+            console.log(imageBlob);
+            window.Kakao.Share.sendDefault({
+                objectType: 'feed',
+                content: {
+                    title: '내 그림을 보러 오세요!',
+                    description: '전시회에 방문해서 방명록을 남겨주세요😊',
+                    imageUrl: backgroundImage, // s3 URL로 변경 필요
+                    link: {
+                        webUrl: url,
+                    },
+                },
             });
-            
-            // 공유 성공 후 갤러리 페이지로 이동
-            navigate('/gallery');
         } catch (err) {
             setError(err instanceof Error ? err.message : '엽서 공유에 실패했습니다.');
-        } finally {
-            setLoading(false);
         }
     };
-
-    if (loading) {
-        return (
-            <div className={style.loadingContainer}>
-                <LoadingSpinner />
-            </div>
-        );
-    }
 
     if (error) {
         return (

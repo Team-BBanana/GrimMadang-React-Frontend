@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import style from './DisplayComponent.module.css';
+import { useNavigate } from 'react-router-dom';
 
 import CommentList from './Comments/CommentList';
 
@@ -15,6 +16,7 @@ interface Comment {
 }
 
 interface DisplayComponentProps {
+    id: string;
     title: string;
     imageUrl: string;
     createdTime: string;
@@ -25,6 +27,7 @@ interface DisplayComponentProps {
 }
 
 const DisplayComponent: React.FC<DisplayComponentProps> = ({ 
+    id,
     title, 
     imageUrl, 
     createdTime, 
@@ -33,6 +36,7 @@ const DisplayComponent: React.FC<DisplayComponentProps> = ({
     onCommentSubmit,
     comments
 }) => {
+    const navigate = useNavigate();
     const [commentCount, setCommentCount] = useState<number>(0);
 
     const handleCommentCountUpdate = (count: number) => {
@@ -44,13 +48,23 @@ const DisplayComponent: React.FC<DisplayComponentProps> = ({
         return date.toISOString().split('T')[0];  // yyyy-mm-dd 형식으로 변환
     };
 
+    const handleImageClick = () => {
+        navigate(`/postcard/${id}`);
+    };
+
     return (
         <div className={style.container}>
             <div className={style.contentWrapper}>
                 <div className={style.topSection}>
                     <div className={style.imageSection}>
                         <div className={style.frameWrapper}>
-                            <img src={imageUrl} alt={title} className={style.image} />
+                            <img 
+                                src={imageUrl} 
+                                alt={title} 
+                                className={style.image} 
+                                onClick={handleImageClick}
+                                style={{ cursor: 'pointer' }}
+                            />
                             <div className={style.frameOverlay}></div>
                         </div>
                     </div>

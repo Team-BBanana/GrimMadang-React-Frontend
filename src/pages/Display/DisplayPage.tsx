@@ -138,6 +138,7 @@ const DisplayPage: React.FC = () => {
     return (
         <>
             <DisplayComponent 
+                id={id || ''}
                 title={imageData.title} 
                 imageUrl={imageData.imageUrl2} 
                 createdTime={imageData.createdAt} 
