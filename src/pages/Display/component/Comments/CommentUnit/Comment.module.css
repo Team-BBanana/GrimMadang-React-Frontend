@@ -6,6 +6,7 @@
     border-radius: 12px;
     transition: background 0.2s ease;
     height: 100%;
+    width: 100%;
 }
 
 .wrapper:hover {
@@ -36,14 +37,14 @@
 }
 
 .nameText {
-    font-size: 3rem;
+    font-size: 2rem;
     font-weight: 600;
     color: #a8d5ba;
     margin-right: 16px;
 }
 
 .commentText {
-    font-size: 3rem;
+    font-size: 2rem;
     color: #ffffff;
     line-height: 1.6;
     word-break: break-word;
@@ -51,6 +52,6 @@
 }
 
 .dateText {
-    font-size: 3rem;
+    font-size: 2rem;
     color: rgba(255, 255, 255, 0.6);
 }

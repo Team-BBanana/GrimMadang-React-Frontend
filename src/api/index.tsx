@@ -3,6 +3,7 @@ import userApi from "./user.api/user.api";
 import canvasApi from "./canvas.api/canvas.api";
 import familyApi from "./family.api/family.api";
 import galleryApi from "./gallery.api/gallery.api";
+import postCardApi from "./postCard.api/postCard.api";
 
 export const CanvasClient = axios.create({
     baseURL: import.meta.env.VITE_CANVAS_API_URL,
@@ -19,6 +20,7 @@ const API = {
     canvasApi,
     familyApi,
     galleryApi,
+    postCardApi,
 };
 
 export default API;

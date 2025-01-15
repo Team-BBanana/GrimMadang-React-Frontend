@@ -42,36 +42,7 @@ const CommentList: React.FC<CommentListProps> = ({
       content: "정말 멋있는 그림이에요!",
       createdAt: "2023-10-15"
     },
-    {
-      id: 'mock2',
-      user: {
-        id: '2',
-        name: "손자",
-        role: "grandSon"
-      },
-      content: "호랑이 너무 무서워요",
-      createdAt: "2023-10-15"
-    },
-    {
-      id: 'mock3',
-      user: {
-        id: '3',
-        name: "아들",
-        role: "son"
-      },
-      content: "따봉",
-      createdAt: "2023-10-15"
-    },
-    {
-      id: 'mock4',
-      user: {
-        id: '4',
-        name: "아들",
-        role: "son"
-      },
-      content: "따봉",
-      createdAt: "2023-10-15"
-    },
+  
     {
       id: 'mock5',
       user: {
@@ -121,26 +92,24 @@ const CommentList: React.FC<CommentListProps> = ({
   };
 
   return (
-    <div className={style.carouselContainer}>
-      <div className={style.commentCarousel}>
-        <Slider {...settings}>
-          {userRole === 'ROLE_FAMILY' && (
-            <div className={style.slideWrapper}>
-              <CommentInput onSubmit={onCommentSubmit} />
-            </div>
-          )}
-          {allComments.map((comment) => (
-            <div key={comment.id} className={style.slideWrapper}>
-              <CommentItem
-                role={comment.user.role}
-                name={comment.user.name}
-                comment={comment.content}
-                date={comment.createdAt}
-              />
-            </div>
-          ))}
-        </Slider>
-      </div>
+    <div className={style.commentCarousel}>
+      <Slider {...settings}>
+        {userRole === 'ROLE_FAMILY' && (
+          <div className={style.slideWrapper}>
+            <CommentInput onSubmit={onCommentSubmit} />
+          </div>
+        )}
+        {allComments.map((comment) => (
+          <div key={comment.id} className={style.slideWrapper}>
+            <CommentItem
+              role={comment.user.role}
+              name={comment.user.name}
+              comment={comment.content}
+              date={comment.createdAt}
+            />
+          </div>
+        ))}
+      </Slider>
     </div>
   );
 };
