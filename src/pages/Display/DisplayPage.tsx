@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import DisplayComponent from './component/DisplayComponent';
 import API from '@/api';
+import postCardAudio from "/canvasTutorial/postCardAudio.wav"
 
 interface Drawing {
     id: string;
@@ -54,6 +55,19 @@ const DisplayPage: React.FC = () => {
     const [feedback, setFeedback] = useState<Feedback | null>(null);
     const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
     const [comments, setComments] = useState<Comment[]>([]);
+
+    useEffect(() => {
+        const audio = new Audio(postCardAudio);
+        const timer = setTimeout(() => {
+            audio.play();
+        }, 2000); 
+
+        return () => {
+            clearTimeout(timer); 
+            audio.pause();
+            audio.currentTime = 0; 
+        };
+    }, []);
 
     const fetchComments = async () => {
         try {
