@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), svgr()],
   server: {
     host: '0.0.0.0', // 모든 네트워크 인터페이스에서 접근 가능
-    port: 5173,      // 필요하면 포트 변경 가능
+    port: 4173,      // 포트를 5173으로 고정
   },
   resolve: {
     alias: [

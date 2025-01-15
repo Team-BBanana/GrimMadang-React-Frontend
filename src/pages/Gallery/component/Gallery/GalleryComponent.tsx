@@ -45,7 +45,7 @@ const GalleryComponent: React.FC<GalleryComponentProps> = ({ elderinfo, drawings
 
     // Carousel에 필요한 형식으로 drawings 데이터 변환
     const carouselSlides = drawings.map((drawing) => ({
-        imageUrl: drawing.imageUrl1,
+        imageUrl: drawing.imageUrl2,
         title: drawing.title,
         onClick: () => navigate(`/gallery/${drawing.id}`)
     }));
