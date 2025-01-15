@@ -15,15 +15,14 @@ import { useLocation } from 'react-router-dom';
 
 interface CanvasSectionProps {
   className?: string;
-  onUpload: (dataURL: string, step: number) => void;
+  onUpload: (dataURL: string, step: number, topic: string) => void;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   onChange: () => void;
   feedbackData: any | null;
   onFinalSave?: () => void;
-  handleFeedbackAPI: (step: number) => void;
 }
 
-const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave, handleFeedbackAPI }: CanvasSectionProps) => {
+const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSectionProps) => {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [canvas, setCanvas] = useAtom(canvasInstanceAtom);
   const [isDragging, setIsDragging] = useState(true);
@@ -40,8 +39,13 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave, handleFeedb
   const [overlay, setOverlay] = useAtom(overlayAtom);
   const [tutorialStep, setTutorialStep] = useState(0);
   const [activeTool] = useAtom(activeToolAtom);
+
+
+  const [title, setTitle] = useState<string[]>([]);
   const [instructions, setInstructions] = useState<string[]>([]);
-  
+  const [topic, setTopic] = useState<string>();
+  const [imageUrl, setImageUrl] = useState<string>();
+
   const hasInitialPlayedRef = useRef(false);
   const currentAudio = useRef<HTMLAudioElement | null>(null);
   const isFillUsedRef = useRef(false);
@@ -50,7 +54,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave, handleFeedb
   const metadata = location.state?.metadata;
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [currentInstruction, setCurrentInstruction] = useState<{title: string, instruction: string} | null>(null);
 
   const [feedbackTimer, setFeedbackTimer] = useState<NodeJS.Timeout | null>(null);
 
@@ -118,14 +121,18 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave, handleFeedb
 
   useEffect(() => {
     if (metadata) {
-      setImageData({
-        title: metadata.topic,
-        description: metadata.guidelines,
-        image: metadata.imageUrl
-      });
 
       const parsedInstructions = JSON.parse(metadata.guidelines).map((item: any) => item.instruction);
+      const parsedTopic = JSON.parse(metadata.topic);
+      const parsedTitle = JSON.parse(metadata.title).map((item: any) => item.instruction);
+      const parsedImageUrl = metadata.imageUrl;
+
       setInstructions(parsedInstructions);
+      setTopic(parsedTopic);
+      setTitle(parsedTitle);
+      setImageUrl(parsedImageUrl);
+
+
     }
   }, [metadata]);
 
@@ -207,6 +214,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave, handleFeedb
     };
   }, [canvas, tutorialStep, brushWidth]);
 
+
   // 도구 선택 및 사용 감지
   useEffect(() => {
     if (!canvas) return;
@@ -226,6 +234,22 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave, handleFeedb
         setOverlay(null);
         setTutorialStep(4);
         await speakText(tutorialMessages.startStep);
+
+        // 캔버스 초기화
+        if (canvas) {
+          canvas.clear();
+          canvas.backgroundColor = "transparent";
+          canvas.renderAll();
+        }
+
+        setCurrentStep(1);
+
+        setImageData({
+          title: title[currentStep],
+          description: instructions[currentStep],
+          image: imageUrl
+        });
+
       }
     };
 
@@ -275,14 +299,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave, handleFeedb
     }
   }, [tutorialStep, speakText, setOverlay]);
 
-  const handleFillUse = useCallback(async () => {
-    if (tutorialStep === 3 && !isFillUsedRef.current) {
-      isFillUsedRef.current = true;
-      setOverlay(null);
-      setTutorialStep(4);
-      await speakText(tutorialMessages.startStep);
-    }
-  }, [tutorialStep, speakText, setOverlay]);
 
   useEffect(() => {
     if (!canvasContainerRef.current || !canvasRef.current) return;
@@ -308,50 +324,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave, handleFeedb
 
     window.addEventListener("resize", handleResize);
 
-    // 테스트용 메타데이터
-    const testMetadata = {
-      imageUrl: "https://bbanana.s3.ap-northeast-2.amazonaws.com/topics/바나나/1736961006882.png",
-      guidelines: `[
-        {
-          "step": 1,
-          "title": "바나나 모양 그리기",
-          "instruction": "바나나의 곡선 모양을 그리고 위에 작은 원을 추가하여 기본 형태를 만듭니다."
-        },
-        {
-          "step": 2,
-          "title": "바나나의 곡선 완성",
-          "instruction": "곡선을 따라 상세한 형태를 그리고, 하단에 작은 꼬리 모양을 추가합니다."
-        },
-        {
-          "step": 3,
-          "title": "바나나 표면 선 그리기",
-          "instruction": "바나나 표면에 세부적인 선을 그려 중심 부분을 자세히 표현합니다."
-        },
-        {
-          "step": 4,
-          "title": "그림자와 하이라이트 추가",
-          "instruction": "그림자를 그려 입체감을 부여하고, 하이라이트로 광택을 표현해 생동감을 더합니다."
-        },
-        {
-          "step": 5,
-          "title": "바나나 색칠하기",
-          "instruction": "노란색으로 바나나를 채우고, 그림자에는 연한 갈색을 입히며 마무리합니다. 완성작 감상!"
-        }
-      ]`,
-      topic: "바나나"
-    };
-
-    // 테스트 메타데이터 설정
-    setImageData({
-      title: testMetadata.topic,
-      description: testMetadata.guidelines,
-      image: testMetadata.imageUrl
-    });
-
-
-    // guidelines 파싱 및 설정
-    const parsedInstructions = JSON.parse(testMetadata.guidelines).map((item: any) => item.instruction);
-    setInstructions(parsedInstructions);
+    
 
     return () => {
       newCanvas.dispose();
@@ -360,35 +333,19 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave, handleFeedb
   }, [canvasRef, setCanvas]);
 
   const handleFinalSave = async () => {
-    if (onFinalSave) {
-      onFinalSave();
-    }
+    // if (onFinalSave) {
+    //   onFinalSave();
+    // }
   };
 
-  const saveCanvasAsImage = async () => {
+  const saveImageAndFeedback = async () => {
     if (!canvas) return;
 
-    // 캔버스의 객체 확인
-    const objects = canvas.getObjects();
-    if (objects.length === 0) {
-      alert("그림을 그려주세요!");
-      return;
-    }
-
     const dataURL = makeFrame(canvas);
-
-    if (step === 1) {
-      await onUpload(dataURL, step);
-      setStep(2);
-      setIsPanelVisible(true);
-    } else if (step === 2) {
-      await onUpload(dataURL, step);
-      setStep(3);
-    } else if (step === 3) {
-      setIsPanelVisible(false);
-      await handleFinalSave();
-    }
-  };
+    const responese =  await onUpload(dataURL, step, topic || "");
+    console.log(responese);
+    setStep(step + 1);
+  }
   
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging) {
@@ -427,46 +384,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave, handleFeedb
     };
   }, []);
 
-  // 피드백 요청 함수
-  const requestFeedback = async (currentStep: number) => {
-    try {
-      const response = await handleFeedbackAPI(currentStep);
-      if (response === undefined) return;
-
-      const { feedback, passed } = response;
-      
-      // 피드백이 있을 때만 음성 출력
-      if (feedback) {
-        try {
-          await speakText(feedback);
-        } catch (error) {
-          console.error('Error speaking feedback:', error);
-        }
-      }
-
-      // passed가 true이면 다음 단계로 진행
-      if (passed) {
-        const nextStep = currentStep + 1;
-        setCurrentStep(nextStep);
-        
-        if (nextStep <= 5) {  // 마지막 단계 체크
-          const guidelines = JSON.parse(metadata.guidelines);
-          const nextStepData = guidelines[nextStep - 1];
-          setCurrentInstruction({
-            title: nextStepData.title,
-            instruction: nextStepData.instruction
-          });
-          try {
-            await speakText(tutorialMessages.nextStep);
-          } catch (error) {
-            console.error('Error speaking next step:', error);
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Feedback request failed:', error);
-    }
-  };
 
   // 사용자 활동 감지 및 피드백 타이머 설정
   const handleUserActivity = useCallback(() => {
@@ -476,7 +393,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave, handleFeedb
 
     if (currentStep > 0) {  // 튜토리얼이 끝나고 실제 그리기 단계일 때만
       const timer = setTimeout(() => {
-        requestFeedback(currentStep);
+        saveImageAndFeedback();
       }, 5000);  // 5초 타이머
       
       setFeedbackTimer(timer);
@@ -520,15 +437,17 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave, handleFeedb
       onMouseMove={handleMouseMove} 
       onMouseUp={handleMouseUp}
     >
-      <BannerSection 
-        onSave={saveCanvasAsImage} 
-        step={step} 
-      />
       <canvas 
         ref={canvasRef} 
         className={style.canvas} 
         id="mycanvas"
       />
+      {imageData && (
+        <div className={style.instructions}>
+          <h3 className={style.instructionTitle}>{imageData.title}</h3>
+          <p className={style.instructionText}>{imageData.description}</p>
+        </div>
+      )}
       {imageData && (
         <ImagePanelSection 
           imageData={imageData}
@@ -551,12 +470,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave, handleFeedb
               {instruction}
             </div>
           ))}
-        </div>
-      )}
-      {currentStep > 0 && currentInstruction && (
-        <div className={style.instructions}>
-          <h3 className={style.instructionTitle}>{currentInstruction.title}</h3>
-          <p className={style.instructionText}>{currentInstruction.instruction}</p>
         </div>
       )}
     </div>

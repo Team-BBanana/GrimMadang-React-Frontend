@@ -64,7 +64,8 @@ function BannerSection({ onSave, step }: BannerSectionProps) {
             observer.observe(bannerSection);
         }
 
-        const timeoutId = setTimeout(updateButtonPositions, 100);
+        // DOM이 완전히 렌더링될 때까지 약간의 지연을 줍니다
+        const timeoutId = setTimeout(updateButtonPositions, 300);
 
         return () => {
             observer.disconnect();
