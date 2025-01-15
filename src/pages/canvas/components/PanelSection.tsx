@@ -31,7 +31,7 @@ const ImagePanelSection = ({ imageData, isImageCardCollapsed, toggleImageCard }:
     >
         <div className={`${style.imageDataContent} ${isImageCardCollapsed ? style.collapsed : ''}`}>
             <div className={style.imageRow}>
-                <img src={imageData.image} alt={imageData.title} />
+                <img src={imageData.image} alt={imageData.description} />
                 <div className={`${style.toggleIcon} ${isImageCardCollapsed ? style.toggleIconRotated : ''}`}>
                     <ChevronIcon />
                 </div>

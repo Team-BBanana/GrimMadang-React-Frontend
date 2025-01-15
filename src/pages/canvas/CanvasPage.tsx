@@ -6,14 +6,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import bgmAudio from "/canvasTutorial/bgm.mp3"
 import { ToolPositionProvider } from '@/context/ToolPositionContext';
 
-interface feedBackData {
-  sessionId: string;
-  name: string;
-  topic: string;
-  phase: number;
-  imageData: string;
-}
-
 interface saveCanvasData {
   description: string;
   imageUrl1: string;
@@ -21,11 +13,6 @@ interface saveCanvasData {
   title: string;
   feedback1: string;
   feedback2: string;
-}
-
-interface FeedbackResponse {
-  title: string;
-  description: string;
 }
 
 interface ElderInfo {
@@ -41,6 +28,13 @@ interface LocationState {
   topics: string;
 }
 
+interface feedBackData {
+  sessionId: string;
+  topic: string;
+  imageUrl: string;
+  currentStep: number;
+}
+
 const CanvasPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -48,8 +42,6 @@ const CanvasPage = () => {
   
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [s3Urls, setS3Urls] = useState<string[]>([]);
-  const [FeedBackData, setFeedBackData] = useState<FeedbackResponse[]>([]);
-  const [step, setStep] = useState(1);
   const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
 
   const bgmRef = useRef<HTMLAudioElement | null>(null);
@@ -112,7 +104,6 @@ const CanvasPage = () => {
   };
 
   const uploadCanvasImage = (dataURL: string, step: number) => {
-    setStep(step);
     const blob = dataURLToBlob(dataURL);
     const randomStr = generateRandomString();
 
@@ -137,20 +128,12 @@ const CanvasPage = () => {
       })
       .then(data => {
         setS3Urls(prevUrls => [...prevUrls, data.url]);
+        handleFeedbackAPI(step);
       })
       .catch(error => {
         console.error('Error uploading file:', error);
       });
   };
-
-  // s3Urls 상태가 업데이트될 때마다 실행
-  useEffect(() => {
-    if (s3Urls.length > 0) {
-      console.log('Updated s3Urls:', s3Urls);
-      handleFeedbackAPI(step);
-    }
-  }, [s3Urls]);
-
 
   const dataURLToBlob = (dataURL: string) => {
     const byteString = atob(dataURL.split(',')[1]);
@@ -163,7 +146,6 @@ const CanvasPage = () => {
     return new Blob([ab], { type: mimeString });
   };
 
-
   const handleFeedbackAPI = async (step: number) => {
     const stepUrl = await s3Urls.find(url => url.includes(`step-${step}`));
 
@@ -175,18 +157,15 @@ const CanvasPage = () => {
     }
 
     const feedbackData: feedBackData = {
-      sessionId: "your_session_id",
-      name: "User Name",
-      topic: "Banana",
-      phase: step,
-      imageData: stepUrl
+      sessionId: elderinfo?.elderId || "",
+      topic: topics,
+      imageUrl: stepUrl,
+      currentStep: step
     };
 
     try {
       const response = await API.canvasApi.feedBack(feedbackData);
       if (response.data) {
-        // 피드백 데이터를 배열에 추가
-        setFeedBackData(prev => [...prev, response.data]);
         return response.data;
       }
     } catch (error) {
@@ -221,8 +200,9 @@ const CanvasPage = () => {
             canvasRef={canvasRef}
             onUpload={uploadCanvasImage}
             onChange={() => {}}
-            feedbackData={FeedBackData}
             onFinalSave={handleSaveCanvas}
+            handleFeedbackAPI={handleFeedbackAPI}
+            feedbackData={null}
           />
         </div>
     </ToolPositionProvider>

@@ -4,7 +4,6 @@ import { useAtom } from "jotai";
 import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
 import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
 import style from "../CanvasPage.module.css";
-import API from "@/api";
 import ImagePanelSection from "./PanelSection";
 import FeedbackSection from "./FeedbackSection";
 import { makeFrame } from '../utils/makeFrame';
@@ -19,11 +18,12 @@ interface CanvasSectionProps {
   onUpload: (dataURL: string, step: number) => void;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   onChange: () => void;
-  feedbackData: any;
+  feedbackData: any | null;
   onFinalSave?: () => void;
+  handleFeedbackAPI: (step: number) => void;
 }
 
-const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSectionProps) => {
+const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave, handleFeedbackAPI }: CanvasSectionProps) => {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [canvas, setCanvas] = useAtom(canvasInstanceAtom);
   const [isDragging, setIsDragging] = useState(true);
@@ -44,9 +44,15 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
   
   const hasInitialPlayedRef = useRef(false);
   const currentAudio = useRef<HTMLAudioElement | null>(null);
+  const isFillUsedRef = useRef(false);
 
   const location = useLocation();
   const metadata = location.state?.metadata;
+
+  const [currentStep, setCurrentStep] = useState(0);
+  const [currentInstruction, setCurrentInstruction] = useState<{title: string, instruction: string} | null>(null);
+
+  const [feedbackTimer, setFeedbackTimer] = useState<NodeJS.Timeout | null>(null);
 
   const tutorialMessages = {
     canvasHello: "안녕하세요 저는 오늘 그림그리기를 도와줄 마당이라고 해요 차근차근 같이 멋진 작품 만들어 봐요 우리 그리기 버튼을 눌러 동그라미를 하나 그려볼까요?",
@@ -210,15 +216,16 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
         setOverlay(null);
         setTutorialStep(3);
         await speakText(tutorialMessages.fill);
-        setOverlay('fill');  // 음성이 끝난 후 채우기 버튼 하이라이트
+        setOverlay('fill');
       }
     };
 
     const handleFillUse = async () => {
-      if (tutorialStep === 3) {
-        setOverlay(null);  // 마지막 단계에서 오버레이 제거
+      if (tutorialStep === 3 && !isFillUsedRef.current) {
+        isFillUsedRef.current = true;
+        setOverlay(null);
         setTutorialStep(4);
-        await speakText(tutorialMessages.startStep);  // startStep 음성 출력
+        await speakText(tutorialMessages.startStep);
       }
     };
 
@@ -228,18 +235,25 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
       }
     };
 
-    canvas.on('path:created', handlePathCreated);
-
-    // fill 도구 사용 시 object:modified 이벤트로 감지
-    canvas.on('object:modified', (e) => {
+    // fill 도구 사용 시 모든 캔버스 변화 감지
+    const handleCanvasChange = () => {
       if (activeTool === 'fill') {
         handleFillUse();
       }
-    });
+    };
+
+    canvas.on('path:created', handlePathCreated);
+    canvas.on('object:modified', handleCanvasChange);
+    canvas.on('object:added', handleCanvasChange);
+    canvas.on('object:removed', handleCanvasChange);
+    canvas.on('mouse:up', handleCanvasChange);
 
     return () => {
       canvas.off('path:created', handlePathCreated);
-      canvas.off('object:modified');
+      canvas.off('object:modified', handleCanvasChange);
+      canvas.off('object:added', handleCanvasChange);
+      canvas.off('object:removed', handleCanvasChange);
+      canvas.off('mouse:up', handleCanvasChange);
     };
   }, [canvas, tutorialStep, activeTool]);
 
@@ -261,30 +275,14 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
     }
   }, [tutorialStep, speakText, setOverlay]);
 
-  const handleFillUse = useCallback(() => {
-    if (tutorialStep === 3) {
+  const handleFillUse = useCallback(async () => {
+    if (tutorialStep === 3 && !isFillUsedRef.current) {
+      isFillUsedRef.current = true;
       setOverlay(null);
       setTutorialStep(4);
+      await speakText(tutorialMessages.startStep);
     }
-  }, [tutorialStep, setOverlay]);
-
-  // Toolbar에서 도구 선택 시 오버레이 제거
-  const handleToolSelect = useCallback((tool: string) => {
-    setOverlay(null);  // 도구 선택 시 오버레이 제거
-    switch (tool) {
-      case 'brushWidth':
-        if (tutorialStep === 1) {
-          handleBrushWidthChange();
-        }
-        break;
-      case 'eraser':
-        // 지우개는 사용 시 이벤트로 처리
-        break;
-      case 'fill':
-        // 채우기는 사용 시 이벤트로 처리
-        break;
-    }
-  }, [tutorialStep, handleBrushWidthChange]);
+  }, [tutorialStep, speakText, setOverlay]);
 
   useEffect(() => {
     if (!canvasContainerRef.current || !canvasRef.current) return;
@@ -350,8 +348,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
       image: testMetadata.imageUrl
     });
 
-
-    
 
     // guidelines 파싱 및 설정
     const parsedInstructions = JSON.parse(testMetadata.guidelines).map((item: any) => item.instruction);
@@ -431,6 +427,92 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
     };
   }, []);
 
+  // 피드백 요청 함수
+  const requestFeedback = async (currentStep: number) => {
+    try {
+      const response = await handleFeedbackAPI(currentStep);
+      if (response === undefined) return;
+
+      const { feedback, passed } = response;
+      
+      // 피드백이 있을 때만 음성 출력
+      if (feedback) {
+        try {
+          await speakText(feedback);
+        } catch (error) {
+          console.error('Error speaking feedback:', error);
+        }
+      }
+
+      // passed가 true이면 다음 단계로 진행
+      if (passed) {
+        const nextStep = currentStep + 1;
+        setCurrentStep(nextStep);
+        
+        if (nextStep <= 5) {  // 마지막 단계 체크
+          const guidelines = JSON.parse(metadata.guidelines);
+          const nextStepData = guidelines[nextStep - 1];
+          setCurrentInstruction({
+            title: nextStepData.title,
+            instruction: nextStepData.instruction
+          });
+          try {
+            await speakText(tutorialMessages.nextStep);
+          } catch (error) {
+            console.error('Error speaking next step:', error);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Feedback request failed:', error);
+    }
+  };
+
+  // 사용자 활동 감지 및 피드백 타이머 설정
+  const handleUserActivity = useCallback(() => {
+    if (feedbackTimer) {
+      clearTimeout(feedbackTimer);
+    }
+
+    if (currentStep > 0) {  // 튜토리얼이 끝나고 실제 그리기 단계일 때만
+      const timer = setTimeout(() => {
+        requestFeedback(currentStep);
+      }, 5000);  // 5초 타이머
+      
+      setFeedbackTimer(timer);
+    }
+  }, [currentStep, feedbackTimer]);
+
+  // 사용자 활동 감지를 위한 이벤트 리스너
+  useEffect(() => {
+    if (!canvas) return;
+
+    const handleCanvasActivity = () => {
+      handleUserActivity();
+    };
+
+    canvas.on('mouse:down', handleCanvasActivity);
+    canvas.on('mouse:up', handleCanvasActivity);
+    canvas.on('path:created', handleCanvasActivity);
+    canvas.on('object:modified', handleCanvasActivity);
+
+    return () => {
+      canvas.off('mouse:down', handleCanvasActivity);
+      canvas.off('mouse:up', handleCanvasActivity);
+      canvas.off('path:created', handleCanvasActivity);
+      canvas.off('object:modified', handleCanvasActivity);
+    };
+  }, [canvas, handleUserActivity]);
+
+  // 컴포넌트 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (feedbackTimer) {
+        clearTimeout(feedbackTimer);
+      }
+    };
+  }, [feedbackTimer]);
+
   return (
     <div 
       className={style.canvasContainer} 
@@ -469,6 +551,12 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave }: CanvasSec
               {instruction}
             </div>
           ))}
+        </div>
+      )}
+      {currentStep > 0 && currentInstruction && (
+        <div className={style.instructions}>
+          <h3 className={style.instructionTitle}>{currentInstruction.title}</h3>
+          <p className={style.instructionText}>{currentInstruction.instruction}</p>
         </div>
       )}
     </div>

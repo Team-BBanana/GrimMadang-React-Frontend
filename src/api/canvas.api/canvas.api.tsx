@@ -23,10 +23,9 @@ interface metaData {
 
 interface feedBackData {
     sessionId: string;
-    name: string;
     topic: string;
-    phase: number;
-    imageData: string;
+    imageUrl: string;
+    currentStep: number;
 }
 
 interface saveCanvasData {
@@ -87,7 +86,7 @@ const ImagemetaData = async(data: metaData) => {
 }
 
 const feedBack = async(data: feedBackData) => {
-    const url = `/api/image/feedback`;
+    const url = `/api/drawings/submit`;
 
     return await CanvasClient.post(url,JSON.stringify(data),{
         method: "POST",
