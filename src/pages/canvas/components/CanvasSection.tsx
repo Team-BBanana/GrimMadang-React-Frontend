@@ -179,37 +179,16 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     }
   }, [isFirstInteraction]);
 
-  // 첫 튜토리얼 메시지는 한 번만 재생
-  useEffect(() => {
-    const playInitialTutorial = async () => {
-      if (!hasInitialPlayedRef.current) {
-        hasInitialPlayedRef.current = true;
-        
-        // 프로그래매틱 클릭 이벤트 생성 및 발생
-        const clickEvent = new MouseEvent('click', {
-          view: window,
-          bubbles: true,
-          cancelable: true
-        });
-        document.dispatchEvent(clickEvent);
-        
-        // 약간의 지연 후 오디오 재생
-        setTimeout(async () => {
-          await speakText(tutorialMessages.canvasHello);
-          setTimeout(() => {
-            setOverlay('pen');
-          }, 1000);
-        }, 100);
-      }
-    };
-
-    // 컴포넌트 마운트 후 약간의 지연을 두고 튜토리얼 시작
-    const timeoutId = setTimeout(() => {
-      playInitialTutorial();
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, []);
+  // 튜토리얼 재생 함수
+  const playInitialTutorial = async () => {
+    if (!hasInitialPlayedRef.current) {
+      hasInitialPlayedRef.current = true;
+      await speakText(tutorialMessages.canvasHello);
+      setTimeout(() => {
+        setOverlay('pen');
+      }, 1000);
+    }
+  };
 
   // 컴포넌트 마운트 시 이벤트 리스너 등록
   useEffect(() => {
@@ -502,7 +481,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
         }}
         onClick={handleFirstInteraction}
         >
-          시작하기
+          화면을 클릭하여 시작하세요
         </div>
       )}
       <BannerSection
