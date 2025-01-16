@@ -161,7 +161,7 @@ const CanvasPage = () => {
       sessionId: elderinfo?.elderId || "",
       topic: topic,
       imageUrl: stepUrl,
-      currentStep: step + 1
+      currentStep: step
     };
 
     console.log("feedbackData : " + feedbackData);
