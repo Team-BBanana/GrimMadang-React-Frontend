@@ -368,8 +368,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
     // currentStep이 3일 때 (마지막 단계)
     if (currentStep === 3) {
-      setOverlay('saving');
-      
+
       // 마지막 이미지 저장
       const dataURL = makeFrame(canvas);
       await onUpload(dataURL, currentStep, topic || "");
