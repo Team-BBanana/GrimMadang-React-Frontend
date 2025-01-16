@@ -110,7 +110,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
         currentAudio.current = null;
       }
 
-      const response = await fetch('http://localhost:4174/synthesize-speech', {
+      const response = await fetch(`${import.meta.env.VITE_UPLOAD_SERVER_URL}/synthesize-speech`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

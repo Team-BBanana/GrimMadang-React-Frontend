@@ -120,16 +120,6 @@ const GalleryPage = () => {
         fetchElderName();
     }, []);
 
-    const playAudioAndWait = async (audioUrl: string): Promise<void> => {
-
-        const audio = new Audio(audioUrl);
-        await audio.play();
-        
-        return new Promise<void>((resolve) => {
-            audio.onended = () => resolve();
-        });
-
-    };
 
     const fetchWelcomeFlow = async () => {
         if (!elderinfo) return;
@@ -150,22 +140,6 @@ const GalleryPage = () => {
                 await speakText(textToSpeak);
             }
 
-            // const audioData = response.data.data.aiResponseWelcomeWav.data;
-            // console.log('audioData:', audioData);
-
-            // if (audioData) {
-            //     const audioBlob = new Blob([new Uint8Array(audioData)], { type: 'audio/wav' });
-            //     const audioUrl = URL.createObjectURL(audioBlob);
-            //     console.log('Generated audio URL:', audioUrl);
-                
-            //     // 오디오 재생 및 타이머 시작
-            //     await playAudioAndWait(audioUrl);
-            //     if (!timerStarted) {
-            //         startThreeMinuteTimer();  // 첫 음성 재생 후 타이머 시작
-            //     }
-            // } else {
-            //     console.error('audioData가 정의되지 않았거나 응답에 없습니다.');
-            // }
         } catch (error) {
             console.error('환영 흐름 중 오류 발생:', error);
         }
@@ -175,7 +149,7 @@ const GalleryPage = () => {
         console.log("speakText 호출됨:", text);
         try {
             // 서버에 음성 합성 요청
-            const response = await fetch('http://localhost:4174/synthesize-speech', {
+            const response = await fetch(`${import.meta.env.VITE_UPLOAD_SERVER_URL}/synthesize-speech`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

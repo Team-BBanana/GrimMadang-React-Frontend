@@ -7,9 +7,16 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const PORT = 4174;
+const PORT = process.env.EXPRESS_PORT || 4174;
 
-app.use(cors());
+// CORS 설정 (환경 변수로 도메인 지정)
+const corsOptions = {
+  origin: process.env.CORS_ALLOWED_ORIGIN, // 환경 변수로 도메인 설정
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // 허용할 HTTP 메소드 설정
+  allowedHeaders: ['Content-Type', 'Authorization'], // 허용할 헤더 설정
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // AWS SDK configuration
