@@ -41,17 +41,24 @@ function BannerSection({ onSave, step }: BannerSectionProps) {
     };
 
     const updateButtonPositions = useCallback(() => {
-        const tools = document.querySelectorAll('[data-tool]');
-        const positions: Record<string, DOMRect> = {};
+        setTimeout(() => {
+            const tools = document.querySelectorAll('[data-tool]');
+            const positions: Record<string, DOMRect> = {};
 
-        tools.forEach((tool) => {
-            const toolType = tool.getAttribute('data-tool');
-            if (toolType) {
-                positions[toolType] = tool.getBoundingClientRect();
+            tools.forEach((tool) => {
+                const toolType = tool.getAttribute('data-tool');
+                if (toolType) {
+                    const rect = tool.getBoundingClientRect();
+                    if (rect.width > 0 && rect.height > 0) {
+                        positions[toolType] = rect;
+                    }
+                }
+            });
+
+            if (Object.keys(positions).length > 0) {
+                updatePositions(positions);
             }
-        });
-
-        updatePositions(positions);
+        }, 50);
     }, [updatePositions]);
 
     useEffect(() => {

@@ -383,3 +383,14 @@
     font-size: 24px;
     text-align: center;
 }
+
+
+
+.bannerSectiontitle {
+    position: absolute;
+    left: 280px;
+    top: 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-size: 40px;
+}

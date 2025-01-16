@@ -57,6 +57,8 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
   const [feedbackTimer, setFeedbackTimer] = useState<NodeJS.Timeout | null>(null);
 
+  const [showTitle, setShowTitle] = useState(false);
+
   const tutorialMessages = {
     canvasHello: "안녕하세요 저는 오늘 그림그리기를 도와줄 마당이라고 해요 차근차근 같이 멋진 작품 만들어 봐요 우리 그리기 버튼을 눌러 동그라미를 하나 그려볼까요?",
     brushWidth: "더큰 동그라미를 선택해서 굵은 선을 그릴 수도 있어요",
@@ -121,18 +123,45 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
   useEffect(() => {
     if (metadata) {
+      console.log('Received metadata in CanvasSection:', metadata);
+      try {
+        // guidelines 파싱
+        let parsedInstructions: string[] = [];
+        if (metadata.guidelines) {
+          const guidelinesArray = typeof metadata.guidelines === 'string' 
+            ? JSON.parse(metadata.guidelines) 
+            : metadata.guidelines;
+          parsedInstructions = guidelinesArray.map((item: any) => item.instruction);
+        }
 
-      const parsedInstructions = JSON.parse(metadata.guidelines).map((item: any) => item.instruction);
-      const parsedTopic = JSON.parse(metadata.topic);
-      const parsedTitle = JSON.parse(metadata.title).map((item: any) => item.instruction);
-      const parsedImageUrl = metadata.imageUrl;
+        // topic 파싱
+        const parsedTopic = metadata.topic || '';
 
-      setInstructions(parsedInstructions);
-      setTopic(parsedTopic);
-      setTitle(parsedTitle);
-      setImageUrl(parsedImageUrl);
+        // title 파싱 - 직접 title 문자열 추출
+        let parsedTitle: string[] = [];
+        if (metadata.guidelines) {
+          const guidelinesArray = typeof metadata.guidelines === 'string'
+            ? JSON.parse(metadata.guidelines)
+            : metadata.guidelines;
+          parsedTitle = guidelinesArray.map((item: any) => item.title);
+        }
 
+        const parsedImageUrl = metadata.imageUrl || '';
 
+        console.log('Parsed data:', {
+          instructions: parsedInstructions,
+          topic: parsedTopic,
+          title: parsedTitle,
+          imageUrl: parsedImageUrl
+        });
+
+        setInstructions(parsedInstructions);
+        setTopic(parsedTopic);
+        setTitle(parsedTitle);
+        setImageUrl(parsedImageUrl);
+      } catch (error) {
+        console.error('Error parsing metadata:', error, metadata);
+      }
     }
   }, [metadata]);
 
@@ -142,10 +171,19 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
       if (!hasInitialPlayedRef.current) {
         hasInitialPlayedRef.current = true;
         await speakText(tutorialMessages.canvasHello);
-        setOverlay('pen');  // 음성이 끝난 후 그리기 버튼 하이라이트
+        // DOM이 완전히 렌더링될 때까지 기다린 후 오버레이 설정
+        setTimeout(() => {
+          setOverlay('pen');  // 음성이 끝난 후 그리기 버튼 하이라이트
+        }, 1000);
       }
     };
-    playInitialTutorial();
+
+    // 컴포넌트 마운트 후 약간의 지연을 두고 튜토리얼 시작
+    const timeoutId = setTimeout(() => {
+      playInitialTutorial();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   // 캔버스 그리기 이벤트 감지
@@ -157,7 +195,10 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
         setOverlay(null);  // 그리기 시작하면 오버레이 제거
         setTutorialStep(1);
         await speakText(tutorialMessages.brushWidth);
-        setOverlay('brushWidth');  // 음성이 끝난 후 두께 변경 요소 하이라이트
+        // DOM이 완전히 렌더링될 때까지 기다린 후 오버레이 설정
+        setTimeout(() => {
+          setOverlay('brushWidth');  // 음성이 끝난 후 두께 변경 요소 하이라이트
+        }, 500);
       }
     };
 
@@ -234,6 +275,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
         setOverlay(null);
         setTutorialStep(4);
         await speakText(tutorialMessages.startStep);
+        setShowTitle(true);  // startStep 음성 재생 후 title 표시
 
         // 캔버스 초기화
         if (canvas) {
@@ -242,14 +284,13 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
           canvas.renderAll();
         }
 
-        setCurrentStep(1);
+        setCurrentStep(0);
 
         setImageData({
           title: title[currentStep],
           description: instructions[currentStep],
           image: imageUrl
         });
-
       }
     };
 
@@ -437,17 +478,16 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
       onMouseMove={handleMouseMove} 
       onMouseUp={handleMouseUp}
     >
+      <BannerSection
+        onSave={saveImageAndFeedback}
+        step={step}
+      />
       <canvas 
         ref={canvasRef} 
         className={style.canvas} 
         id="mycanvas"
       />
-      {imageData && (
-        <div className={style.instructions}>
-          <h3 className={style.instructionTitle}>{imageData.title}</h3>
-          <p className={style.instructionText}>{imageData.description}</p>
-        </div>
-      )}
+      {showTitle && <div className={style.bannerSectiontitle}>{instructions[currentStep]}</div>}
       {imageData && (
         <ImagePanelSection 
           imageData={imageData}
@@ -463,15 +503,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
         />
       )}
       {overlay && <Overlay type={overlay} isVisible={true} />}
-      {instructions.length > 0 && (
-        <div className={style.instructions}>
-          {instructions.map((instruction, index) => (
-            <div key={index} className={style.instruction}>
-              {instruction}
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

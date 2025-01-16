@@ -56,6 +56,7 @@ const GalleryPage = () => {
     const [drawings, setDrawings] = useState<Drawing[]>([]);
     const [topic,setTopic] = useState<string | null>(null);
     const [metadata, setMetadata] = useState(null);
+    const [isFirstExplore, setIsFirstExplore] = useState(true);
 
     // 3분 타이머 함수
     const startThreeMinuteTimer = () => {
@@ -255,14 +256,15 @@ const GalleryPage = () => {
     const handleExploreChat = async (_transcript: string, isTimeout: boolean = false, currentTopic: string | null = null) => {
         if (!elderinfo) return;
 
-        const topicToUse = currentTopic || topic; // 전받은 topic이 있으면 사용, 없으면 state의 topic 사용
-        console.log("handleExploreChat에서 사용하는 topic:", topicToUse);
+        // 첫 번째 호출에서는 topic을 사용하고, 이후에는 transcript를 사용
+        const userRequest = isFirstExplore ? (currentTopic || topic) : _transcript;
+        console.log("handleExploreChat에서 사용하는 request:", userRequest);
 
         const data: exploreCanvasData = {
             sessionId: elderinfo.elderId || '',
             name: elderinfo.name || '',
             rejectedCount: 0,
-            userRequestExploreWav: topicToUse || 'first',
+            userRequestExploreWav: userRequest || 'first',
             isTimedOut: isTimeout ? "true" : "false"
         };
 
@@ -271,14 +273,22 @@ const GalleryPage = () => {
             console.log('Explore chat response:', response.data);
 
             const textToSpeak = response.data.aiResponseExploreWav;
+            console.log('Metadata being passed to canvas:', response.data.metadata);
             if (textToSpeak) {
                 await speakText(textToSpeak);
             }
 
             if (response.data.select === "true") {
-                setMetadata(response.data.metadata);
+                navigate('/canvas', { 
+                    state: { 
+                        metadata: response.data.metadata 
+                    } 
+                });
+            }
 
-                navigate('/canvas', { state: { metadata: testMetadata } });
+            // 첫 번째 호출이 끝나면 isFirstExplore를 false로 설정
+            if (isFirstExplore) {
+                setIsFirstExplore(false);
             }
         } catch (error) {
             console.error('Explore chat error:', error);

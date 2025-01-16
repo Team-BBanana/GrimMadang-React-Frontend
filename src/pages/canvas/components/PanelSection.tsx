@@ -37,8 +37,7 @@ const ImagePanelSection = ({ imageData, isImageCardCollapsed, toggleImageCard }:
                 </div>
             </div>
             <div className={style.description}>
-                <h3>주제: {imageData.title}</h3>
-                <p>{imageData.description}</p>
+                <div className={style.title}>{imageData.title}</div>
             </div>
         </div>
     </div>
