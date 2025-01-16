@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import CanvasSection from "./components/CanvasSection";
 import style from "./CanvasPage.module.css";
 import API from "@/api";
-import bgmAudio from "/canvasTutorial/bgm.mp3"
 import { ToolPositionProvider } from '@/context/ToolPositionContext';
+import bgmAudio from '/canvasTutorial/bgm.mp3';
 
 interface saveCanvasData {
   description: string;
@@ -44,20 +44,28 @@ const CanvasPage = () => {
   const helloAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    bgmRef.current = new Audio(bgmAudio);
-    bgmRef.current.loop = true;
-    bgmRef.current.volume = 0.4;
+    try {
+      const audio = new Audio();
+      audio.src = bgmAudio;
+      audio.loop = true;
+      audio.volume = 0.3;
+      bgmRef.current = audio;
 
-    const playBGM = () => {
-      bgmRef.current?.play().catch(error => console.error('BGM play error:', error));
-    };
+      const playBGM = () => {
+        bgmRef.current?.play().catch(error => {
+          console.error('BGM play error:', error);
+        });
+      };
 
-    document.addEventListener('click', playBGM, { once: true });
+      document.addEventListener('click', playBGM, { once: true });
 
-    return () => {
-      bgmRef.current?.pause();
-      bgmRef.current = null;
-    };
+      return () => {
+        bgmRef.current?.pause();
+        bgmRef.current = null;
+      };
+    } catch (error) {
+      console.error('Audio initialization error:', error);
+    }
   }, []);
 
   useEffect(() => {
@@ -147,7 +155,7 @@ const CanvasPage = () => {
     }
 
     const feedbackData: feedBackData = {
-      sessionId: "3CB9399E8AC84E84A1024869770F184D",
+      sessionId: elderinfo?.elderId || "",
       topic: topic,
       imageUrl: stepUrl,
       currentStep: step + 1
