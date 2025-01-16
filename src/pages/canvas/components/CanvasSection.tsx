@@ -59,6 +59,8 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
   const [feedbackTimer, setFeedbackTimer] = useState<NodeJS.Timeout | null>(null);
 
+  const [isFirstInteraction, setIsFirstInteraction] = useState(false);
+
   const tutorialMessages = {
     canvasHello: "안녕하세요, 저는 오늘 그림그리기를 도와줄, 마당이라고 해요. 차근차근, 같이 멋진 작품 만들어 봐요. 그리기 버튼을 눌러, 동그라미를 하나 그려볼까요?",
     brushWidth: "더 큰 동그라미를 선택해서, 굵은 선을 그릴 수도 있어요.",
@@ -165,26 +167,60 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     }
   }, [metadata]);
 
+  // 첫 번째 사용자 상호작용을 감지하는 함수
+  const handleFirstInteraction = useCallback(() => {
+    if (!isFirstInteraction) {
+      setIsFirstInteraction(true);
+      // 첫 상호작용 후 튜토리얼 시작
+      playInitialTutorial();
+      // 이벤트 리스너 제거
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('touchstart', handleFirstInteraction);
+    }
+  }, [isFirstInteraction]);
+
   // 첫 튜토리얼 메시지는 한 번만 재생
   useEffect(() => {
     const playInitialTutorial = async () => {
       if (!hasInitialPlayedRef.current) {
         hasInitialPlayedRef.current = true;
-        await speakText(tutorialMessages.canvasHello);
-        // DOM이 완전히 렌더링될 때까지 기다린 후 오버레이 설정
-        setTimeout(() => {
-          setOverlay('pen');  // 음성이 끝난 후 그리기 버튼 하이라이트
-        }, 1000);
+        
+        // 프로그래매틱 클릭 이벤트 생성 및 발생
+        const clickEvent = new MouseEvent('click', {
+          view: window,
+          bubbles: true,
+          cancelable: true
+        });
+        document.dispatchEvent(clickEvent);
+        
+        // 약간의 지연 후 오디오 재생
+        setTimeout(async () => {
+          await speakText(tutorialMessages.canvasHello);
+          setTimeout(() => {
+            setOverlay('pen');
+          }, 1000);
+        }, 100);
       }
     };
 
     // 컴포넌트 마운트 후 약간의 지연을 두고 튜토리얼 시작
     const timeoutId = setTimeout(() => {
       playInitialTutorial();
-    }, 2000);
+    }, 500);
 
     return () => clearTimeout(timeoutId);
   }, []);
+
+  // 컴포넌트 마운트 시 이벤트 리스너 등록
+  useEffect(() => {
+    document.addEventListener('click', handleFirstInteraction);
+    document.addEventListener('touchstart', handleFirstInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('touchstart', handleFirstInteraction);
+    };
+  }, [handleFirstInteraction]);
 
   // 캔버스 그리기 이벤트 감지
   useEffect(() => {
@@ -451,6 +487,24 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
       onMouseMove={handleMouseMove} 
       onMouseUp={handleMouseUp}
     >
+      {!isFirstInteraction && (
+        <div style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          color: 'white',
+          padding: '20px',
+          borderRadius: '10px',
+          zIndex: 1000,
+          cursor: 'pointer'
+        }}
+        onClick={handleFirstInteraction}
+        >
+          화면을 클릭하여 시작하세요
+        </div>
+      )}
       <BannerSection
         onSave={saveImageAndFeedback}
         step={currentStep}
