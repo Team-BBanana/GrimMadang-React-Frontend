@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import CanvasSection from "./components/CanvasSection";
 import style from "./CanvasPage.module.css";
 import API from "@/api";
-import bgmAudio from "/canvasTutorial/bgm.mp3"
+const bgmAudioPath = new URL('/canvasTutorial/bgm.mp3', import.meta.url).href;
 import { ToolPositionProvider } from '@/context/ToolPositionContext';
 
 interface saveCanvasData {
@@ -44,19 +44,27 @@ const CanvasPage = () => {
   const helloAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    bgmRef.current = new Audio(bgmAudio);
-    bgmRef.current.loop = true;
-    bgmRef.current.volume = 0.4;
+    const audio = new Audio(bgmAudioPath);
+    audio.loop = true;
+    audio.volume = 0.4;
+    bgmRef.current = audio;
 
     const playBGM = () => {
-      bgmRef.current?.play().catch(error => console.error('BGM play error:', error));
+      if (bgmRef.current) {
+        bgmRef.current.play().catch(error => {
+          console.error('BGM play error:', error);
+          setTimeout(playBGM, 1000);
+        });
+      }
     };
 
     document.addEventListener('click', playBGM, { once: true });
 
     return () => {
-      bgmRef.current?.pause();
-      bgmRef.current = null;
+      if (bgmRef.current) {
+        bgmRef.current.pause();
+        bgmRef.current = null;
+      }
     };
   }, []);
 

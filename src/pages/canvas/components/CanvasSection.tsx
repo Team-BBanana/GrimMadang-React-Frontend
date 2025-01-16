@@ -12,6 +12,7 @@ import Overlay from './Overlay';
 import overlayAtom from '@/store/atoms/overlayAtom';
 import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
 import { useLocation, useNavigate } from 'react-router-dom';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 interface CanvasSectionProps {
   className?: string;
@@ -54,52 +55,18 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
   const navigate = useNavigate();
 
-  // 임시 데이터
-  const tempData = {
-    sessionId: "3cb9399e-8ac8-4e84-a102-4869770f184d",
-    topic: "사과",
-    imageUrl: "https://bbanana.s3.ap-northeast-2.amazonaws.com/topics/사과/1736933477570.png",
-    steps: [
-      {
-        step: 1,
-        title: "사과의 큰 윤곽 그리기",
-        instruction: "먼저, 종이 가운데에 동그랗게 살짝 찌그러진 큰 타원을 그려봐요. 너무 완벽할 필요 없어요, 그냥 사과 모양을 떠올리면 돼요!"
-      },
-      {
-        step: 2,
-        title: "사과 꼭지 그리기",
-        instruction: "타원의 윗부분 가운데에 꼭지 자리를 만들어봐요. 작고 얇은 막대를 그리듯이 위로 쭉 그려주세요."
-      },
-      {
-        step: 3,
-        title: "잎사귀 추가하기",
-        instruction: "이제 꼭지 옆에 작은 잎사귀를 하나 붙여볼까요? 꼭지 옆에서 시작해 물방울 모양처럼 부드럽게 그리면 돼요."
-      }
-    ],
-    evaluation: {
-      score: 30,
-      feedback: "이렇게 해보시면 어떨까요? 형태가 너무 동그랗네요. 타원의 모양으로 찌그러뜨려 보세요. 사과를 더 닮게 될 거예요!"
-    }
-  };
-
   const location = useLocation();
   const metadata = location.state?.metadata;
 
-  useEffect(() => {
-    // 임시 데이터 설정
-    setInstructions(tempData.steps.map(step => step.instruction));
-    setTitle(tempData.steps.map(step => step.title));
-    setTopic(tempData.topic);
-    setImageUrl(tempData.imageUrl);
-  }, []);
+  const [feedbackTimer, setFeedbackTimer] = useState<NodeJS.Timeout | null>(null);
 
   const tutorialMessages = {
-    canvasHello: "안녕하세요 저는 오늘 그림그리기를 도와줄 마당이라고 해요 차근차근 같이 멋진 작품 만들어 봐요 우리 그리기 버튼을 눌러 동그라미를 하나 그려볼까요?",
-    brushWidth: "더큰 동그라미를 선택해서 굵은 선을 그릴 수도 있어요",
-    eraser: "지우개 버튼을 눌러 마음에 안드는 부분을 지워볼까요",
-    fill: "채우기 버튼 을 눌러주세요 그린그림을 눌르면 넓은 면을 색칠 할 수 있어요",
-    startStep: "지금까지 그림판의 사용법을 알아보았어요 이제 그림을 그리러 가볼까요",
-    nextStep: "이번 단계 는 어떠셨나요  이제 다음 단계 로 가볼까요 "
+    canvasHello: "안녕하세요, 저는 오늘 그림그리기를 도와줄, 마당이라고 해요. 차근차근, 같이 멋진 작품 만들어 봐요. 그리기 버튼을 눌러, 동그라미를 하나 그려볼까요?",
+    brushWidth: "더 큰 동그라미를 선택해서, 굵은 선을 그릴 수도 있어요.",
+    eraser: "지우개 버튼을 눌러, 마음에 안드는 부분을 지워볼까요?",
+    fill: "채우기 버튼을 눌러주세요. 그린 그림을 눌르면, 넓은 면을 색칠 할 수 있어요.",
+    startStep: "지금까지, 그림판의 사용법을 알아보았어요 이제, 그림을 그리러 가볼까요?",
+    nextStep: "이번단계 는 어떠셨나요 ? 이제, 다음 단계로 가볼까요 ?"
   };
 
   const speakText = async (text: string) => {
@@ -189,10 +156,10 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
           imageUrl: parsedImageUrl
         });
 
-        // setInstructions(parsedInstructions);
-        // setTopic(parsedTopic);
-        // setTitle(parsedTitle);
-        // setImageUrl(parsedImageUrl);
+        setInstructions(parsedInstructions);
+        setTopic(parsedTopic);
+        setTitle(parsedTitle);
+        setImageUrl(parsedImageUrl);
       } catch (error) {
         console.error('Error parsing metadata:', error, metadata);
       }
@@ -215,7 +182,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     // 컴포넌트 마운트 후 약간의 지연을 두고 튜토리얼 시작
     const timeoutId = setTimeout(() => {
       playInitialTutorial();
-    }, 500);
+    }, 2000);
 
     return () => clearTimeout(timeoutId);
   }, []);
@@ -232,7 +199,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
         // DOM이 완전히 렌더링될 때까지 기다린 후 오버레이 설정
         setTimeout(() => {
           setOverlay('brushWidth');  // 음성이 끝난 후 두께 변경 요소 하이라이트
-        }, 500);
+        }, 2000);
       }
     };
 
@@ -475,6 +442,43 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
       }
     };
   }, []);
+
+  const commands = [
+    {
+      command: '다 그렸어',
+      callback: () => {
+        if (currentStep > 0) {
+          console.log('음성 명령 감지: "다 그렸어"');
+          saveImageAndFeedback();
+        }
+      }
+    }
+  ];
+
+  const { transcript, listening } = useSpeechRecognition({ commands });
+
+  // 음성 인식 상태 로깅
+  useEffect(() => {
+    console.log('인식된 음성:', transcript);
+  }, [listening, transcript]);
+
+  // 마이크 시작/종료 관리
+  useEffect(() => {
+    if (currentStep > 0) {  // 튜토리얼이 끝나고 실제 그리기 단계일 때
+      if (!listening) {
+        SpeechRecognition.startListening({ 
+          continuous: true,
+          language: 'ko-KR'
+        });
+      }
+    } else {
+      SpeechRecognition.stopListening();
+    }
+
+    return () => {
+      SpeechRecognition.stopListening();
+    };
+  }, [currentStep, listening]);
 
   return (
     <div 
