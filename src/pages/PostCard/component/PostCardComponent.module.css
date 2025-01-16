@@ -1,19 +1,38 @@
 .container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
-    padding: 20px;
+    min-height: 100vh;
+    padding: 2rem;
+    background: linear-gradient(90deg, #022216, #1a3b2a, #284e3a, #1a3b2a, #022216);
+    color: #a8d5ba;
+}
+
+.title {
+    font-size: 60px;
+    letter-spacing: 5px;
+    margin-bottom: 10px;
+    font-family: 'Song Myung', serif;
+    color: #ffffff;
+    text-align: center;
+}
+
+.description {
+    margin: 0;
+    padding-bottom: 30px;
+    font-size: 30px;
+    text-align: center;
+    color: #a8d5ba;
 }
 
 .postcard {
-    width: 600px;
-    height: 400px;
-    background-size: contain;
-    background-position: center;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    width: 90%;
+    max-width: 600px;
+    aspect-ratio: 4/3;
+    background-color: #f1f1f1;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    margin-bottom: 2rem;
     position: relative;
     overflow: hidden;
 }
@@ -25,51 +44,99 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.9);
     padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 20px;
-}
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-.titleInput {
-    font-size: 50px;
-    padding: 10px;
-    border: none;
-    background: transparent;
-    font-family: 'Gugi', sans-serif;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .contentInput {
-    flex: 1;
-    padding: 10px;
+    height: auto;
+    font-size: 1rem;
     border: none;
-    background: transparent;
+    border-radius: 8px;
     resize: none;
-    font-size: 30px;
-    font-family: 'Noto Sans KR', sans-serif;
+    background-color:transparent;
+    color: #000000;
+    font-family: 'Song Myung', serif;
+    font-size: 40px;
+    text-align: center;
 }
 
 .buttonContainer {
     display: flex;
     justify-content: center;
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: auto;
-    z-index: 1000;
+    margin-top: 2rem;
 }
 
-.button {
+.kakaoButton {
+    background-color: transparent;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
     font-size: 30px;
-    font-family: 'Noto Sans KR', sans-serif;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-h1 {
-    margin: 0px;
+.kakaoButton:hover {
+    background-color: #1a3b2a;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
-.description {
-    font-size: 40px;
+.kakaoButton:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .description {
+        font-size: 1rem;
+    }
+
+    .postcard {
+        width: 95%;
+        padding: 1rem;
+    }
+
+    .titleInput {
+        font-size: 1rem;
+        padding: 0.6rem;
+    }
+
+    .contentInput {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+        min-height: 120px;
+    }
+}
+
+/* 플레이스홀더 스타일 */
+.titleInput::placeholder,
+.contentInput::placeholder {
+    font-size: 30px;
+    color: #6b9a83;
 }

@@ -13,9 +13,7 @@ const PostCardComponent: React.FC<PostCardComponentProps> = ({ backgroundImage, 
     const [content, setContent] = useState('');
     const formRef = useRef<HTMLFormElement>(null);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        
+    const handleSubmit = async () => {
         if (formRef.current) {
             try {
                 const canvas = await html2canvas(formRef.current);
@@ -33,32 +31,25 @@ const PostCardComponent: React.FC<PostCardComponentProps> = ({ backgroundImage, 
             <p className={style.description}>
                 소중한 추억을 엽서로 만들어 가족들과 공유해보세요
             </p>
-            <div 
-                className={style.postcard}
-                style={{ backgroundImage: `url(${backgroundImage})`}}
-            >
-                <form ref={formRef} onSubmit={handleSubmit} className={style.form}>
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="제목을 입력하세요"
-                        className={style.titleInput}
-                        maxLength={50}
-                    />
+            <div className={style.postcard}>
+                <form ref={formRef} className={style.form} style={{ backgroundImage: `url(${backgroundImage})`, opacity: 0.8}}>
                     <textarea
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         placeholder="마음을 담아 메시지를 작성해보세요"
                         className={style.contentInput}
-                        maxLength={200}
+                        maxLength={50}
                     />
-                    <div className={style.buttonContainer}>
-                        <Button type="submit">
-                            카카오톡으로 엽서 보내기
-                        </Button>
-                    </div>
                 </form>
+            </div>
+            <div className={style.buttonContainer}>
+                <Button 
+                    type="submit"
+                    onClick={handleSubmit} 
+                    className={style.kakaoButton}
+                >
+                    카카오톡으로 엽서 보내기
+                </Button>
             </div>
         </div>
     );
