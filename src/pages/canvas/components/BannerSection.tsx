@@ -36,6 +36,9 @@ function BannerSection({ onSave, step }: BannerSectionProps) {
                 <div className={`${style.step} ${currentStep === 2 ? style.active : ''}`}>
                     <div className={style.stepNumber}>2</div>
                 </div>
+                <div className={`${style.step} ${currentStep === 3 ? style.active : ''}`}>
+                    <div className={style.stepNumber}>3</div>
+                </div>
             </div>
         );
     };
@@ -96,7 +99,7 @@ function BannerSection({ onSave, step }: BannerSectionProps) {
             </div>
             <Toolbar brushWidth={brushWidth} />
             <div className={style.stepContainer}>   
-                
+                <StepIndicator currentStep={step} />
             </div>
         </div>
     );

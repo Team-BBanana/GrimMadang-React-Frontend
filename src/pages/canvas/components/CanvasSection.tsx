@@ -7,12 +7,11 @@ import style from "../CanvasPage.module.css";
 import ImagePanelSection from "./PanelSection";
 import FeedbackSection from "./FeedbackSection";
 import { makeFrame } from '../utils/makeFrame';
-import debounce from 'lodash/debounce';
 import Overlay from './Overlay';
 import overlayAtom from '@/store/atoms/overlayAtom';
 import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
 import { useLocation, useNavigate } from 'react-router-dom';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { useSpeechCommands } from '../hooks/useSpeechCommands';
 
 interface CanvasSectionProps {
   className?: string;
@@ -66,7 +65,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     eraser: "지우개 버튼을 눌러, 마음에 안드는 부분을 지워볼까요?",
     fill: "채우기 버튼을 눌러주세요. 그린 그림을 눌르면, 넓은 면을 색칠 할 수 있어요.",
     startStep: "지금까지, 그림판의 사용법을 알아보았어요 이제, 그림을 그리러 가볼까요?",
-    nextStep: "이번단계 는 어떠셨나요 ? 이제, 다음 단계로 가볼까요 ?"
+    nextStep: "이번단계 는 어떠셨나요? 이제, 다음 단계로 가볼까요?"
   };
 
   const speakText = async (text: string) => {
@@ -276,7 +275,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
         setOverlay(null);
         setTutorialStep(4);
         await speakText(tutorialMessages.startStep);
-        setShowTitle(true);  // startStep 음성 재생 후 title 표시
+        setShowTitle(true);
 
         // 캔버스 초기화
         if (canvas) {
@@ -285,16 +284,15 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
           canvas.renderAll();
         }
 
-        // 튜토리얼 단계에서는 currentStep을 0으로 유지
-        setCurrentStep(0);
+        // 튜토리얼이 끝나고 실제 그리기 시작할 때 currentStep을 1로 설정
+        setCurrentStep(1);
         setImageData({
-          title: title[0],  // 항상 첫 번째 title 사용
-          description: instructions[0],  // 항상 첫 번째 instruction 사용
+          title: title[0],
+          description: instructions[0],
           image: imageUrl
         });
 
-        // startStep 음성이 끝난 후 첫 그리기 시작을 기다림
-        setLastCanvasChange(0); // 초기값을 0으로 설정하여 첫 그리기를 기다림
+        setLastCanvasChange(0);
       }
     };
 
@@ -370,8 +368,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
     // currentStep이 3일 때 (마지막 단계)
     if (currentStep === 3) {
-      // 저장 중 메시지 표시
-      setOverlay('saving');  // Overlay 컴포넌트에 'saving' 타입 추가 필요
+      setOverlay('saving');
       
       // 마지막 이미지 저장
       const dataURL = makeFrame(canvas);
@@ -380,12 +377,11 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
       // 갤러리 페이지로 이동
       setTimeout(() => {
         navigate('/gallery');
-      }, 2000);  // 2초 후 이동
+      }, 2000);
       
       return;
     }
 
-    // 기존 피드백 로직
     const dataURL = makeFrame(canvas);
     const response = await onUpload(dataURL, currentStep, topic || "");
     console.log("Response from server:", response);
@@ -408,7 +404,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
       setIsPanelVisible(false);
       await speakText(tutorialMessages.nextStep);
     }
-  }
+  };
   
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging) {
@@ -443,42 +439,10 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     };
   }, []);
 
-  const commands = [
-    {
-      command: '다 그렸어',
-      callback: () => {
-        if (currentStep > 0) {
-          console.log('음성 명령 감지: "다 그렸어"');
-          saveImageAndFeedback();
-        }
-      }
-    }
-  ];
-
-  const { transcript, listening } = useSpeechRecognition({ commands });
-
-  // 음성 인식 상태 로깅
-  useEffect(() => {
-    console.log('인식된 음성:', transcript);
-  }, [listening, transcript]);
-
-  // 마이크 시작/종료 관리
-  useEffect(() => {
-    if (currentStep > 0) {  // 튜토리얼이 끝나고 실제 그리기 단계일 때
-      if (!listening) {
-        SpeechRecognition.startListening({ 
-          continuous: true,
-          language: 'ko-KR'
-        });
-      }
-    } else {
-      SpeechRecognition.stopListening();
-    }
-
-    return () => {
-      SpeechRecognition.stopListening();
-    };
-  }, [currentStep, listening]);
+  const { transcript: _transcript, listening: _listening } = useSpeechCommands({
+    currentStep,
+    onFinishDrawing: saveImageAndFeedback
+  });
 
   return (
     <div 
@@ -489,7 +453,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     >
       <BannerSection
         onSave={saveImageAndFeedback}
-        step={step}
+        step={currentStep}
       />
       <canvas 
         ref={canvasRef} 
@@ -526,23 +490,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
           저장중이에요...
         </div>
       )}
-      
-      <button 
-        onClick={saveImageAndFeedback} 
-        style={{ 
-          position: 'fixed',
-          bottom: '20px',
-          left: '280px',
-          padding: '10px 20px',
-          color: 'white',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-          zIndex: 1000
-        }}
-      >
-        {currentStep === 3 ? '완료하기' : '피드백 요청하기'}
-      </button>
     </div>
   );
 };
