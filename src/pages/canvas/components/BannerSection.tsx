@@ -96,17 +96,7 @@ function BannerSection({ onSave, step }: BannerSectionProps) {
             </div>
             <Toolbar brushWidth={brushWidth} />
             <div className={style.stepContainer}>   
-                <StepIndicator currentStep={step === 5 ? 1 : step} />
-                <div data-tool="save" style={{width: '100%'}}>
-                    <Button 
-                        type="button" 
-                        className={style.stepButton} 
-                        onClick={onSave}>
-                        {step === 1 ? "1단계 완료" : 
-                        step === 2 ? "2단계 완료" : 
-                        step === 5 ? "다음 단계로" : "저장하기"}
-                    </Button>
-                </div>
+                
             </div>
         </div>
     );

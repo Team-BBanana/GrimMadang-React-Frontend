@@ -92,35 +92,35 @@ const CanvasPage = () => {
 
 
 
-  const uploadCanvasImage = (dataURL: string, step: number, topic: string) => {
-    const blob = dataURLToBlob(dataURL);
+  const uploadCanvasImage = async (dataURL: string, step: number, topic: string) => {
+    try {
+      const blob = dataURLToBlob(dataURL);
+      const formData = new FormData();
+      formData.append(
+        'file', 
+        blob, 
+        `canvas-image-${elderinfo?.elderId}.png`
+      );
 
-    const formData = new FormData();
-    formData.append(
-      'file', 
-      blob, 
-      `canvas-image-${elderinfo?.elderId}.png`
-    );
-
-    fetch(`${import.meta.env.VITE_UPLOAD_SERVER_URL}/upload`, {
-      method: 'POST',
-      body: formData,
-    })
-      .then(response => {
-        if (!response.ok) {
-          return response.text().then(text => {
-            throw new Error(`Network response was not ok: ${text}`);
-          });
-        }
-        return response.json();
-      })
-      .then(data => {
-        setS3Urls(data.url);
-        return handleFeedbackAPI(step, data.url, topic);
-      })
-      .catch(error => {
-        console.error('Error uploading file:', error);
+      const uploadResponse = await fetch(`${import.meta.env.VITE_UPLOAD_SERVER_URL}/upload`, {
+        method: 'POST',
+        body: formData,
       });
+
+      if (!uploadResponse.ok) {
+        throw new Error(`Network response was not ok: ${await uploadResponse.text()}`);
+      }
+
+      const data = await uploadResponse.json();
+      setS3Urls(data.url);
+      
+      // handleFeedbackAPI 호출하고 응답 반환
+      const feedbackResponse = await handleFeedbackAPI(step, data.url, topic);
+      return feedbackResponse;  // 이 응답이 CanvasSection으로 전달됨
+    } catch (error) {
+      console.error('Error in uploadCanvasImage:', error);
+      throw error;
+    }
   };
 
   const dataURLToBlob = (dataURL: string) => {
@@ -138,26 +138,32 @@ const CanvasPage = () => {
     const stepUrl = s3Urls;
 
     console.log("stepUrl : " + stepUrl);
+    console.log("topic : " + topic);
+    console.log("step : " + step);
 
     if (!stepUrl) {
       console.error(`URL for step ${step} not found in s3Urls.`);
-      return;
+      return null;
     }
 
     const feedbackData: feedBackData = {
-      sessionId: elderinfo?.elderId || "",
+      sessionId: "3CB9399E8AC84E84A1024869770F184D",
       topic: topic,
       imageUrl: stepUrl,
-      currentStep: step
+      currentStep: step + 1
     };
+
+    console.log("feedbackData : " + feedbackData);
 
     try {
       const response = await API.canvasApi.feedBack(feedbackData);
       if (response.data) {
         return response.data;
       }
+      return null;
     } catch (error) {
       console.error("Error sending feedback:", error);
+      throw error;
     }
   };
 

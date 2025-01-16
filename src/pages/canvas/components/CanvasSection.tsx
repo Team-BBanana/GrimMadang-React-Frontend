@@ -11,11 +11,11 @@ import debounce from 'lodash/debounce';
 import Overlay from './Overlay';
 import overlayAtom from '@/store/atoms/overlayAtom';
 import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface CanvasSectionProps {
   className?: string;
-  onUpload: (dataURL: string, step: number, topic: string) => void;
+  onUpload: (dataURL: string, step: number, topic: string) => Promise<any>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   onChange: () => void;
   feedbackData: any | null;
@@ -33,39 +33,73 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
   const [brushWidth] = useState(10);
 
   const [imageData, setImageData] = useState<any>(null);
-  const [currentFeedback, setCurrentFeedback] = useState<any>(null);
+  const [currentFeedback, setCurrentFeedback] = useState<string | null>(null);
   const [isImageCardCollapsed, setIsImageCardCollapsed] = useState(false);
-  const [isFeedbackCardCollapsed, setIsFeedbackCardCollapsed] = useState(false);
   const [overlay, setOverlay] = useAtom(overlayAtom);
   const [tutorialStep, setTutorialStep] = useState(0);
   const [activeTool] = useAtom(activeToolAtom);
-
 
   const [title, setTitle] = useState<string[]>([]);
   const [instructions, setInstructions] = useState<string[]>([]);
   const [topic, setTopic] = useState<string>();
   const [imageUrl, setImageUrl] = useState<string>();
 
+  const [currentStep, setCurrentStep] = useState(0);
+  const [showTitle, setShowTitle] = useState(false);
+  const [lastCanvasChange, setLastCanvasChange] = useState<number>(Date.now());
+
   const hasInitialPlayedRef = useRef(false);
   const currentAudio = useRef<HTMLAudioElement | null>(null);
   const isFillUsedRef = useRef(false);
 
+  const navigate = useNavigate();
+
+  // 임시 데이터
+  const tempData = {
+    sessionId: "3cb9399e-8ac8-4e84-a102-4869770f184d",
+    topic: "사과",
+    imageUrl: "https://bbanana.s3.ap-northeast-2.amazonaws.com/topics/사과/1736933477570.png",
+    steps: [
+      {
+        step: 1,
+        title: "사과의 큰 윤곽 그리기",
+        instruction: "먼저, 종이 가운데에 동그랗게 살짝 찌그러진 큰 타원을 그려봐요. 너무 완벽할 필요 없어요, 그냥 사과 모양을 떠올리면 돼요!"
+      },
+      {
+        step: 2,
+        title: "사과 꼭지 그리기",
+        instruction: "타원의 윗부분 가운데에 꼭지 자리를 만들어봐요. 작고 얇은 막대를 그리듯이 위로 쭉 그려주세요."
+      },
+      {
+        step: 3,
+        title: "잎사귀 추가하기",
+        instruction: "이제 꼭지 옆에 작은 잎사귀를 하나 붙여볼까요? 꼭지 옆에서 시작해 물방울 모양처럼 부드럽게 그리면 돼요."
+      }
+    ],
+    evaluation: {
+      score: 30,
+      feedback: "이렇게 해보시면 어떨까요? 형태가 너무 동그랗네요. 타원의 모양으로 찌그러뜨려 보세요. 사과를 더 닮게 될 거예요!"
+    }
+  };
+
   const location = useLocation();
   const metadata = location.state?.metadata;
 
-  const [currentStep, setCurrentStep] = useState(0);
-
-  const [feedbackTimer, setFeedbackTimer] = useState<NodeJS.Timeout | null>(null);
-
-  const [showTitle, setShowTitle] = useState(false);
+  useEffect(() => {
+    // 임시 데이터 설정
+    setInstructions(tempData.steps.map(step => step.instruction));
+    setTitle(tempData.steps.map(step => step.title));
+    setTopic(tempData.topic);
+    setImageUrl(tempData.imageUrl);
+  }, []);
 
   const tutorialMessages = {
     canvasHello: "안녕하세요 저는 오늘 그림그리기를 도와줄 마당이라고 해요 차근차근 같이 멋진 작품 만들어 봐요 우리 그리기 버튼을 눌러 동그라미를 하나 그려볼까요?",
     brushWidth: "더큰 동그라미를 선택해서 굵은 선을 그릴 수도 있어요",
     eraser: "지우개 버튼을 눌러 마음에 안드는 부분을 지워볼까요",
     fill: "채우기 버튼 을 눌러주세요 그린그림을 눌르면 넓은 면을 색칠 할 수 있어요",
-    startStep: "지금까지 그림판의 사용법을 알아보았어요 이제 그림을 그리러 가볼까요?",
-    nextStep: "이번 단계 는 어떠셨나요 ? 이제 다음 단계 로 가볼까요 ?"
+    startStep: "지금까지 그림판의 사용법을 알아보았어요 이제 그림을 그리러 가볼까요",
+    nextStep: "이번 단계 는 어떠셨나요  이제 다음 단계 로 가볼까요 "
   };
 
   const speakText = async (text: string) => {
@@ -155,10 +189,10 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
           imageUrl: parsedImageUrl
         });
 
-        setInstructions(parsedInstructions);
-        setTopic(parsedTopic);
-        setTitle(parsedTitle);
-        setImageUrl(parsedImageUrl);
+        // setInstructions(parsedInstructions);
+        // setTopic(parsedTopic);
+        // setTitle(parsedTitle);
+        // setImageUrl(parsedImageUrl);
       } catch (error) {
         console.error('Error parsing metadata:', error, metadata);
       }
@@ -284,13 +318,16 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
           canvas.renderAll();
         }
 
+        // 튜토리얼 단계에서는 currentStep을 0으로 유지
         setCurrentStep(0);
-
         setImageData({
-          title: title[currentStep],
-          description: instructions[currentStep],
+          title: title[0],  // 항상 첫 번째 title 사용
+          description: instructions[0],  // 항상 첫 번째 instruction 사용
           image: imageUrl
         });
+
+        // startStep 음성이 끝난 후 첫 그리기 시작을 기다림
+        setLastCanvasChange(0); // 초기값을 0으로 설정하여 첫 그리기를 기다림
       }
     };
 
@@ -321,24 +358,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
       canvas.off('mouse:up', handleCanvasChange);
     };
   }, [canvas, tutorialStep, activeTool]);
-
-  const handleBrushWidthChange = useCallback(async () => {
-    if (tutorialStep === 1) {
-      setOverlay(null);
-      setTutorialStep(2);
-      await speakText(tutorialMessages.eraser);
-      setOverlay('eraser');
-    }
-  }, [tutorialStep, speakText, setOverlay]);
-
-  const handleEraserUse = useCallback(async () => {
-    if (tutorialStep === 2) {
-      setOverlay(null);
-      setTutorialStep(3);
-      await speakText(tutorialMessages.fill);
-      setOverlay('fill');
-    }
-  }, [tutorialStep, speakText, setOverlay]);
 
 
   useEffect(() => {
@@ -382,10 +401,46 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
   const saveImageAndFeedback = async () => {
     if (!canvas) return;
 
+    // currentStep이 3일 때 (마지막 단계)
+    if (currentStep === 3) {
+      // 저장 중 메시지 표시
+      setOverlay('saving');  // Overlay 컴포넌트에 'saving' 타입 추가 필요
+      
+      // 마지막 이미지 저장
+      const dataURL = makeFrame(canvas);
+      await onUpload(dataURL, currentStep, topic || "");
+      
+      // 갤러리 페이지로 이동
+      setTimeout(() => {
+        navigate('/gallery');
+      }, 2000);  // 2초 후 이동
+      
+      return;
+    }
+
+    // 기존 피드백 로직
     const dataURL = makeFrame(canvas);
-    const responese =  await onUpload(dataURL, step, topic || "");
-    console.log(responese);
-    setStep(step + 1);
+    const response = await onUpload(dataURL, currentStep, topic || "");
+    console.log("Response from server:", response);
+
+    if (response && response.feedback) {
+      setCurrentFeedback(response.feedback);
+      setIsPanelVisible(true);
+      await speakText(response.feedback);
+    }
+
+    if (response) {
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      setImageData({
+        title: title[nextStep],
+        description: instructions[nextStep],
+        image: imageUrl
+      });
+
+      setIsPanelVisible(false);
+      await speakText(tutorialMessages.nextStep);
+    }
   }
   
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -406,10 +461,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     setIsImageCardCollapsed(!isImageCardCollapsed);
   };
 
-  const toggleFeedbackCard = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsFeedbackCardCollapsed(!isFeedbackCardCollapsed);
-  };
 
   const handleChange = () => {
     onChange();
@@ -424,52 +475,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
       }
     };
   }, []);
-
-
-  // 사용자 활동 감지 및 피드백 타이머 설정
-  const handleUserActivity = useCallback(() => {
-    if (feedbackTimer) {
-      clearTimeout(feedbackTimer);
-    }
-
-    if (currentStep > 0) {  // 튜토리얼이 끝나고 실제 그리기 단계일 때만
-      const timer = setTimeout(() => {
-        saveImageAndFeedback();
-      }, 5000);  // 5초 타이머
-      
-      setFeedbackTimer(timer);
-    }
-  }, [currentStep, feedbackTimer]);
-
-  // 사용자 활동 감지를 위한 이벤트 리스너
-  useEffect(() => {
-    if (!canvas) return;
-
-    const handleCanvasActivity = () => {
-      handleUserActivity();
-    };
-
-    canvas.on('mouse:down', handleCanvasActivity);
-    canvas.on('mouse:up', handleCanvasActivity);
-    canvas.on('path:created', handleCanvasActivity);
-    canvas.on('object:modified', handleCanvasActivity);
-
-    return () => {
-      canvas.off('mouse:down', handleCanvasActivity);
-      canvas.off('mouse:up', handleCanvasActivity);
-      canvas.off('path:created', handleCanvasActivity);
-      canvas.off('object:modified', handleCanvasActivity);
-    };
-  }, [canvas, handleUserActivity]);
-
-  // 컴포넌트 언마운트 시 타이머 정리
-  useEffect(() => {
-    return () => {
-      if (feedbackTimer) {
-        clearTimeout(feedbackTimer);
-      }
-    };
-  }, [feedbackTimer]);
 
   return (
     <div 
@@ -497,12 +502,43 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
       )}
       {currentFeedback && isPanelVisible && (
         <FeedbackSection 
-          currentFeedback={currentFeedback}
-          isFeedbackCardCollapsed={isFeedbackCardCollapsed}
-          toggleFeedbackCard={toggleFeedbackCard}
+          currentFeedback={currentFeedback || ""}
         />
       )}
       {overlay && <Overlay type={overlay} isVisible={true} />}
+      
+      {overlay === 'saving' && (
+        <div style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          color: 'white',
+          padding: '20px',
+          borderRadius: '10px',
+          zIndex: 1000
+        }}>
+          저장중이에요...
+        </div>
+      )}
+      
+      <button 
+        onClick={saveImageAndFeedback} 
+        style={{ 
+          position: 'fixed',
+          bottom: '20px',
+          left: '280px',
+          padding: '10px 20px',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+          zIndex: 1000
+        }}
+      >
+        {currentStep === 3 ? '완료하기' : '피드백 요청하기'}
+      </button>
     </div>
   );
 };

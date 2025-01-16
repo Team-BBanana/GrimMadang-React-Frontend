@@ -273,7 +273,6 @@ const GalleryPage = () => {
             console.log('Explore chat response:', response.data);
 
             const textToSpeak = response.data.aiResponseExploreWav;
-            console.log('Metadata being passed to canvas:', response.data.metadata);
             if (textToSpeak) {
                 await speakText(textToSpeak);
             }
