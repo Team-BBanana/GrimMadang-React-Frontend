@@ -133,7 +133,7 @@ const CanvasPage: React.FC = () => {
       const imageUrl = data.url;
 
       if(step === 3){
-        setImageUrl(imageUrl);
+        return imageUrl;
       }
 
       // handleFeedbackAPI 호출하고 응답 반환
@@ -190,7 +190,8 @@ const CanvasPage: React.FC = () => {
     }
   };
 
-  const handleSaveCanvas = async ( title: string, secondfeedback: string) => {
+  const handleSaveCanvas = async ( title: string, secondfeedback: string, imageUrl: string) => {
+    console.log("imageUrl : " + imageUrl);
     try {
       const saveData: saveCanvasData = {
         description: secondfeedback || "",

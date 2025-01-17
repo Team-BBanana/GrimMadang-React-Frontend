@@ -19,7 +19,7 @@ interface CanvasSectionProps {
   canvasRef: React.RefObject<HTMLCanvasElement>;
   onChange: () => void;
   feedbackData: any | null;
-  onFinalSave: (title: string, secondfeedback: string) => Promise<void>;
+  onFinalSave: (title: string, secondfeedback: string, imageUrl: string) => Promise<void>;
 }
 
 const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSectionProps) => {
@@ -380,9 +380,9 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
       setOverlay('saving');
 
       const dataURL = makeFrame(canvas);
-      await onUpload(dataURL, currentStep, topic);
+      const imageUrl = await onUpload(dataURL, currentStep, topic);
 
-      onFinalSave(topic, secondfeedback);
+      onFinalSave(topic, secondfeedback, imageUrl);
       return;
   }
 
