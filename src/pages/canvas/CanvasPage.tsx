@@ -38,7 +38,6 @@ interface feedBackData {
 const CanvasPage: React.FC = () => {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [s3Urls, setS3Urls] = useState<string>();
   const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
   const [feedbackData, setFeedbackData] = useState<{ feedback: string } | null>(null);
 
@@ -130,12 +129,11 @@ const CanvasPage: React.FC = () => {
       }
 
       const data = await uploadResponse.json();
-      setS3Urls(data.url);
-      
+      const imageUrl = data.url;
       // handleFeedbackAPI 호출하고 응답 반환
       const feedbackResponse = await handleFeedbackAPI(step, data.url, topic);
       setFeedbackData(feedbackResponse);
-      return feedbackResponse;  // 이 응답이 CanvasSection으로 전달됨
+      return imageUrl;  // 이 응답이 CanvasSection으로 전달됨
     } catch (error) {
       console.error('Error in uploadCanvasImage:', error);
       throw error;
@@ -186,12 +184,12 @@ const CanvasPage: React.FC = () => {
     }
   };
 
-  const handleSaveCanvas = async ( title: string, secondfeedback: string) => {
+  const handleSaveCanvas = async ( title: string, secondfeedback: string , imageUrl: string) => {
     try {
       const saveData: saveCanvasData = {
         description: secondfeedback || "",
         imageUrl1: "none",
-        imageUrl2: s3Urls || "",
+        imageUrl2: imageUrl || "",
         title: title || "",
         feedback1: feedbackData?.feedback || "",
         feedback2: feedbackData?.feedback || ""
