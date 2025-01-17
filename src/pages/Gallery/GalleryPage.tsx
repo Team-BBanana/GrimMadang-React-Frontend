@@ -268,39 +268,6 @@ const GalleryPage = () => {
         }
     };
 
-    const testMetadata = {
-        imageUrl: "https://bbanana.s3.ap-northeast-2.amazonaws.com/topics/바나나/1736961006882.png",
-        guidelines: `[
-          {
-            "step": 1,
-            "title": "바나나 모양 그리기",
-            "instruction": "바나나의 곡선 모양을 그리고 위에 작은 원을 추가하여 기본 형태를 만듭니다."
-          },
-          {
-            "step": 2,
-            "title": "바나나의 곡선 완성",
-            "instruction": "곡선을 따라 상세한 형태를 그리고, 하단에 작은 꼬리 모양을 추가합니다."
-          },
-          {
-            "step": 3,
-            "title": "바나나 표면 선 그리기",
-            "instruction": "바나나 표면에 세부적인 선을 그려 중심 부분을 자세히 표현합니다."
-          },
-          {
-            "step": 4,
-            "title": "그림자와 하이라이트 추가",
-            "instruction": "그림자를 그려 입체감을 부여하고, 하이라이트로 광택을 표현해 생동감을 더합니다."
-          },
-          {
-            "step": 5,
-            "title": "바나나 색칠하기",
-            "instruction": "노란색으로 바나나를 채우고, 그림자에는 연한 갈색을 입히며 마무리합니다. 완성작 감상!"
-          }
-        ]`,
-        topic: "바나나"
-      };
-  
-
     const handleTranscript = async (transcript: string) => {
         if (isExploreMode) {
             handleExploreChat(transcript, false);  // 일반적인 explore 모드 요청

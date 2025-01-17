@@ -89,7 +89,7 @@ const SpeechButton = ({ onTranscriptComplete, onInitialClick }: SpeechButtonProp
             }
             silenceTimeout = setTimeout(() => {
                 stopListening();
-            }, 3000);
+            }, 2000);
         }
         return () => {
             if (silenceTimeout) {
