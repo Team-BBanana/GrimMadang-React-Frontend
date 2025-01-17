@@ -433,7 +433,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
   useEffect(() => {
     const speakInstruction = async () => {
-      if (currentStep >= 1 && currentStep < 3 && instructions[currentStep-1]) {  // 3단계(currentStep === 3) 제외
+      if (currentStep >= 1 && instructions[currentStep-1]) {  // 3단계(currentStep === 3) 제외
         if (currentStep > 1) {
           await speakText(tutorialMessages.nextStep);
         }
