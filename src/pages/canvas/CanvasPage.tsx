@@ -35,7 +35,7 @@ interface feedBackData {
   currentStep: number;
 }
 
-const CanvasPage = () => {
+const CanvasPage: React.FC = () => {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [s3Urls, setS3Urls] = useState<string>();
@@ -178,20 +178,20 @@ const CanvasPage = () => {
     }
   };
 
-  const handleSaveCanvas = async () => {
+  const handleSaveCanvas = async ( title: string, secondfeedback: string) => {
     try {
       const saveData: saveCanvasData = {
-        description: `${elderinfo?.name}님의 그림입니다.`,
-        imageUrl1: s3Urls || "",
+        description: secondfeedback || "",
+        imageUrl1: "none",
         imageUrl2: s3Urls || "",
-        title: `${elderinfo?.name}님의 그림`,
+        title: title || "",
         feedback1: feedbackData?.feedback || "",
         feedback2: feedbackData?.feedback || ""
       };
 
       const response = await API.canvasApi.saveCanvas(saveData);
       console.log('Canvas saved successfully:', response.data);
-      navigate('/gallery');
+      navigate(`/gallery/${response.data}`);
     } catch (error) {
       console.error("Error saving canvas:", error);
     }
