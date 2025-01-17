@@ -11,7 +11,7 @@ const PORT = process.env.EXPRESS_PORT || 4174;
 
 // CORS 설정 수정
 const corsOptions = {
-  origin: ['http://localhost:4173', 'http://127.0.0.1:4173'],  // 모든 가능한 로컬 프론트엔드 주소 허용
+  origin: ['http://localhost:4173', 'http://127.0.0.1:4173','https://grim-madang.store'],  // 모든 가능한 로컬 프론트엔드 주소 허용
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
