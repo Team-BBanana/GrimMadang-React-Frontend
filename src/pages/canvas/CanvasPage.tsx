@@ -100,16 +100,24 @@ const CanvasPage: React.FC = () => {
     fetchElderName();
   }, []);
 
+  const generateRandomString = (length: number = 8) => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  };
 
-
-  const uploadCanvasImage = async (dataURL: string, step: number, topic: string) => {
+  const uploadCanvasImage = async (dataURL: string, step: number, topic: string ) => {
     try {
       const blob = dataURLToBlob(dataURL);
       const formData = new FormData();
+      const randomStr = generateRandomString();
       formData.append(
         'file', 
         blob, 
-        `canvas-image-${elderinfo?.elderId}.png`
+        `canvas-image-step-${elderinfo?.elderId}-${randomStr}.png`
       );
 
       const uploadResponse = await fetch(`${import.meta.env.VITE_UPLOAD_SERVER_URL}/upload`, {
