@@ -58,7 +58,8 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
   const metadata = location.state?.metadata;
 
   const tutorialMessages = {
-    canvasHello: "안녕하세요, 저는 오늘 그림그리기를 도와줄, 마당이라고 해요. 차근차근, 같이 멋진 작품 만들어 봐요. 그리기 버튼을 눌러, 동그라미를 하나 그려볼까요?",
+    canvasHello: "안녕하세요, 저는 오늘 그림그리기를 도와줄, 마당이라고 해요. 차근차근, 같이 멋진 작품 만들어 봐요.",
+    draw: "그리기 버튼을 눌러, 동그라미를 하나 그려볼까요?",
     brushWidth: "더 큰 동그라미를 선택해서, 굵은 선을 그릴 수도 있어요.",
     eraser: "지우개 버튼을 눌러, 마음에 안드는 부분을 지워볼까요?",
     fill: "채우기 버튼을 눌러주세요. 그린 그림을 눌르면, 넓은 면을 색칠 할 수 있어요.",
@@ -169,14 +170,11 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
       if (!hasInitialPlayedRef.current) {
         hasInitialPlayedRef.current = true;
         await speakText(tutorialMessages.canvasHello);
-        // DOM이 완전히 렌더링될 때까지 기다린 후 오버레이 설정
-        setTimeout(() => {
-          setOverlay('pen');  // 음성이 끝난 후 그리기 버튼 하이라이트
-        }, 1000);
+        setOverlay('pen');  // 음성 재생 후에 오버레이 설정
+        speakText(tutorialMessages.draw);
       }
     };
 
-    // 컴포넌트 마운트 후 약간의 지연을 두고 튜토리얼 시작
     const timeoutId = setTimeout(() => {
       playInitialTutorial();
     }, 2000);
@@ -190,13 +188,9 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
     const handlePathCreated = async () => {
       if (tutorialStep === 0) {
-        setOverlay(null);  // 그리기 시작하면 오버레이 제거
+        setOverlay('brushWidth');  // 오버레이 먼저 설정
         setTutorialStep(1);
         await speakText(tutorialMessages.brushWidth);
-        // DOM이 완전히 렌더링될 때까지 기다린 후 오버레이 설정
-        setTimeout(() => {
-          setOverlay('brushWidth');  // 음성이 끝난 후 두께 변경 요소 하이라이트
-        }, 2000);
       }
     };
 
@@ -216,11 +210,10 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
     const handleBrushWidthChange = async () => {
       if (tutorialStep === 1) {
-        setOverlay(null);  // 두께 변경 시 오버레이 해제
         if (isBrushWidthChanged && isPathCreated) {
+          setOverlay('eraser');  // 오버레이 먼저 설정
           setTutorialStep(2);
           await speakText(tutorialMessages.eraser);
-          setOverlay('eraser');  // 음성이 끝난 후 지우개 버튼 하이라이트
         }
       }
     };
@@ -228,6 +221,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     const checkBrushWidthChange = () => {
       if (canvas.freeDrawingBrush && canvas.freeDrawingBrush.width !== brushWidth) {
         isBrushWidthChanged = true;
+        setOverlay(null); 
         handleBrushWidthChange();
       }
     };
@@ -260,10 +254,9 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
     const handleEraserUse = async () => {
       if (tutorialStep === 2) {
-        setOverlay(null);
+        setOverlay('fill'); 
         setTutorialStep(3);
         await speakText(tutorialMessages.fill);
-        setOverlay('fill');
       }
     };
 
@@ -364,13 +357,11 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
   const saveImageAndFeedback = async () => {
     if (!canvas) return;
 
-    // currentStep이 3일 때 (마지막 단계)
     if (currentStep === 3) {
-      // 마지막 이미지 저장
+      setOverlay('saving');
       const dataURL = makeFrame(canvas);
       await onUpload(dataURL, currentStep, topic || "");
       
-      // 갤러리 페이지로 이동
       setTimeout(() => {
         navigate('/gallery');
       }, 2000);
@@ -398,7 +389,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
       });
 
       setIsPanelVisible(false);
-      await speakText(tutorialMessages.nextStep);
+      setOverlay(null);
     }
   };
   
@@ -439,6 +430,19 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     currentStep,
     onFinishDrawing: saveImageAndFeedback
   });
+
+  useEffect(() => {
+    const speakInstruction = async () => {
+      if (currentStep >= 1 && currentStep < 3 && instructions[currentStep-1]) {  // 3단계(currentStep === 3) 제외
+        if (currentStep > 1) {
+          await speakText(tutorialMessages.nextStep);
+        }
+        await speakText(instructions[currentStep-1]);
+      }
+    };
+    
+    speakInstruction();
+  }, [currentStep, instructions]);
 
   return (
     <div 
