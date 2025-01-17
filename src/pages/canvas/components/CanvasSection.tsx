@@ -19,7 +19,7 @@ interface CanvasSectionProps {
   canvasRef: React.RefObject<HTMLCanvasElement>;
   onChange: () => void;
   feedbackData: any | null;
-  onFinalSave: (title: string, secondfeedback: string, imageUrl: string) => Promise<void>;
+  onFinalSave: (title: string, secondfeedback: string) => Promise<void>;
 }
 
 const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSectionProps) => {
@@ -358,15 +358,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
         return;
     }
 
-    if (currentStep === 3) {
-        await speakText(tutorialMessages.finalStep);
-        setOverlay('saving');
-        const dataURL = makeFrame(canvas);
-        const response = await onUpload(dataURL, currentStep, topic);
-        onFinalSave(topic, secondfeedback, response.url);
-        return;
-    }
-
     const dataURL = makeFrame(canvas);
     const response = await onUpload(dataURL, currentStep, topic);
     console.log("Response from server:", response);
@@ -380,6 +371,20 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
       setIsPanelVisible(true);
       await speakText(response.feedback);
     }
+
+
+
+
+    if (currentStep === 3) {
+      await speakText(tutorialMessages.finalStep);
+      setOverlay('saving');
+
+      const dataURL = makeFrame(canvas);
+      await onUpload(dataURL, currentStep, topic);
+
+      onFinalSave(topic, secondfeedback);
+      return;
+  }
 
     if (response) {
       const nextStep = currentStep + 1;

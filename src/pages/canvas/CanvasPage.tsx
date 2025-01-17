@@ -40,6 +40,7 @@ const CanvasPage: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
   const [feedbackData, setFeedbackData] = useState<{ feedback: string } | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const helloAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -130,10 +131,15 @@ const CanvasPage: React.FC = () => {
 
       const data = await uploadResponse.json();
       const imageUrl = data.url;
+
+      if(step === 3){
+        setImageUrl(imageUrl);
+      }
+
       // handleFeedbackAPI 호출하고 응답 반환
-      const feedbackResponse = await handleFeedbackAPI(step, data.url, topic);
+      const feedbackResponse = await handleFeedbackAPI(step, imageUrl, topic);
       setFeedbackData(feedbackResponse);
-      return imageUrl;  // 이 응답이 CanvasSection으로 전달됨
+      return feedbackResponse;  // 이 응답이 CanvasSection으로 전달됨
     } catch (error) {
       console.error('Error in uploadCanvasImage:', error);
       throw error;
@@ -184,7 +190,7 @@ const CanvasPage: React.FC = () => {
     }
   };
 
-  const handleSaveCanvas = async ( title: string, secondfeedback: string , imageUrl: string) => {
+  const handleSaveCanvas = async ( title: string, secondfeedback: string) => {
     try {
       const saveData: saveCanvasData = {
         description: secondfeedback || "",
