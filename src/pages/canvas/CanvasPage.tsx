@@ -192,6 +192,8 @@ const CanvasPage: React.FC = () => {
 
   const handleSaveCanvas = async ( title: string, secondfeedback: string, imageUrl: string) => {
     console.log("imageUrl : " + imageUrl);
+    console.log("title : " + title);
+    console.log("secondfeedback : " + secondfeedback);
     try {
       const saveData: saveCanvasData = {
         description: secondfeedback || "",
