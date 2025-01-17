@@ -9,7 +9,7 @@ interface UseSpeechCommandsProps {
 export const useSpeechCommands = ({ currentStep, onFinishDrawing }: UseSpeechCommandsProps) => {
   const commands = [
     {
-      command: ['다 그렸어', '다 그렸어요', '다그려써', '다그렸어', '나 다그렸는데', '다했다', '다해따'],
+      command: ['다 그렸어', '다 그렸어요', '다그려써', '다그렸어', '나 다그렸는데', '다 그렸는데', '다했는데', '다 했어', '다했어', '다했다', '다해따'],
       callback: () => {
         console.log('다 그렸어 명령 감지, currentStep:', currentStep);
         if (currentStep >= 1) {

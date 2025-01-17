@@ -62,7 +62,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     draw: "그리기 버튼을 눌러, 동그라미를 하나 그려볼까요?",
     brushWidth: "더 큰 동그라미를 선택해서, 굵은 선을 그릴 수도 있어요.",
     eraser: "지우개 버튼을 눌러, 마음에 안드는 부분을 지워볼까요?",
-    fill: "채우기 버튼을 눌러주세요. 그린 그림을 눌르면, 넓은 면을 색칠 할 수 있어요.",
+    fill: "채우기 버튼을 눌러주세요. 그린 그림을 누르면, 넓은 면을 색칠 할 수 있어요.",
     startStep: "지금까지, 그림판의 사용법을 알아보았어요 이제, 그림을 그리러 가볼까요?",
     nextStep: "이제, 다음 단계로 가볼까요?"
   };
