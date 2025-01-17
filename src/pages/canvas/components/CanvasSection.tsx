@@ -358,7 +358,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     if (!canvas) return;
 
     if (currentStep === 3) {
-      setOverlay('saving');  // 저장 오버레이 먼저 표시
+      setOverlay('saving');
       const dataURL = makeFrame(canvas);
       await onUpload(dataURL, currentStep, topic || "");
       
@@ -389,8 +389,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
       });
 
       setIsPanelVisible(false);
-      setOverlay(null);  // 다음 단계로 넘어갈 때 오버레이 제거
-      await speakText(tutorialMessages.nextStep);
+      setOverlay(null);
     }
   };
   
@@ -431,6 +430,19 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     currentStep,
     onFinishDrawing: saveImageAndFeedback
   });
+
+  useEffect(() => {
+    const speakInstruction = async () => {
+      if (currentStep >= 1 && currentStep < 3 && instructions[currentStep-1]) {  // 3단계(currentStep === 3) 제외
+        if (currentStep > 1) {
+          await speakText(tutorialMessages.nextStep);
+        }
+        await speakText(instructions[currentStep-1]);
+      }
+    };
+    
+    speakInstruction();
+  }, [currentStep, instructions]);
 
   return (
     <div 
