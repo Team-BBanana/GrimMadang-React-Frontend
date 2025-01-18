@@ -12,6 +12,7 @@ import overlayAtom from '@/store/atoms/overlayAtom';
 import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSpeechCommands } from '../hooks/useSpeechCommands';
+import LoadingModal from './LoadingModal';
 
 interface CanvasSectionProps {
   className?: string;
@@ -354,42 +355,54 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     // }
   };
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const saveImageAndFeedback = async () => {
     if (!canvas) return;
 
-    if (currentStep === 3) {
-      setOverlay('saving');
+    // currentStep이 3이 아닐 때만 로딩 모달 표시
+    if (currentStep !== 3) {
+      setIsLoading(true);
+    }
+
+    try {
+      if (currentStep === 3) {
+        setOverlay('saving');
+        const dataURL = makeFrame(canvas);
+        await onUpload(dataURL, currentStep, topic || "");
+        
+        setTimeout(() => {
+          navigate('/gallery');
+        }, 2000);
+        
+        return;
+      }
+
       const dataURL = makeFrame(canvas);
-      await onUpload(dataURL, currentStep, topic || "");
-      
-      setTimeout(() => {
-        navigate('/gallery');
-      }, 2000);
-      
-      return;
-    }
+      const response = await onUpload(dataURL, currentStep, topic || "");
+      console.log("Response from server:", response);
 
-    const dataURL = makeFrame(canvas);
-    const response = await onUpload(dataURL, currentStep, topic || "");
-    console.log("Response from server:", response);
+      if (response && response.feedback) {
+        setCurrentFeedback(response.feedback);
+        setIsPanelVisible(true);
+        setIsLoading(false);
+        await speakText(response.feedback);
+      }
 
-    if (response && response.feedback) {
-      setCurrentFeedback(response.feedback);
-      setIsPanelVisible(true);
-      await speakText(response.feedback);
-    }
+      if (response) {
+        const nextStep = currentStep + 1;
+        setCurrentStep(nextStep);
+        setImageData({
+          title: title[nextStep],
+          description: instructions[nextStep],
+          image: imageUrl
+        });
 
-    if (response) {
-      const nextStep = currentStep + 1;
-      setCurrentStep(nextStep);
-      setImageData({
-        title: title[nextStep],
-        description: instructions[nextStep],
-        image: imageUrl
-      });
-
-      setIsPanelVisible(false);
-      setOverlay(null);
+        setIsPanelVisible(false);
+      }
+    } catch (error) {
+      console.error("Error saving image:", error);
+      setIsLoading(false);
     }
   };
   
@@ -433,10 +446,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
   useEffect(() => {
     const speakInstruction = async () => {
-      if (currentStep >= 1 && currentStep < 3 && instructions[currentStep-1]) {  // 3단계(currentStep === 3) 제외
-        if (currentStep > 1) {
-          await speakText(tutorialMessages.nextStep);
-        }
+      if (currentStep >= 1 && instructions[currentStep-1]) {
         await speakText(instructions[currentStep-1]);
       }
     };
@@ -490,6 +500,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
           저장중이에요...
         </div>
       )}
+      <LoadingModal isVisible={isLoading && !isPanelVisible} />
     </div>
   );
 };
