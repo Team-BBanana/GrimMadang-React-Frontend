@@ -50,7 +50,7 @@ const CanvasPage: React.FC = () => {
       const audio = new Audio();
       audio.src = bgmAudio;
       audio.loop = true;
-      audio.volume = 0.3;
+      audio.volume = 0.15;
       bgmRef.current = audio;
 
       const playBGM = () => {
