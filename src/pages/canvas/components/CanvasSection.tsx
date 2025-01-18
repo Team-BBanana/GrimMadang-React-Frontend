@@ -503,7 +503,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
           borderRadius: '10px',
           zIndex: 1000
         }}>
-          저장중이에요...
         </div>
       )}
       
