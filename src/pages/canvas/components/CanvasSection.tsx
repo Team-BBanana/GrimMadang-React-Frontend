@@ -351,6 +351,8 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
   }, [canvasRef, setCanvas]);
 
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const saveImageAndFeedback = async () => {
     if (!canvas) return;
     if (!topic) {
@@ -358,45 +360,48 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
         return;
     }
 
-    const dataURL = makeFrame(canvas);
-    const response = await onUpload(dataURL, currentStep, topic);
-    console.log("Response from server:", response);
+    setIsLoading(true);
 
-    if (response && response.feedback) {
-      if (currentStep === 2) {
-        setSecondfeedback(response.feedback);
+    try {
+      const dataURL = makeFrame(canvas);
+      const response = await onUpload(dataURL, currentStep, topic);
+      console.log("Response from server:", response);
+
+      if (response && response.feedback) {
+        if (currentStep === 2) {
+          setSecondfeedback(response.feedback);
+        }
+
+        setCurrentFeedback(response.feedback);
+        setIsPanelVisible(true);
+        await speakText(response.feedback);
       }
 
-      setCurrentFeedback(response.feedback);
-      setIsPanelVisible(true);
-      await speakText(response.feedback);
-    }
+      if (currentStep === 3) {
+        await speakText(tutorialMessages.finalStep);
+        setOverlay('saving');
 
+        const dataURL = makeFrame(canvas);
+        const imageUrl = await onUpload(dataURL, currentStep, topic);
 
+        onFinalSave(topic, secondfeedback, imageUrl);
+        return;
+      }
 
+      if (response) {
+        const nextStep = currentStep + 1;
+        setCurrentStep(nextStep);
+        setImageData({
+          title: title[nextStep],
+          description: instructions[nextStep],
+          image: imageUrl
+        });
 
-    if (currentStep === 3) {
-      await speakText(tutorialMessages.finalStep);
-      setOverlay('saving');
-
-      const dataURL = makeFrame(canvas);
-      const imageUrl = await onUpload(dataURL, currentStep, topic);
-
-      onFinalSave(topic, secondfeedback, imageUrl);
-      return;
-  }
-
-    if (response) {
-      const nextStep = currentStep + 1;
-      setCurrentStep(nextStep);
-      setImageData({
-        title: title[nextStep],
-        description: instructions[nextStep],
-        image: imageUrl
-      });
-
-      setIsPanelVisible(false);
-      setOverlay(null);
+        setIsPanelVisible(false);
+        setOverlay(null);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
   
@@ -495,6 +500,25 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
           zIndex: 1000
         }}>
           저장중이에요...
+        </div>
+      )}
+      
+      {isLoading && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          color: 'white',
+          padding: '10px 20px',
+          borderRadius: '5px',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          <div className={style.loadingSpinner}></div>
+          잠시만 기다려 주세요...
         </div>
       )}
     </div>

@@ -23,6 +23,7 @@ interface ElderInfo {
     role: string;
     attendance_streak: number;
     attendance_total: number;
+    elder_id: string;
 }
 
 interface exploreCanvasData {
