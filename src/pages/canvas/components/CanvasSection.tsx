@@ -20,7 +20,7 @@ interface CanvasSectionProps {
   canvasRef: React.RefObject<HTMLCanvasElement>;
   onChange: () => void;
   feedbackData: any | null;
-  onFinalSave?: () => void;
+  onFinalSave: (title: string, secondfeedback: string, imageUrl: string) => Promise<void>;
 }
 
 const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSectionProps) => {
@@ -52,6 +52,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
   const hasInitialPlayedRef = useRef(false);
   const currentAudio = useRef<HTMLAudioElement | null>(null);
   const isFillUsedRef = useRef(false);
+  const [secondfeedback, setSecondfeedback] = useState<string>('');
 
   const navigate = useNavigate();
 
@@ -63,9 +64,10 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     draw: "그리기 버튼을 눌러, 동그라미를 하나 그려볼까요?",
     brushWidth: "더 큰 동그라미를 선택해서, 굵은 선을 그릴 수도 있어요.",
     eraser: "지우개 버튼을 눌러, 마음에 안드는 부분을 지워볼까요?",
-    fill: "채우기 버튼을 눌러주세요. 그린 그림을 눌르면, 넓은 면을 색칠 할 수 있어요.",
+    fill: "채우기 버튼을 눌러주세요. 그린 그림을 누르면, 넓은 면을 색칠 할 수 있어요.",
     startStep: "지금까지, 그림판의 사용법을 알아보았어요 이제, 그림을 그리러 가볼까요?",
-    nextStep: "이제, 다음 단계로 가볼까요?"
+    nextStep: "이제, 다음 단계로 가볼까요?",
+    finalStep: "완료되었어요! 이제 저장해볼까요?"
   };
 
   const speakText = async (text: string) => {
@@ -76,7 +78,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
         currentAudio.current = null;
       }
 
-      const response = await fetch('http://localhost:4174/synthesize-speech', {
+      const response = await fetch(`${import.meta.env.VITE_UPLOAD_SERVER_URL}/synthesize-speech`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -349,55 +351,57 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     };
   }, [canvasRef, setCanvas]);
 
-  const handleFinalSave = async () => {
-    // if (onFinalSave) {
-    //   onFinalSave();
-    // }
-  };
 
   const [isLoading, setIsLoading] = useState(false);
 
   const saveImageAndFeedback = async () => {
     if (!canvas) return;
-
-    // currentStep이 3이 아닐 때만 로딩 모달 표시
+    
     if (currentStep !== 3) {
       setIsLoading(true);
     }
 
-    try {
-      if (currentStep === 3) {
-        setOverlay('saving');
-        const dataURL = makeFrame(canvas);
-        await onUpload(dataURL, currentStep, topic || "");
-        
-        setTimeout(() => {
-          navigate('/gallery');
-        }, 2000);
-        
+    if (!topic) {
+        console.error("Topic is required");
         return;
+    }
+
+    const dataURL = makeFrame(canvas);
+    const response = await onUpload(dataURL, currentStep, topic);
+    console.log("Response from server:", response);
+
+    if (response && response.feedback) {
+      if (currentStep === 2) {
+        setSecondfeedback(response.feedback);
       }
+
+      setCurrentFeedback(response.feedback);
+      setIsPanelVisible(true);
+      await speakText(response.feedback);
+    }
+
+
+
+
+    if (currentStep === 3) {
+      await speakText(tutorialMessages.finalStep);
+      setOverlay('saving');
 
       const dataURL = makeFrame(canvas);
-      const response = await onUpload(dataURL, currentStep, topic || "");
-      console.log("Response from server:", response);
+      const imageUrl = await onUpload(dataURL, currentStep, topic);
 
-      if (response && response.feedback) {
-        setCurrentFeedback(response.feedback);
-        setIsPanelVisible(true);
-        setIsLoading(false);
-        await speakText(response.feedback);
-      }
+      onFinalSave(topic, secondfeedback, imageUrl);
+      return;
+  }
 
-      if (response) {
-        const nextStep = currentStep + 1;
-        setCurrentStep(nextStep);
-        setImageData({
-          title: title[nextStep],
-          description: instructions[nextStep],
-          image: imageUrl
-        });
-
+    if (response) {
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      setImageData({
+        title: title[nextStep],
+        description: instructions[nextStep],
+        image: imageUrl
+      });
         setIsPanelVisible(false);
       }
     } catch (error) {
@@ -446,6 +450,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
   useEffect(() => {
     const speakInstruction = async () => {
+
       if (currentStep >= 1 && instructions[currentStep-1]) {
         await speakText(instructions[currentStep-1]);
       }
