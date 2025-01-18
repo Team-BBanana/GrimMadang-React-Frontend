@@ -35,12 +35,12 @@ interface feedBackData {
   currentStep: number;
 }
 
-const CanvasPage = () => {
+const CanvasPage: React.FC = () => {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [s3Urls, setS3Urls] = useState<string>();
   const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
   const [feedbackData, setFeedbackData] = useState<{ feedback: string } | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const helloAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -100,16 +100,24 @@ const CanvasPage = () => {
     fetchElderName();
   }, []);
 
+  const generateRandomString = (length: number = 8) => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  };
 
-
-  const uploadCanvasImage = async (dataURL: string, step: number, topic: string) => {
+  const uploadCanvasImage = async (dataURL: string, step: number, topic: string ) => {
     try {
       const blob = dataURLToBlob(dataURL);
       const formData = new FormData();
+      const randomStr = generateRandomString();
       formData.append(
         'file', 
         blob, 
-        `canvas-image-${elderinfo?.elderId}.png`
+        `canvas-image-step-${elderinfo?.elderId}-${randomStr}.png`
       );
 
       const uploadResponse = await fetch(`${import.meta.env.VITE_UPLOAD_SERVER_URL}/upload`, {
@@ -122,10 +130,14 @@ const CanvasPage = () => {
       }
 
       const data = await uploadResponse.json();
-      setS3Urls(data.url);
-      
+      const imageUrl = data.url;
+
+      if(step === 3){
+        return imageUrl;
+      }
+
       // handleFeedbackAPI 호출하고 응답 반환
-      const feedbackResponse = await handleFeedbackAPI(step, data.url, topic);
+      const feedbackResponse = await handleFeedbackAPI(step, imageUrl, topic);
       setFeedbackData(feedbackResponse);
       return feedbackResponse;  // 이 응답이 CanvasSection으로 전달됨
     } catch (error) {
@@ -178,20 +190,23 @@ const CanvasPage = () => {
     }
   };
 
-  const handleSaveCanvas = async () => {
+  const handleSaveCanvas = async ( title: string, secondfeedback: string, imageUrl: string) => {
+    console.log("imageUrl : " + imageUrl);
+    console.log("title : " + title);
+    console.log("secondfeedback : " + secondfeedback);
     try {
       const saveData: saveCanvasData = {
-        description: `${elderinfo?.name}님의 그림입니다.`,
-        imageUrl1: s3Urls || "",
-        imageUrl2: s3Urls || "",
-        title: `${elderinfo?.name}님의 그림`,
+        description: secondfeedback || "",
+        imageUrl1: "none",
+        imageUrl2: imageUrl || "",
+        title: title || "",
         feedback1: feedbackData?.feedback || "",
         feedback2: feedbackData?.feedback || ""
       };
 
       const response = await API.canvasApi.saveCanvas(saveData);
       console.log('Canvas saved successfully:', response.data);
-      navigate('/gallery');
+      navigate(`/gallery/${response.data}`);
     } catch (error) {
       console.error("Error saving canvas:", error);
     }

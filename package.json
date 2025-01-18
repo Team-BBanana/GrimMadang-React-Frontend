@@ -7,7 +7,7 @@
     "dev": "concurrently \"vite\" \"node image-upload-server/server.mjs\"",
     "build": "vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "start": "concurrently \"vite preview\" \"node image-upload-server/server.mjs\""
   },
   "dependencies": {
     "@aws-sdk/client-polly": "^3.726.1",
