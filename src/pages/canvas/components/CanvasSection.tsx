@@ -12,6 +12,7 @@ import overlayAtom from '@/store/atoms/overlayAtom';
 import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSpeechCommands } from '../hooks/useSpeechCommands';
+import LoadingModal from './LoadingModal';
 
 interface CanvasSectionProps {
   className?: string;
@@ -350,21 +351,27 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     };
   }, [canvasRef, setCanvas]);
 
+  const handleFinalSave = async () => {
+    // if (onFinalSave) {
+    //   onFinalSave();
+    // }
+  };
 
   const [isLoading, setIsLoading] = useState(false);
 
   const saveImageAndFeedback = async () => {
     if (!canvas) return;
-    if (!topic) {
-        console.error("Topic is required");
-        return;
+
+    // currentStep이 3이 아닐 때만 로딩 모달 표시
+    if (currentStep !== 3) {
+      setIsLoading(true);
     }
 
     setIsLoading(true);
 
     try {
       const dataURL = makeFrame(canvas);
-      const response = await onUpload(dataURL, currentStep, topic);
+      const response = await onUpload(dataURL, currentStep, topic || "");
       console.log("Response from server:", response);
 
       if (response && response.feedback) {
@@ -382,9 +389,9 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
         setOverlay('saving');
 
         const dataURL = makeFrame(canvas);
-        const imageUrl = await onUpload(dataURL, currentStep, topic);
+        const imageUrl = await onUpload(dataURL, currentStep, topic || "");
 
-        onFinalSave(topic, secondfeedback, imageUrl);
+        onFinalSave(topic || "", secondfeedback, imageUrl);
         return;
       }
 
@@ -445,10 +452,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
   useEffect(() => {
     const speakInstruction = async () => {
-      if (currentStep >= 1 && instructions[currentStep-1]) {  // 3단계(currentStep === 3) 제외
-        if (currentStep > 1) {
-          await speakText(tutorialMessages.nextStep);
-        }
+      if (currentStep >= 1 && instructions[currentStep-1]) {
         await speakText(instructions[currentStep-1]);
       }
     };
