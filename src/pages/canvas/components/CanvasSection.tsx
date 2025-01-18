@@ -381,6 +381,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
         setCurrentFeedback(response.feedback);
         setIsPanelVisible(true);
+        setIsLoading(false);
         await speakText(response.feedback);
       }
 
@@ -408,7 +409,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
         setOverlay(null);
       }
     } finally {
-      setIsLoading(false);
     }
   };
   
