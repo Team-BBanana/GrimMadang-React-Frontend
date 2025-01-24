@@ -1,7 +1,6 @@
 import axios from "axios";
 import userApi from "./user.api/user.api";
 import canvasApi from "./canvas.api/canvas.api";
-import familyApi from "./family.api/family.api";
 import galleryApi from "./gallery.api/gallery.api";
 
 export const CanvasClient = axios.create({
@@ -17,7 +16,6 @@ export const AIClient = axios.create({
 const API = {
     userApi,
     canvasApi,
-    familyApi,
     galleryApi,
 };
 

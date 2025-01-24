@@ -24,10 +24,6 @@ interface ElderInfo {
   attendance_total: number;
 }
 
-interface LocationState {
-  topics: string;
-}
-
 interface feedBackData {
   sessionId: string;
   topic: string;
