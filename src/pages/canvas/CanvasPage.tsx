@@ -5,6 +5,7 @@ import API from "@/api";
 import { ToolPositionProvider } from '@/context/ToolPositionContext';
 import bgmAudio from '/canvasTutorial/bgm.mp3';
 import { useNavigate } from "react-router-dom";
+import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
 
 interface saveCanvasData {
   description: string;
@@ -38,33 +39,8 @@ const CanvasPage: React.FC = () => {
   const [feedbackData, setFeedbackData] = useState<{ feedback: string } | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  const bgmRef = useRef<HTMLAudioElement | null>(null);
-  const helloAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    try {
-      const audio = new Audio();
-      audio.src = bgmAudio;
-      audio.loop = true;
-      audio.volume = 0.15;
-      bgmRef.current = audio;
-
-      const playBGM = () => {
-        bgmRef.current?.play().catch(error => {
-          console.error('BGM play error:', error);
-        });
-      };
-
-      document.addEventListener('click', playBGM, { once: true });
-
-      return () => {
-        bgmRef.current?.pause();
-        bgmRef.current = null;
-      };
-    } catch (error) {
-      console.error('Audio initialization error:', error);
-    }
-  }, []);
+  const helloAudioRef = useBackgroundMusic(bgmAudio);
 
   useEffect(() => {
     const timer = setTimeout(() => {
