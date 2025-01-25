@@ -1,4 +1,3 @@
-import { fabric } from "fabric";
 import { useEffect, useRef, useState, useCallback } from "react";
 import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
 import style from "../CanvasPage.module.css";
@@ -91,7 +90,6 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
   // 3. 캔버스 상태 관리
   const {
     canvas,
-    setCanvas,
     brushWidth,
     canvasContainerRef,
     handleMouseMove,
@@ -110,11 +108,8 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
 
   // 5. 튜토리얼 상태 관리
   const {
-    tutorialStep,
-    setTutorialStep,
     overlay,
     setOverlay,
-    hasInitialPlayedRef,
     showTitle,
     tutorialMessages
   } = useTutorialState(canvas, handleTutorialComplete, brushWidth, speakText);
@@ -165,75 +160,6 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
       }
     }
   }, [metadata]);
-
-  // 첫 튜토리얼 메시지는 한 번만 재생
-  useEffect(() => {
-    const playInitialTutorial = async () => {
-      if (!hasInitialPlayedRef.current) {
-        hasInitialPlayedRef.current = true;
-        await speakText(tutorialMessages.canvasHello);
-        setOverlay('pen');  // 음성 재생 후에 오버레이 설정
-        speakText(tutorialMessages.draw);
-      }
-    };
-
-    const timeoutId = setTimeout(() => {
-      playInitialTutorial();
-    }, 2000);
-
-    return () => clearTimeout(timeoutId);
-  }, []);
-
-  // 캔버스 그리기 이벤트 감지
-  useEffect(() => {
-    if (!canvas) return;
-
-    const handlePathCreated = async () => {
-      if (tutorialStep === 0) {
-        setOverlay('brushWidth');  // 오버레이 먼저 설정
-        setTutorialStep(1);
-        await speakText(tutorialMessages.brushWidth);
-      }
-    };
-
-    canvas.on('path:created', handlePathCreated);
-
-    return () => {
-      canvas.off('path:created', handlePathCreated);
-    };
-  }, [canvas, tutorialStep]);
-
-  useEffect(() => {
-    if (!canvasContainerRef.current || !canvasRef.current) return;
-
-    const newCanvas = new fabric.Canvas(canvasRef.current, {
-      width: window.outerWidth,
-      height: window.outerHeight,
-      backgroundColor: "transparent"
-    });
-
-    setCanvas(newCanvas);
-
-    // 초기 상태에서는 그리기 모드 비활성화
-    newCanvas.isDrawingMode = false;
-    newCanvas.selection = false;
-    newCanvas.renderAll();
-
-    const handleResize = () => {
-      newCanvas.setWidth(window.innerWidth);
-      newCanvas.setHeight(window.innerHeight);
-      newCanvas.renderAll();
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    
-
-    return () => {
-      newCanvas.dispose();
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [canvasRef, setCanvas]);
 
   const [isLoading, setIsLoading] = useState(false);
 
