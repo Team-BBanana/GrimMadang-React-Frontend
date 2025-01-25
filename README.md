@@ -36,28 +36,59 @@
   - 감정과 톤을 고려한 음성 생성
   - 실시간 음성 스트리밍
 
+### AWS 서비스 
+- AWS S3 (이미지 저장)
+- AWS Polly (음성 합성)
+
 ### Canvas
 - Fabric.js
 
 ### Others
 - Axios (API 통신)
 - React Router (라우팅)
+- express.js(s3,polly)
 
 ## 🗂️ 프로젝트 구조
 
 ```
 src/
-├── api/          # API 통신 관련 
-├── components/   # 공통 컴포넌트
-├── hooks/        # 커스텀 훅
-│   ├── useSpeechRecognition.ts    # 음성 인식 훅
-│   ├── usePollyTTS.ts             # AWS Polly TTS 훅
-│   └── useCanvasState.ts          # 캔버스 상태 관리 훅
-├── pages/        # 페이지 컴포넌트
-│   ├── Gallery/  # 갤러리 페이지
-│   └── Canvas/   # 캔버스 페이지
-├── styles/       # 전역 스타일
-└── utils/        # 유틸리티 함수
+├── api/                  # API 통신 관련
+│   ├── canvas.api/      # 캔버스 관련 API
+│   ├── gallery.api/     # 갤러리 관련 API
+│   ├── postCard.api/    # 엽서 관련 API
+│   └── user.api/        # 사용자 관련 API
+│
+├── components/          # 공통 컴포넌트
+│   ├── Button/         # 버튼 컴포넌트
+│   ├── Footer/         # 푸터 컴포넌트
+│   ├── Header/         # 헤더 컴포넌트
+│   ├── InputBox/       # 입력 컴포넌트
+│   └── LoadingSpinner/ # 로딩 컴포넌트
+│
+├── hooks/              # 커스텀 훅
+│   ├── useBackgroundMusic.ts
+│   ├── useCanvasState.ts
+│   ├── useElderInfo.ts
+│   ├── useSpeechCommands.ts
+│   ├── useSpeechSynthesis.ts
+│   └── useTutorialState.ts
+│
+├── pages/             # 페이지 컴포넌트
+│   ├── Login/        # 로그인 페이지
+│   ├── Signup/       # 회원가입 페이지
+│   ├── Gallery/      # 갤러리 페이지
+│   ├── Canvas/       # 캔버스 페이지
+│   ├── Display/      # 작품 상세 페이지
+│   └── PostCard/     # 엽서 페이지
+│
+├── store/            # 상태 관리
+│   └── atoms/        # Jotai atoms
+│
+├── assets/          # 정적 리소스
+│   ├── imgs/       # 이미지 파일
+│   └── svgs/       # SVG 아이콘
+│
+└── utils/          # 유틸리티 함수
 ```
 
 ## 🔍 주요 기능 설명
@@ -73,17 +104,17 @@ src/
 ### 2. 캔버스 기능
 - Fabric.js 기반 그리기 도구
 - 직관적인 브러시 도구 제공
-- 실시간 저장 및 복구
+- 실시간 피드백 제공
 
 ### 3. AI 피드백 시스템
-- 단계별 그림 평가
+- 3단계 단계별 그림 평가
+  - 기준 이미지와 점수 기반 비교 하여 피드백 제공, 사용자 에게는 점수는 비공개
 - 긍정적 피드백 제공
-- 성취 시스템 연동
 
 ### 4. 갤러리 시스템
-- 작품 자동 저장
-- 가족 공유 기능
-- 전시 시스템
+- 작품 자동 저장 기능 
+- 카카오톡을 통한 가족 공유 기능
+- 가족들이 접속하여 그림을 구경할 수 있는 전시 기능
 
 ## 💻 설치 및 실행
 
@@ -107,16 +138,25 @@ npm run build
 ## 🔒 환경 변수 설정
 
 ```env
-# AWS Polly Configuration
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret_key
-AWS_REGION=your_region
+# AWS Configuration
+AWS_ACCESS_KEY_ID=your_access_key_id
+AWS_SECRET_ACCESS_KEY=your_secret_access_key
+AWS_REGION=ap-northeast-2
+AWS_BUCKET_NAME=your_bucket_name
 
-# API Configuration
-VITE_API_BASE_URL=your_api_url
+# API URLs
+VITE_CANVAS_API_URL=http://localhost:8080/
+VITE_AI_API_URL=http://localhost:3012/
 
-# Other Configurations
-VITE_APP_ENV=development
+# Kakao API
+VITE_KAKAO_API_KEY=your_kakao_api_key
+
+# AWS Server
+VITE_UPLOAD_SERVER_URL=http://localhost:4174
+EXPRESS_PORT=4174
+
+# CORS
+CORS_ALLOWED_ORIGIN=http://localhost:4173
 ```
 
 ## 🤝 Contributing
@@ -136,3 +176,58 @@ VITE_APP_ENV=development
 - [관련 기사 1](https://www.newspeak.kr/news/articleView.html?idxno=126525)
 - [관련 기사 2](https://www.hankyung.com/article/202101179426Y)
 - [관련 기사 3](https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0002917287)
+
+## 📱 페이지 구조
+
+```
+/
+├── /                     # 로그인 페이지
+│   └── 카카오 소셜 로그인
+│
+├── /signup               # 회원가입 페이지
+│   └── 역할 선택 (어르신/가족)
+│
+├── /gallery              # 갤러리 페이지
+│   ├── AI와 대화를 통한 그림 그리기 시작
+│   └── 그림 목록 조회
+│
+├── /canvas               # 캔버스 페이지
+│   ├── 3단계 그림 그리기
+│   └── AI 실시간 피드백
+│
+├── /gallery/:id          # 작품 상세 페이지
+│   ├── 작품 상세 조회
+│   └── 작품 공유
+│
+└── /postcard/:id         # 엽서 페이지
+    ├── 작품 엽서 형태 조회
+    └── 카카오톡 공유
+```
+
+### 페이지별 설명
+
+#### 🔐 메인 페이지 (`/`)
+- 카카오 소셜 로그인
+- 서비스 소개
+
+#### 📝 회원가입 페이지 (`/signup`)
+- 어르신/가족 구분을 위한 역할 설정
+- 기본 정보 입력
+
+#### 🖼️ 갤러리 페이지 (`/gallery`)
+- AI와의 자연스러운 대화를 통한 그림 그리기 시작
+- 완성된 작품들의 목록 조회
+- 음성 명령을 통한 페이지 탐색
+
+#### 🎨 캔버스 페이지 (`/canvas`)
+- 3단계로 구성된 그림 그리기 기능
+- 각 단계별 AI의 실시간 피드백
+- 완성된 작품 자동 저장
+
+#### 🖼️ 작품 상세 페이지 (`/gallery/:id`)
+- 작품 상세 정보 조회
+- 작품 공유 기능
+
+#### 💌 엽서 페이지 (`/postcard/:id`)
+- 작품을 엽서 형태로 표시
+- 카카오톡을 통한 공유 기능
