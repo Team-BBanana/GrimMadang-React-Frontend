@@ -3,6 +3,7 @@ import API from "@/api";
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
+import { useElderInfo } from '@/hooks/useElderInfo';
 
 import './component/Card/carousel/module/embla.css'
 import './component/Card/carousel/module/base.css'
@@ -52,8 +53,6 @@ interface Drawing {
 
 const GalleryPage = () => {
     const navigate = useNavigate();
-    const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
-    const [showTutorial, setShowTutorial] = useState(false);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const [isExploreMode, setIsExploreMode] = useState(false);
     const [drawings, setDrawings] = useState<Drawing[]>([]);
@@ -61,8 +60,10 @@ const GalleryPage = () => {
     const [isFirstExplore, setIsFirstExplore] = useState(true);
     const [isFading, setIsFading] = useState(false);
     const [isLoadingResponse, setIsLoadingResponse] = useState(false);
+    const [showTutorial, setShowTutorial] = useState(false);
 
     const { speakText, isPlaying } = useSpeechSynthesis();
+    const { elderInfo } = useElderInfo();
 
     // 컴포넌트 언마운트 시 타이머 정리
     useEffect(() => {
@@ -87,44 +88,25 @@ const GalleryPage = () => {
         fetchDrawings();
     }, []);
 
-
+    // 튜토리얼 표시 여부 체크
     useEffect(() => {
-        // Fetch elder information and set user role
-        const fetchElderName = async () => {
-            try {
-                const response = await API.userApi.getElderInfo();
-
-                if (response.status === 200) {
-                    const elderData = response.data as ElderInfo;
-                    console.log('elderData:', elderData);
-                    setElderinfo(elderData);                    
-                    // ROLE_ELDER이고 현재 세션에서 첫 방문인 경우에만 튜토리얼 표시
-                    if (elderData.role === 'ROLE_ELDER' && !document.cookie.includes('tutorialShown=true')) {
-                        setShowTutorial(true);
-                        // document.cookie = 'tutorialShown=true; path=/; max-age=3600';
-                    }
-                }
-
-            } catch (error) {
-                console.error('getElderName 실패:', error);
-            }
-        };
-
-        fetchElderName();
-    }, []);
-
+        if (elderInfo?.role === 'ROLE_ELDER' && !document.cookie.includes('tutorialShown=true')) {
+            setShowTutorial(true);
+            // document.cookie = 'tutorialShown=true; path=/; max-age=3600';
+        }
+    }, [elderInfo]);
 
     const fetchWelcomeFlow = async () => {
-        if (!elderinfo) return;
+        if (!elderInfo) return;
 
         try {
             setIsLoadingResponse(true);  // 로딩 시작
             const data: WelcomeFlowData = {
-                sessionId: elderinfo.elderId || '',
-                name: elderinfo.name || '',
+                sessionId: elderInfo.elderId || '',
+                name: elderInfo.name || '',
                 userRequestWelcomeWav: "first",
-                attendanceTotal: elderinfo.attendance_total || 0,
-                attendanceStreak: elderinfo.attendance_streak || 0
+                attendanceTotal: elderInfo.attendance_total || 0,
+                attendanceStreak: elderInfo.attendance_streak || 0
             };
             const response = await API.canvasApi.welcomeFlow(data);
             
@@ -141,16 +123,16 @@ const GalleryPage = () => {
     };
 
     const fetchVoiceChat = async (transcript: string) => {
-        if (!elderinfo || isExploreMode) return;
+        if (!elderInfo || isExploreMode) return;
 
         try {
             setIsLoadingResponse(true);  // 로딩 시작
             const data: WelcomeFlowData = {
-                sessionId: elderinfo.elderId || '',
-                name: elderinfo.name || '',
+                sessionId: elderInfo.elderId || '',
+                name: elderInfo.name || '',
                 userRequestWelcomeWav: transcript,
-                attendanceTotal: elderinfo.attendance_total || 0,
-                attendanceStreak: elderinfo.attendance_streak || 0
+                attendanceTotal: elderInfo.attendance_total || 0,
+                attendanceStreak: elderInfo.attendance_streak || 0
             };
 
             const response = await API.canvasApi.welcomeFlow(data);
@@ -179,15 +161,15 @@ const GalleryPage = () => {
     };
 
     const handleExploreChat = async (_transcript: string, isTimeout: boolean = false, currentTopic: string | null = null) => {
-        if (!elderinfo) return;
+        if (!elderInfo) return;
 
         // 첫 번째 호출에서는 topic을 사용하고, 이후에는 transcript를 사용
         const userRequest = isFirstExplore ? (currentTopic || topic) : _transcript;
         console.log("handleExploreChat에서 사용하는 request:", userRequest);
 
         const data: exploreCanvasData = {
-            sessionId: elderinfo.elderId || '',
-            name: elderinfo.name || '',
+            sessionId: elderInfo.elderId || '',
+            name: elderInfo.name || '',
             rejectedCount: 0,
             userRequestExploreWav: userRequest || 'first',
             isTimedOut: isTimeout ? "true" : "false"
@@ -233,18 +215,18 @@ const GalleryPage = () => {
         <>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                 <GalleryComponent 
-                    elderinfo={elderinfo} 
-                    drawings={drawings as any} // Fixing type incompatibility issue
+                    elderinfo={elderInfo} 
+                    drawings={drawings as any}
                 />
-                {elderinfo?.role === 'ROLE_ELDER' && (
+                {elderInfo?.role === 'ROLE_ELDER' && (
                     <SpeechButton 
                         onTranscriptComplete={handleTranscript}
                         onInitialClick={fetchWelcomeFlow}
-                        isLoading={isLoadingResponse}  // 로딩 상태 전달
+                        isLoading={isLoadingResponse}
                     />
                 )}
             </div>
-            {showTutorial && elderinfo?.role === 'ROLE_ELDER' && (
+            {showTutorial && elderInfo?.role === 'ROLE_ELDER' && (
                 <Tutorial 
                     onClose={isFading} 
                 />
