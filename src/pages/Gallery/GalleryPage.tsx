@@ -56,21 +56,7 @@ const GalleryPage = () => {
     const [isExploreMode, setIsExploreMode] = useState(false);
     const [drawings, setDrawings] = useState<Drawing[]>([]);
     const [topic,setTopic] = useState<string | null>(null);
-    const [metadata, setMetadata] = useState(null);
     const [isFirstExplore, setIsFirstExplore] = useState(true);
-
-    // 3분 타이머 함수
-    const startThreeMinuteTimer = () => {
-        if (timerRef.current) {
-            clearTimeout(timerRef.current);
-        }
-
-        timerRef.current = setTimeout(() => {
-            console.log("3분이 경과했습니다.");
-            setIsExploreMode(true);
-            handleExploreChat("", true);  // 타임아웃으로 인한 요청
-        }, 3 * 60 * 1000);
-    };
 
     // 컴포넌트 언마운트 시 타이머 정리
     useEffect(() => {

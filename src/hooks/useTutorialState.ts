@@ -22,7 +22,7 @@ export const useTutorialState = (
 ) => {
   const [tutorialStep, setTutorialStep] = useState(0);
   const [overlay, setOverlay] = useAtom(overlayAtom);
-  const [activeTool] = useAtom(activeToolAtom);
+  const [activeTool, setActiveTool] = useAtom(activeToolAtom);
   const hasInitialPlayedRef = useRef(false);
   const isFillUsedRef = useRef(false);
   const [showTitle, setShowTitle] = useState(false);
@@ -80,6 +80,7 @@ export const useTutorialState = (
         setOverlay(null);
         setTutorialStep(4);
         setShowTitle(true);
+        speakText(tutorialMessages.startStep);
 
         // 캔버스 초기화
         if (canvas) {
@@ -87,6 +88,9 @@ export const useTutorialState = (
           canvas.backgroundColor = "transparent";
           canvas.renderAll();
         }
+
+        // 도구를 pen으로 설정
+        setActiveTool('pen');
 
         // 튜토리얼 완료 콜백 호출
         onTutorialComplete();

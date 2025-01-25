@@ -32,7 +32,7 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
   const [secondfeedback, setSecondfeedback] = useState<string>('');
 
   // 2. 음성 합성 훅 사용
-  const { speakText, cleanup: cleanupSpeech } = useSpeechSynthesis();
+  const { speakText, cleanup: cleanupSpeech, isPlaying } = useSpeechSynthesis();
 
   // 3. 캔버스 상태 관리
   const {
@@ -259,38 +259,17 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
       {overlay && <Overlay type={overlay} isVisible={true} />}
       
       {overlay === 'saving' && (
-        <div style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          color: 'white',
-          padding: '20px',
-          borderRadius: '10px',
-          zIndex: 1000
-        }}>
-        </div>
+        <div className={style.savingOverlay} />
       )}
       
       {isLoading && (
-        <div style={{
-          position: 'fixed',
-          top: '20px',
-          right: '20px',
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          color: 'white',
-          padding: '10px 20px',
-          borderRadius: '5px',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px'
-        }}>
-          <div className={style.loadingSpinner}></div>
+        <div className={style.loadingContainer}>
+          <div className={style.loadingSpinner} />
           잠시만 기다려 주세요...
         </div>
       )}
+      
+      {isPlaying && <div className={style.disableInteraction} />}
     </div>
   );
 };

@@ -1,7 +1,8 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 export const useSpeechSynthesis = () => {
   const currentAudio = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const speakText = async (text: string) => {
     console.log("speakText 호출됨:", text);
@@ -10,6 +11,8 @@ export const useSpeechSynthesis = () => {
         currentAudio.current.pause();
         currentAudio.current = null;
       }
+
+      setIsPlaying(true);
 
       const response = await fetch(`${import.meta.env.VITE_UPLOAD_SERVER_URL}/synthesize-speech`, {
         method: 'POST',
@@ -41,18 +44,21 @@ export const useSpeechSynthesis = () => {
         audio.onended = () => {
           URL.revokeObjectURL(url);
           currentAudio.current = null;
+          setIsPlaying(false);
           resolve();
         };
         audio.onerror = (error) => {
           console.error('Audio playback error:', error);
           URL.revokeObjectURL(url);
           currentAudio.current = null;
+          setIsPlaying(false);
           resolve();
         };
         audio.play();
       });
     } catch (error) {
       console.error('Speech synthesis error:', error);
+      setIsPlaying(false);
     }
   };
 
@@ -60,11 +66,13 @@ export const useSpeechSynthesis = () => {
     if (currentAudio.current) {
       currentAudio.current.pause();
       currentAudio.current = null;
+      setIsPlaying(false);
     }
   };
 
   return {
     speakText,
-    cleanup
+    cleanup,
+    isPlaying
   };
 }; 
