@@ -76,6 +76,7 @@ const CanvasPage: React.FC = () => {
 
       setFeedbackData(feedbackResponse);
       return feedbackResponse;
+      
     } catch (error) {
       console.error('Error in uploadCanvasImage:', error);
       throw error;
@@ -108,9 +109,9 @@ const CanvasPage: React.FC = () => {
           <CanvasSection 
             className={style.canvasSection} 
             canvasRef={canvasRef}
-            onUpload={uploadCanvasImage}
-            onChange={() => {}}
-            onFinalSave={handleSaveCanvas}
+            uploadCanvasImage={uploadCanvasImage}
+            handleChange={() => {}}
+            handleSaveCanvas={handleSaveCanvas}
             feedbackData={feedbackData}
           />
         </div>

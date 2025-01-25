@@ -15,14 +15,14 @@ import { useSpeechCommands } from '../hooks/useSpeechCommands';
 
 interface CanvasSectionProps {
   className?: string;
-  onUpload: (dataURL: string, step: number, topic: string) => Promise<any>;
+  uploadCanvasImage: (dataURL: string, step: number, topic: string) => Promise<any>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
-  onChange: () => void;
+  handleChange: () => void;
   feedbackData: any | null;
-  onFinalSave: (title: string, secondfeedback: string, imageUrl: string) => Promise<void>;
+  handleSaveCanvas: (title: string, secondfeedback: string, imageUrl: string) => Promise<void>;
 }
 
-const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSectionProps) => {
+const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveCanvas }: CanvasSectionProps) => {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [canvas, setCanvas] = useAtom(canvasInstanceAtom);
   const [isDragging, setIsDragging] = useState(true);
@@ -350,12 +350,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
     };
   }, [canvasRef, setCanvas]);
 
-  const handleFinalSave = async () => {
-    // if (onFinalSave) {
-    //   onFinalSave();
-    // }
-  };
-
   const [isLoading, setIsLoading] = useState(false);
 
   const saveImageAndFeedback = async () => {
@@ -370,7 +364,7 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
 
     try {
       const dataURL = makeFrame(canvas);
-      const response = await onUpload(dataURL, currentStep, topic || "");
+      const response = await uploadCanvasImage(dataURL, currentStep, topic || "");
       console.log("Response from server:", response);
 
       if (response && response.feedback) {
@@ -389,9 +383,9 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
         setOverlay('saving');
 
         const dataURL = makeFrame(canvas);
-        const imageUrl = await onUpload(dataURL, currentStep, topic || "");
+        const imageUrl = await uploadCanvasImage(dataURL, currentStep, topic || "");
 
-        onFinalSave(topic || "", secondfeedback, imageUrl);
+        handleSaveCanvas(topic || "", secondfeedback, imageUrl);
         return;
       }
 
@@ -427,11 +421,6 @@ const CanvasSection = ({ onUpload, canvasRef, onChange, onFinalSave}: CanvasSect
   const toggleImageCard = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsImageCardCollapsed(!isImageCardCollapsed);
-  };
-
-
-  const handleChange = () => {
-    onChange();
   };
 
   // 컴포넌트 언마운트 시 오디오 정리
