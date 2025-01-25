@@ -1,14 +1,11 @@
 import { fabric } from "fabric";
-import { useEffect, useRef, useState} from "react";
-import { useAtom } from "jotai";
+import { useEffect, useRef, useState, useCallback } from "react";
 import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
 import style from "../CanvasPage.module.css";
 import ImagePanelSection from "./PanelSection";
 import FeedbackSection from "./FeedbackSection";
 import { makeFrame } from '../utils/makeFrame';
 import Overlay from './Overlay';
-import overlayAtom from '@/store/atoms/overlayAtom';
-import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
 import { useLocation }from 'react-router-dom';
 import { useSpeechCommands } from '../hooks/useSpeechCommands';
 import { useCanvasState } from '@/hooks/useCanvasState';
@@ -24,28 +21,7 @@ interface CanvasSectionProps {
 }
 
 const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveCanvas }: CanvasSectionProps) => {
-  const {
-    canvas,
-    setCanvas,
-    brushWidth,
-    canvasContainerRef,
-    handleMouseMove,
-    handleMouseUp
-  } = useCanvasState(canvasRef);
-
-  const {
-    tutorialStep,
-    setTutorialStep,
-    overlay,
-    setOverlay,
-    hasInitialPlayedRef,
-    isFillUsedRef,
-    showTitle,
-    setShowTitle,
-    tutorialMessages,
-    activeTool
-  } = useTutorialState(canvas);
-
+  // 1. 기본 상태들 먼저 선언
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [imageData, setImageData] = useState<any>(null);
   const [currentFeedback, setCurrentFeedback] = useState<string | null>(null);
@@ -57,6 +33,40 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
   const [currentStep, setCurrentStep] = useState(0);
   const currentAudio = useRef<HTMLAudioElement | null>(null);
   const [secondfeedback, setSecondfeedback] = useState<string>('');
+
+  // 2. 캔버스 상태 관리
+  const {
+    canvas,
+    setCanvas,
+    brushWidth,
+    canvasContainerRef,
+    handleMouseMove,
+    handleMouseUp
+  } = useCanvasState(canvasRef);
+
+  // 3. 튜토리얼 완료 핸들러
+  const handleTutorialComplete = useCallback(() => {
+    setCurrentStep(1);
+    setImageData({
+      title: title[0],
+      description: instructions[0],
+      image: imageUrl
+    });
+  }, [title, instructions, imageUrl]);
+
+  // 4. 튜토리얼 상태 관리
+  const {
+    tutorialStep,
+    setTutorialStep,
+    overlay,
+    setOverlay,
+    hasInitialPlayedRef,
+    isFillUsedRef,
+    showTitle,
+    setShowTitle,
+    tutorialMessages,
+    activeTool
+  } = useTutorialState(canvas, handleTutorialComplete);
 
   const location = useLocation();
   const metadata = location.state?.metadata;
@@ -256,6 +266,7 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
 
     const handleFillUse = async () => {
       if (tutorialStep === 3 && !isFillUsedRef.current) {
+        console.log("handleFillUse 호출됨");
         isFillUsedRef.current = true;
         setOverlay(null);
         setTutorialStep(4);

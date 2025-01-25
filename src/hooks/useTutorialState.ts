@@ -14,7 +14,10 @@ interface TutorialMessages {
   finalStep: string;
 }
 
-export const useTutorialState = (canvas: fabric.Canvas | null) => {
+export const useTutorialState = (
+  canvas: fabric.Canvas | null,
+  onTutorialComplete: () => void
+) => {
   const [tutorialStep, setTutorialStep] = useState(0);
   const [overlay, setOverlay] = useAtom(overlayAtom);
   const [activeTool] = useAtom(activeToolAtom);
@@ -57,6 +60,9 @@ export const useTutorialState = (canvas: fabric.Canvas | null) => {
           canvas.backgroundColor = "transparent";
           canvas.renderAll();
         }
+
+        // 튜토리얼 완료 콜백 호출
+        onTutorialComplete();
       }
     };
 
