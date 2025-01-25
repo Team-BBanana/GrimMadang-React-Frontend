@@ -36,12 +36,17 @@
   - 감정과 톤을 고려한 음성 생성
   - 실시간 음성 스트리밍
 
+### AWS 서비스 
+- AWS S3 (이미지 저장)
+- AWS Polly (음성 합성)
+
 ### Canvas
 - Fabric.js
 
 ### Others
 - Axios (API 통신)
 - React Router (라우팅)
+- express.js(s3,polly)
 
 ## 🗂️ 프로젝트 구조
 
