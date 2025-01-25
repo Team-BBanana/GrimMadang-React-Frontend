@@ -60,6 +60,7 @@ const GalleryPage = () => {
     const [topic,setTopic] = useState<string | null>(null);
     const [isFirstExplore, setIsFirstExplore] = useState(true);
     const [isFading, setIsFading] = useState(false);
+    const [isLoadingResponse, setIsLoadingResponse] = useState(false);
 
     const { speakText, isPlaying } = useSpeechSynthesis();
 
@@ -117,6 +118,7 @@ const GalleryPage = () => {
         if (!elderinfo) return;
 
         try {
+            setIsLoadingResponse(true);  // 로딩 시작
             const data: WelcomeFlowData = {
                 sessionId: elderinfo.elderId || '',
                 name: elderinfo.name || '',
@@ -125,15 +127,16 @@ const GalleryPage = () => {
                 attendanceStreak: elderinfo.attendance_streak || 0
             };
             const response = await API.canvasApi.welcomeFlow(data);
-            console.log('Welcome flow response:', response.data);
-
+            
             const textToSpeak = response.data.data.aiResponseWelcomeWav;
             if (textToSpeak) {
                 setIsFading(true);
+                setIsLoadingResponse(false);  // 로딩 종료
                 await speakText(textToSpeak);
             }
         } catch (error) {
             console.error('환영 흐름 중 오류 발생:', error);
+            setIsLoadingResponse(false);  // 에러 시 로딩 종료
         }
     };
 
@@ -141,6 +144,7 @@ const GalleryPage = () => {
         if (!elderinfo || isExploreMode) return;
 
         try {
+            setIsLoadingResponse(true);  // 로딩 시작
             const data: WelcomeFlowData = {
                 sessionId: elderinfo.elderId || '',
                 name: elderinfo.name || '',
@@ -150,12 +154,12 @@ const GalleryPage = () => {
             };
 
             const response = await API.canvasApi.welcomeFlow(data);
-            console.log('Voice chat response:', response.data);
             
             const newTopic = response.data.data.wantedTopic;
             const textToSpeak = response.data.data.aiResponseWelcomeWav;
 
             if (textToSpeak) {
+                setIsLoadingResponse(false);  // 로딩 종료
                 await speakText(textToSpeak);
                 // 음성 출력이 완료된 후에만 다음 단계로 진행
                 if (newTopic) {
@@ -170,6 +174,7 @@ const GalleryPage = () => {
 
         } catch (error) {
             console.error('Voice chat error:', error);
+            setIsLoadingResponse(false);  // 에러 시 로딩 종료
         }
     };
 
@@ -189,11 +194,12 @@ const GalleryPage = () => {
         };
 
         try {
+            setIsLoadingResponse(true);  // 로딩 시작
             const response = await API.canvasApi.exploreCanvas(data);
-            console.log('Explore chat response:', response.data);
-
+            
             const textToSpeak = response.data.aiResponseExploreWav;
             if (textToSpeak) {
+                setIsLoadingResponse(false);  // 로딩 종료
                 await speakText(textToSpeak);
             }
 
@@ -211,6 +217,7 @@ const GalleryPage = () => {
             }
         } catch (error) {
             console.error('Explore chat error:', error);
+            setIsLoadingResponse(false);  // 에러 시 로딩 종료
         }
     };
 
@@ -233,6 +240,7 @@ const GalleryPage = () => {
                     <SpeechButton 
                         onTranscriptComplete={handleTranscript}
                         onInitialClick={fetchWelcomeFlow}
+                        isLoading={isLoadingResponse}  // 로딩 상태 전달
                     />
                 )}
             </div>

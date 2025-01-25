@@ -66,3 +66,28 @@
 .speechButton:disabled {
     cursor: not-allowed;
 }
+
+.buttonWrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.listeningText {
+    color: #347050;
+    font-weight: bold;
+    font-size: 1.2rem;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.loadingText {
+    color: #347050;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
