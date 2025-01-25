@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import DisplayComponent from './component/DisplayComponent';
 import API from '@/api';
 import HomeIcon from '@/components/HomeIcon/HomeIcon';
-import postCardAudio from "/canvasTutorial/postCardAudio.wav"
 import { useElderInfo } from '@/hooks/useElderInfo';
 import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 
@@ -50,6 +49,8 @@ const DisplayPage: React.FC = () => {
     const [comments, setComments] = useState<Comment[]>([]);
     const { elderInfo, isLoading, error } = useElderInfo();
     const { speakText, cleanup } = useSpeechSynthesis();
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         if (elderInfo) {

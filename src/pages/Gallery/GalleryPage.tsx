@@ -57,7 +57,8 @@ const GalleryPage = () => {
     const [isListening, setIsListening] = useState(false);
 
     const { speakText, isPlaying } = useSpeechSynthesis();
-    const { elderInfo } = useElderInfo();
+    const { elderInfo} = useElderInfo();
+
 
     // 컴포넌트 언마운트 시 타이머 정리
     useEffect(() => {

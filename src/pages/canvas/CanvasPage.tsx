@@ -14,11 +14,11 @@ const CanvasPage: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [feedbackData, setFeedbackData] = useState<{ feedback: string } | null>(null);
 
-  // 어르신 정보 훅 사용
-  const { elderInfo } = useElderInfo();
-
   // 배경음악 재생을 위한 커스텀 훅 사용
   const helloAudioRef = useBackgroundMusic(bgmAudio);
+
+  // 어르신 정보 훅 사용
+  const { elderInfo } = useElderInfo();
 
   // 초기 오디오 재생 설정
   useEffect(() => {

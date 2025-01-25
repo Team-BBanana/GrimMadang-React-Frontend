@@ -1,20 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoginComponent from './component/LoginComponent';
 import API from '@/api/index';
 import WelcomeModal from './component/WelcomeModal';
+import { useElderInfo } from '@/hooks/useElderInfo';
 
 interface FormData {
     username: string;
     phoneNumber: string;
 }
 
-const LoginPage = () => {
+const LoginPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [isWelcomeModalVisible, setIsWelcomeModalVisible] = useState(false);
     const navigate = useNavigate();
-    const [formData, setFormData] = useState<FormData>({ username: '', phoneNumber: '' });
+    const [formData, setFormData] = useState<FormData | null>(null);
+    const { elderInfo } = useElderInfo();
+    console.log('elderInfo:', elderInfo);
+
+
+
+    useEffect(() => {
+        // JWT 토큰이 있고, elderInfo가 정상적으로 로드되었다면 갤러리로 이동
+        if (elderInfo) {
+            console.log('JWT 토큰이 있고, elderInfo가 정상적으로 로드되었습니다.');
+            navigate('/gallery');
+        }
+    },[elderInfo]);
 
     const handleSubmit = async (data: FormData) => {
         setFormData(data);
@@ -42,7 +55,7 @@ const LoginPage = () => {
         console.log('formData:', formData);
 
         try {
-            const response = await API.userApi.signupElder({ username: formData.username, phoneNumber: formData.phoneNumber });
+            const response = await API.userApi.signupElder({ username: formData?.username || '', phoneNumber: formData?.phoneNumber || '' });
 
             if (response.status === 200) {
                 setIsWelcomeModalVisible(false);
@@ -51,8 +64,6 @@ const LoginPage = () => {
             console.error('회원가입 중 오류 발생:', error);
         }
     };
-
-    
 
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
