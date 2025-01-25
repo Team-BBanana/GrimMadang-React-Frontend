@@ -5,10 +5,11 @@ import ImagePanelSection from "./PanelSection";
 import FeedbackSection from "./FeedbackSection";
 import { makeFrame } from '../utils/makeFrame';
 import Overlay from './Overlay';
-import { useLocation }from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useSpeechCommands } from '../hooks/useSpeechCommands';
 import { useCanvasState } from '@/hooks/useCanvasState';
 import { useTutorialState } from '@/hooks/useTutorialState';
+import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 
 interface CanvasSectionProps {
   className?: string;
@@ -30,62 +31,10 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
   const [topic, setTopic] = useState<string>();
   const [imageUrl, setImageUrl] = useState<string>();
   const [currentStep, setCurrentStep] = useState(0);
-  const currentAudio = useRef<HTMLAudioElement | null>(null);
   const [secondfeedback, setSecondfeedback] = useState<string>('');
 
-  // 2. speakText 함수 선언
-  const speakText = async (text: string) => {
-    console.log("speakText 호출됨:", text);
-    try {
-      if (currentAudio.current) {
-        currentAudio.current.pause();
-        currentAudio.current = null;
-      }
-
-      const response = await fetch(`${import.meta.env.VITE_UPLOAD_SERVER_URL}/synthesize-speech`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text })
-      });
-
-      if (!response.ok) {
-        throw new Error('Speech synthesis failed');
-      }
-
-      const data = await response.json();
-      
-      const audioData = atob(data.audioContent);
-      const arrayBuffer = new Uint8Array(audioData.length);
-      for (let i = 0; i < audioData.length; i++) {
-        arrayBuffer[i] = audioData.charCodeAt(i);
-      }
-      
-      const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
-      const url = URL.createObjectURL(blob);
-      
-      return new Promise<void>((resolve) => {
-        const audio = new Audio(url);
-        currentAudio.current = audio;
-
-        audio.onended = () => {
-          URL.revokeObjectURL(url);
-          currentAudio.current = null;
-          resolve();
-        };
-        audio.onerror = (error) => {
-          console.error('Audio playback error:', error);
-          URL.revokeObjectURL(url);
-          currentAudio.current = null;
-          resolve();
-        };
-        audio.play();
-      });
-    } catch (error) {
-      console.error('Speech synthesis error:', error);
-    }
-  };
+  // 2. speakText 함수를 커스텀 훅으로 대체
+  const { speakText, cleanup: cleanupAudio } = useSpeechSynthesis();
 
   // 3. 캔버스 상태 관리
   const {
@@ -223,12 +172,7 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
 
   // 컴포넌트 언마운트 시 오디오 정리
   useEffect(() => {
-    return () => {
-      if (currentAudio.current) {
-        currentAudio.current.pause();
-        currentAudio.current = null;
-      }
-    };
+    return cleanupAudio;
   }, []);
 
   const { transcript: _transcript, listening: _listening } = useSpeechCommands({
