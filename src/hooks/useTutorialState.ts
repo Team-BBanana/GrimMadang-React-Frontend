@@ -80,8 +80,7 @@ export const useTutorialState = (
         setOverlay(null);
         setTutorialStep(4);
         setShowTitle(true);
-        speakText(tutorialMessages.startStep);
-
+        
         // 캔버스 초기화
         if (canvas) {
           canvas.clear();
@@ -92,7 +91,10 @@ export const useTutorialState = (
         // 도구를 pen으로 설정
         setActiveTool('pen');
 
-        // 튜토리얼 완료 콜백 호출
+        // 시작 메시지 재생이 완료될 때까지 대기
+        await speakText(tutorialMessages.startStep);
+
+        // 음성 재생 완료 후 튜토리얼 완료 콜백 호출
         onTutorialComplete();
       }
     };

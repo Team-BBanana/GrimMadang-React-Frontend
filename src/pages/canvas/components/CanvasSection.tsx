@@ -7,7 +7,7 @@ import FeedbackSection from "./FeedbackSection";
 import { makeFrame } from '../utils/makeFrame';
 import Overlay from './Overlay';
 import { useLocation } from 'react-router-dom';
-import { useSpeechCommands } from '../hooks/useSpeechCommands';
+import { useSpeechCommands } from '../../../hooks/useSpeechCommands';
 import { useCanvasState } from '@/hooks/useCanvasState';
 import { useTutorialState } from '@/hooks/useTutorialState';
 import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
