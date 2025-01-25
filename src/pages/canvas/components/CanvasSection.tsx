@@ -12,7 +12,6 @@ import overlayAtom from '@/store/atoms/overlayAtom';
 import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSpeechCommands } from '../hooks/useSpeechCommands';
-import LoadingModal from './LoadingModal';
 
 interface CanvasSectionProps {
   className?: string;
