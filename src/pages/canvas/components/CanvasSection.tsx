@@ -34,43 +34,7 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
   const currentAudio = useRef<HTMLAudioElement | null>(null);
   const [secondfeedback, setSecondfeedback] = useState<string>('');
 
-  // 2. 캔버스 상태 관리
-  const {
-    canvas,
-    setCanvas,
-    brushWidth,
-    canvasContainerRef,
-    handleMouseMove,
-    handleMouseUp
-  } = useCanvasState(canvasRef);
-
-  // 3. 튜토리얼 완료 핸들러
-  const handleTutorialComplete = useCallback(() => {
-    setCurrentStep(1);
-    setImageData({
-      title: title[0],
-      description: instructions[0],
-      image: imageUrl
-    });
-  }, [title, instructions, imageUrl]);
-
-  // 4. 튜토리얼 상태 관리
-  const {
-    tutorialStep,
-    setTutorialStep,
-    overlay,
-    setOverlay,
-    hasInitialPlayedRef,
-    isFillUsedRef,
-    showTitle,
-    setShowTitle,
-    tutorialMessages,
-    activeTool
-  } = useTutorialState(canvas, handleTutorialComplete);
-
-  const location = useLocation();
-  const metadata = location.state?.metadata;
-
+  // 2. speakText 함수 선언
   const speakText = async (text: string) => {
     console.log("speakText 호출됨:", text);
     try {
@@ -123,6 +87,40 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
       console.error('Speech synthesis error:', error);
     }
   };
+
+  // 3. 캔버스 상태 관리
+  const {
+    canvas,
+    setCanvas,
+    brushWidth,
+    canvasContainerRef,
+    handleMouseMove,
+    handleMouseUp
+  } = useCanvasState(canvasRef);
+
+  // 4. 튜토리얼 완료 핸들러
+  const handleTutorialComplete = useCallback(() => {
+    setCurrentStep(1);
+    setImageData({
+      title: title[0],
+      description: instructions[0],
+      image: imageUrl
+    });
+  }, [title, instructions, imageUrl]);
+
+  // 5. 튜토리얼 상태 관리
+  const {
+    tutorialStep,
+    setTutorialStep,
+    overlay,
+    setOverlay,
+    hasInitialPlayedRef,
+    showTitle,
+    tutorialMessages
+  } = useTutorialState(canvas, handleTutorialComplete, brushWidth, speakText);
+
+  const location = useLocation();
+  const metadata = location.state?.metadata;
 
   useEffect(() => {
     if (metadata) {
@@ -204,121 +202,6 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
       canvas.off('path:created', handlePathCreated);
     };
   }, [canvas, tutorialStep]);
-
-  // 두께 변경과 그림 그리기 감지
-  useEffect(() => {
-    if (!canvas) return;
-
-    let isBrushWidthChanged = false;
-    let isPathCreated = false;
-
-    const handleBrushWidthChange = async () => {
-      if (tutorialStep === 1) {
-        if (isBrushWidthChanged && isPathCreated) {
-          setOverlay('eraser');  // 오버레이 먼저 설정
-          setTutorialStep(2);
-          await speakText(tutorialMessages.eraser);
-        }
-      }
-    };
-
-    const checkBrushWidthChange = () => {
-      if (canvas.freeDrawingBrush && canvas.freeDrawingBrush.width !== brushWidth) {
-        isBrushWidthChanged = true;
-        setOverlay(null); 
-        handleBrushWidthChange();
-      }
-    };
-
-    const handlePathCreated = () => {
-      isPathCreated = true;
-      handleBrushWidthChange();
-    };
-
-    // 두께 변경 요소에 오버레이가 걸리도록 설정
-    const brushWidthElement = document.querySelector('[data-tool="brushWidth"]');
-    if (brushWidthElement) {
-      brushWidthElement.addEventListener('click', checkBrushWidthChange);
-    }
-
-    canvas.on('path:created', handlePathCreated);
-
-    return () => {
-      if (brushWidthElement) {
-        brushWidthElement.removeEventListener('click', checkBrushWidthChange);
-      }
-      canvas.off('path:created', handlePathCreated);
-    };
-  }, [canvas, tutorialStep, brushWidth]);
-
-
-  // 도구 선택 및 사용 감지
-  useEffect(() => {
-    if (!canvas) return;
-
-    const handleEraserUse = async () => {
-      if (tutorialStep === 2) {
-        setOverlay('fill'); 
-        setTutorialStep(3);
-        await speakText(tutorialMessages.fill);
-      }
-    };
-
-    const handleFillUse = async () => {
-      if (tutorialStep === 3 && !isFillUsedRef.current) {
-        console.log("handleFillUse 호출됨");
-        isFillUsedRef.current = true;
-        setOverlay(null);
-        setTutorialStep(4);
-        await speakText(tutorialMessages.startStep);
-        setShowTitle(true);
-
-        // 캔버스 초기화
-        if (canvas) {
-          canvas.clear();
-          canvas.backgroundColor = "transparent";
-          canvas.renderAll();
-        }
-
-        // 튜토리얼이 끝나고 실제 그리기 시작할 때 currentStep을 1로 설정
-        setCurrentStep(1);
-        setImageData({
-          title: title[0],
-          description: instructions[0],
-          image: imageUrl
-        });
-
-      }
-    };
-
-    const handlePathCreated = (e: fabric.IEvent) => {
-      if (activeTool === 'eraser') {
-        handleEraserUse();
-      }
-    };
-
-    // fill 도구 사용 시 모든 캔버스 변화 감지
-    const handleCanvasChange = () => {
-      if (activeTool === 'fill') {
-        handleFillUse();
-      }
-    };
-
-    canvas.on('path:created', handlePathCreated);
-    canvas.on('object:modified', handleCanvasChange);
-    canvas.on('object:added', handleCanvasChange);
-    canvas.on('object:removed', handleCanvasChange);
-    canvas.on('mouse:up', handleCanvasChange);
-
-    return () => {
-      canvas.off('path:created', handlePathCreated);
-      canvas.off('object:modified', handleCanvasChange);
-      canvas.off('object:added', handleCanvasChange);
-      canvas.off('object:removed', handleCanvasChange);
-      canvas.off('mouse:up', handleCanvasChange);
-    };
-  }, [canvas, tutorialStep, activeTool]);
-
 
   useEffect(() => {
     if (!canvasContainerRef.current || !canvasRef.current) return;

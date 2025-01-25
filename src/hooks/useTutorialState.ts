@@ -16,7 +16,9 @@ interface TutorialMessages {
 
 export const useTutorialState = (
   canvas: fabric.Canvas | null,
-  onTutorialComplete: () => void
+  onTutorialComplete: () => void,
+  brushWidth: number,
+  speakText: (text: string) => Promise<void>
 ) => {
   const [tutorialStep, setTutorialStep] = useState(0);
   const [overlay, setOverlay] = useAtom(overlayAtom);
@@ -40,13 +42,38 @@ export const useTutorialState = (
   useEffect(() => {
     if (!canvas) return;
 
-    const handleEraserUse = async () => {
-      if (tutorialStep === 2) {
-        setOverlay('fill'); 
-        setTutorialStep(3);
+    let isBrushWidthChanged = false;
+    let isPathCreated = false;
+
+    // 브러시 두께 변경 감지
+    const handleBrushWidthChange = async () => {
+      if (tutorialStep === 1) {
+        if (isBrushWidthChanged && isPathCreated) {
+          setOverlay('eraser');
+          setTutorialStep(2);
+          await speakText(tutorialMessages.eraser);
+        }
       }
     };
 
+    const checkBrushWidthChange = () => {
+      if (canvas.freeDrawingBrush && canvas.freeDrawingBrush.width !== brushWidth) {
+        isBrushWidthChanged = true;
+        setOverlay(null);
+        handleBrushWidthChange();
+      }
+    };
+
+    // 지우개 사용 감지
+    const handleEraserUse = async () => {
+      if (tutorialStep === 2) {
+        setOverlay('fill');
+        setTutorialStep(3);
+        await speakText(tutorialMessages.fill);
+      }
+    };
+
+    // 채우기 도구 사용 감지
     const handleFillUse = async () => {
       if (tutorialStep === 3 && !isFillUsedRef.current) {
         isFillUsedRef.current = true;
@@ -66,10 +93,12 @@ export const useTutorialState = (
       }
     };
 
-    const handlePathCreated = (e: fabric.IEvent) => {
+    const handlePathCreated = () => {
       if (activeTool === 'eraser') {
         handleEraserUse();
       }
+      isPathCreated = true;
+      handleBrushWidthChange();
     };
 
     const handleCanvasChange = () => {
@@ -78,20 +107,30 @@ export const useTutorialState = (
       }
     };
 
+    // 이벤트 리스너 등록
+    const brushWidthElement = document.querySelector('[data-tool="brushWidth"]');
+    if (brushWidthElement) {
+      brushWidthElement.addEventListener('click', checkBrushWidthChange);
+    }
+
     canvas.on('path:created', handlePathCreated);
     canvas.on('object:modified', handleCanvasChange);
     canvas.on('object:added', handleCanvasChange);
     canvas.on('object:removed', handleCanvasChange);
     canvas.on('mouse:up', handleCanvasChange);
 
+    // 클린업
     return () => {
+      if (brushWidthElement) {
+        brushWidthElement.removeEventListener('click', checkBrushWidthChange);
+      }
       canvas.off('path:created', handlePathCreated);
       canvas.off('object:modified', handleCanvasChange);
       canvas.off('object:added', handleCanvasChange);
       canvas.off('object:removed', handleCanvasChange);
       canvas.off('mouse:up', handleCanvasChange);
     };
-  }, [canvas, tutorialStep, activeTool]);
+  }, [canvas, tutorialStep, activeTool, brushWidth]);
 
   return {
     tutorialStep,
