@@ -10,6 +10,7 @@ import './component/Card/carousel/module/base.css'
 import GalleryComponent from "./component/Gallery/GalleryComponent";
 import Tutorial from "./component/Tutorial/Tutorial";
 import style from './GalleryPage.module.css';
+import LogoutButton from '@/components/LogoutButton/LogoutButton';
 
 interface WelcomeFlowData {
     sessionId: string;
@@ -213,6 +214,7 @@ const GalleryPage = () => {
                     elderinfo={elderInfo} 
                     drawings={drawings as any}
                 />
+                <LogoutButton />
                 {elderInfo?.role === 'ROLE_ELDER' && (
                     isPlaying ? (
                         <div className={style.speakingIcon}>
