@@ -27,7 +27,6 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [imageData, setImageData] = useState<any>(null);
   const [currentFeedback, setCurrentFeedback] = useState<string | null>(null);
-  const [isImageCardCollapsed, setIsImageCardCollapsed] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [secondfeedback, setSecondfeedback] = useState<string>('');
 
@@ -188,7 +187,7 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
         const nextStep = currentStep + 1;
         setCurrentStep(nextStep);
         setImageData({
-          title: title[nextStep],
+          title: title[nextStep -1],
           description: instructions[nextStep],
           image: imageUrl
         });
@@ -200,11 +199,6 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
     }
   };
   
-  const toggleImageCard = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsImageCardCollapsed(!isImageCardCollapsed);
-  };
-
   // 컴포넌트 언마운트 시 오디오 정리
   useEffect(() => {
     return () => {
@@ -234,6 +228,9 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
       onMouseMove={handleMouseMove} 
       onMouseUp={() => handleMouseUp(handleChange)}
     >
+      <div className={style.canvasBackground}>
+        {showTitle && <div className={style.bannerSectiontitle}>{instructions[currentStep-1]}</div>}
+      </div>
       <BannerSection
         onSave={saveImageAndFeedback}
         step={currentStep}
@@ -243,12 +240,9 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
         className={style.canvas} 
         id="mycanvas"
       />
-      {showTitle && <div className={style.bannerSectiontitle}>{instructions[currentStep-1]}</div>}
       {imageData && (
         <ImagePanelSection 
           imageData={imageData}
-          isImageCardCollapsed={isImageCardCollapsed}
-          toggleImageCard={toggleImageCard}
         />
       )}
       {currentFeedback && isPanelVisible && (
