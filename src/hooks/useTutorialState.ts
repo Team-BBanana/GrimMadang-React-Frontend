@@ -38,24 +38,6 @@ export const useTutorialState = (
     finalStep: "완료되었어요! 이제 저장해볼까요?"
   };
 
-  // 초기 튜토리얼 메시지 재생
-  useEffect(() => {
-    const playInitialTutorial = async () => {
-      if (!hasInitialPlayedRef.current) {
-        hasInitialPlayedRef.current = true;
-        await speakText(tutorialMessages.canvasHello);
-        setOverlay('pen');
-        speakText(tutorialMessages.draw);
-      }
-    };
-
-    const timeoutId = setTimeout(() => {
-      playInitialTutorial();
-    }, 2000);
-
-    return () => clearTimeout(timeoutId);
-  }, []);
-
   // 캔버스 이벤트 핸들러
   useEffect(() => {
     if (!canvas) return;
@@ -111,13 +93,8 @@ export const useTutorialState = (
       }
     };
 
-    // 통합된 path:created 핸들러
-    const handlePathCreated = async () => {
-      if (tutorialStep === 0) {
-        setOverlay('brushWidth');
-        setTutorialStep(1);
-        await speakText(tutorialMessages.brushWidth);
-      } else if (activeTool === 'eraser') {
+    const handlePathCreated = () => {
+      if (activeTool === 'eraser') {
         handleEraserUse();
       }
       isPathCreated = true;
@@ -153,7 +130,7 @@ export const useTutorialState = (
       canvas.off('object:removed', handleCanvasChange);
       canvas.off('mouse:up', handleCanvasChange);
     };
-  }, [canvas, tutorialStep, activeTool, brushWidth, speakText]);
+  }, [canvas, tutorialStep, activeTool, brushWidth]);
 
   return {
     tutorialStep,

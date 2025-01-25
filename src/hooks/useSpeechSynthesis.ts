@@ -56,7 +56,6 @@ export const useSpeechSynthesis = () => {
     }
   };
 
-  // 오디오 정리 함수
   const cleanup = () => {
     if (currentAudio.current) {
       currentAudio.current.pause();
