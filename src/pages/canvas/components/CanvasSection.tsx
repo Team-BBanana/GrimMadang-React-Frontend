@@ -6,11 +6,12 @@ import ImagePanelSection from "./PanelSection";
 import FeedbackSection from "./FeedbackSection";
 import { makeFrame } from '../utils/makeFrame';
 import Overlay from './Overlay';
-import { useLocation }from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useSpeechCommands } from '../hooks/useSpeechCommands';
 import { useCanvasState } from '@/hooks/useCanvasState';
 import { useTutorialState } from '@/hooks/useTutorialState';
 import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
+import { useMetadataParser } from '@/hooks/useMetadataParser';
 
 interface CanvasSectionProps {
   className?: string;
@@ -27,14 +28,10 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
   const [imageData, setImageData] = useState<any>(null);
   const [currentFeedback, setCurrentFeedback] = useState<string | null>(null);
   const [isImageCardCollapsed, setIsImageCardCollapsed] = useState(false);
-  const [title, setTitle] = useState<string[]>([]);
-  const [instructions, setInstructions] = useState<string[]>([]);
-  const [topic, setTopic] = useState<string>();
-  const [imageUrl, setImageUrl] = useState<string>();
   const [currentStep, setCurrentStep] = useState(0);
   const [secondfeedback, setSecondfeedback] = useState<string>('');
 
-  // 음성 합성 훅 사용
+  // 2. 음성 합성 훅 사용
   const { speakText, cleanup: cleanupSpeech } = useSpeechSynthesis();
 
   // 3. 캔버스 상태 관리
@@ -47,7 +44,18 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
     handleMouseUp
   } = useCanvasState(canvasRef);
 
-  // 4. 튜토리얼 완료 핸들러
+  // 4. 메타데이터 파싱 훅 사용
+  const location = useLocation();
+  const metadata = location.state?.metadata;
+  
+  const {
+    instructions,
+    topic,
+    title,
+    imageUrl
+  } = useMetadataParser(metadata);
+
+  // 5. 튜토리얼 완료 핸들러
   const handleTutorialComplete = useCallback(() => {
     setCurrentStep(1);
     setImageData({
@@ -57,7 +65,7 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
     });
   }, [title, instructions, imageUrl]);
 
-  // 5. 튜토리얼 상태 관리
+  // 6. 튜토리얼 상태 관리
   const {
     tutorialStep,
     setTutorialStep, 
@@ -67,53 +75,6 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
     showTitle,
     tutorialMessages
   } = useTutorialState(canvas, handleTutorialComplete, brushWidth, speakText);
-
-  const location = useLocation();
-  const metadata = location.state?.metadata;
-
-  useEffect(() => {
-    if (metadata) {
-      console.log('Received metadata in CanvasSection:', metadata);
-      try {
-        // guidelines 파싱
-        let parsedInstructions: string[] = [];
-        if (metadata.guidelines) {
-          const guidelinesArray = typeof metadata.guidelines === 'string' 
-            ? JSON.parse(metadata.guidelines) 
-            : metadata.guidelines;
-          parsedInstructions = guidelinesArray.map((item: any) => item.instruction);
-        }
-
-        // topic 파싱
-        const parsedTopic = metadata.topic || '';
-
-        // title 파싱 - 직접 title 문자열 추출
-        let parsedTitle: string[] = [];
-        if (metadata.guidelines) {
-          const guidelinesArray = typeof metadata.guidelines === 'string'
-            ? JSON.parse(metadata.guidelines)
-            : metadata.guidelines;
-          parsedTitle = guidelinesArray.map((item: any) => item.title);
-        }
-
-        const parsedImageUrl = metadata.imageUrl || '';
-
-        console.log('Parsed data:', {
-          instructions: parsedInstructions,
-          topic: parsedTopic,
-          title: parsedTitle,
-          imageUrl: parsedImageUrl
-        });
-
-        setInstructions(parsedInstructions);
-        setTopic(parsedTopic);
-        setTitle(parsedTitle);
-        setImageUrl(parsedImageUrl);
-      } catch (error) {
-        console.error('Error parsing metadata:', error, metadata);
-      }
-    }
-  }, [metadata]);
 
   // 첫 튜토리얼 메시지는 한 번만 재생
   useEffect(() => {
@@ -133,7 +94,7 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
     return () => clearTimeout(timeoutId);
   }, []);
 
-  // 캔버스 그리기 이벤트 감지
+  // 캔버스 진입시 그리기 버튼 오버레이및 음성 
   useEffect(() => {
     if (!canvas) return;
 
@@ -152,6 +113,7 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
     };
   }, [canvas, tutorialStep]);
 
+  //캔버스 초기상태 설정
   useEffect(() => {
     if (!canvasContainerRef.current || !canvasRef.current) return;
 
@@ -176,8 +138,7 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
 
     window.addEventListener("resize", handleResize);
 
-    
-
+  
     return () => {
       newCanvas.dispose();
       window.removeEventListener("resize", handleResize);
