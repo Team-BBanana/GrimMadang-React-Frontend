@@ -263,10 +263,13 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
       )}
       
       {isLoading && (
-        <div className={style.loadingContainer}>
-          <div className={style.loadingSpinner} />
-          잠시만 기다려 주세요...
-        </div>
+        <>
+            <div className={style.disableInteraction} />
+            <div className={style.loadingContainer}>
+                <div className={style.loadingSpinner} />
+                잠시만 기다려 주세요...
+            </div>
+        </>
       )}
       
       {isPlaying && <div className={style.disableInteraction} />}
