@@ -19,15 +19,6 @@ interface WelcomeFlowData {
     attendanceStreak: number;
 }
 
-interface ElderInfo {
-    elderId: string;
-    name: string;
-    phoneNumber: string;
-    role: string;
-    attendance_streak: number;
-    attendance_total: number;
-    elder_id: string;
-}
 
 interface exploreCanvasData {
     sessionId: string;
@@ -61,6 +52,8 @@ const GalleryPage = () => {
     const [isFading, setIsFading] = useState(false);
     const [isLoadingResponse, setIsLoadingResponse] = useState(false);
     const [showTutorial, setShowTutorial] = useState(false);
+    const [isInitial, setIsInitial] = useState(false);
+    const [isListening, setIsListening] = useState(false);
 
     const { speakText, isPlaying } = useSpeechSynthesis();
     const { elderInfo } = useElderInfo();
@@ -92,7 +85,8 @@ const GalleryPage = () => {
     useEffect(() => {
         if (elderInfo?.role === 'ROLE_ELDER' && !document.cookie.includes('tutorialShown=true')) {
             setShowTutorial(true);
-            // document.cookie = 'tutorialShown=true; path=/; max-age=3600';
+            document.cookie = 'tutorialShown=true; path=/; max-age=3600';
+            setIsInitial(true);
         }
     }, [elderInfo]);
 
@@ -115,6 +109,7 @@ const GalleryPage = () => {
                 setIsFading(true);
                 setIsLoadingResponse(false);  // 로딩 종료
                 await speakText(textToSpeak);
+                setIsInitial(false);
             }
         } catch (error) {
             console.error('환영 흐름 중 오류 발생:', error);
@@ -219,11 +214,24 @@ const GalleryPage = () => {
                     drawings={drawings as any}
                 />
                 {elderInfo?.role === 'ROLE_ELDER' && (
-                    <SpeechButton 
-                        onTranscriptComplete={handleTranscript}
-                        onInitialClick={fetchWelcomeFlow}
-                        isLoading={isLoadingResponse}
-                    />
+                    isPlaying ? (
+                        <div className={style.speakingIcon}>
+                            <svg width="80px" height="80px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="10" cy="6" r="4" stroke="#347050" strokeWidth="1.5"/>
+                                <path d="M19 2C19 2 21 3.2 21 6C21 8.8 19 10 19 10" stroke="#347050" strokeWidth="1.5" strokeLinecap="round"/>
+                                <path d="M17 4C17 4 18 4.6 18 6C18 7.4 17 8 17 8" stroke="#347050" strokeWidth="1.5" strokeLinecap="round"/>
+                                <path d="M17.9975 18C18 17.8358 18 17.669 18 17.5C18 15.0147 14.4183 13 10 13C5.58172 13 2 15.0147 2 17.5C2 19.9853 2 22 10 22C12.231 22 13.8398 21.8433 15 21.5634" stroke="#347050" strokeWidth="1.5" strokeLinecap="round"/>
+                            </svg>
+                        </div>
+                    ) : (
+                        <SpeechButton 
+                            onTranscriptComplete={handleTranscript}
+                            onInitialClick={fetchWelcomeFlow}
+                            isLoading={isLoadingResponse}
+                            isInitial={isInitial}
+                            onListeningChange={setIsListening}
+                        />
+                    )
                 )}
             </div>
             {showTutorial && elderInfo?.role === 'ROLE_ELDER' && (
@@ -231,7 +239,7 @@ const GalleryPage = () => {
                     onClose={isFading} 
                 />
             )}
-            {isPlaying && <div className={style.disableInteraction} />}
+            {(isPlaying || isLoadingResponse || isListening) && <div className={style.disableInteraction} />}
         </>
     );
 }

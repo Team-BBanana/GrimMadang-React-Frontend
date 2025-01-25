@@ -1,10 +1,10 @@
 .container {
     position: fixed;
     top: 60px;
-    right: 70px;
+    right: 20px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-end;
     gap: 16px;
     z-index: 1000;
 }
@@ -69,14 +69,23 @@
 
 .buttonWrapper {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-end;
     gap: 10px;
+    width: 300px;
+    padding-right: 50px;
 }
 
-.listeningText {
+.listeningText, .loadingText, .guideText {
     color: #347050;
     font-weight: bold;
     font-size: 1.2rem;
+    margin-top: 10px;
+    white-space: nowrap;
+    text-align: right;
+}
+
+.listeningText {
     animation: pulse 1.5s infinite;
 }
 
@@ -87,6 +96,12 @@
 }
 
 .loadingText {
+    color: #347050;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.guideText {
     color: #347050;
     font-weight: bold;
     font-size: 1.2rem;

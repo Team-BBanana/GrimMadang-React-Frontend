@@ -7,11 +7,12 @@ interface SpeechButtonProps {
     onTranscriptComplete: (transcript: string) => void;
     onInitialClick: () => void;
     isLoading: boolean;
+    isInitial: boolean;
+    onListeningChange: (isListening: boolean) => void;
 }
 
-const SpeechButton = ({ onTranscriptComplete, onInitialClick, isLoading }: SpeechButtonProps) => {
+const SpeechButton = ({ onTranscriptComplete, onInitialClick, isLoading, isInitial, onListeningChange }: SpeechButtonProps) => {
     const [isListening, setIsListening] = useState(false);
-    const [isInitial, setIsInitial] = useState(true);
     const mediaRecorder = useRef<MediaRecorder | null>(null);
 
     const {
@@ -22,10 +23,13 @@ const SpeechButton = ({ onTranscriptComplete, onInitialClick, isLoading }: Speec
     
     let silenceTimeout: NodeJS.Timeout | null = null;
 
+    useEffect(() => {
+        onListeningChange(isListening);
+    }, [isListening, onListeningChange]);
+
     const startListening = async () => {
         try {
             setIsListening(true);
-            setIsInitial(false);
             resetTranscript();
             console.log("startListening");
             SpeechRecognition.startListening({ continuous: true, language: 'ko-KR' });
@@ -67,7 +71,6 @@ const SpeechButton = ({ onTranscriptComplete, onInitialClick, isLoading }: Speec
     const handleInitialClick = async () => {
         try {
             await onInitialClick();
-            setIsInitial(false);
         } catch (error) {
             console.error('Error in handleInitialClick:', error);
         }
@@ -93,8 +96,6 @@ const SpeechButton = ({ onTranscriptComplete, onInitialClick, isLoading }: Speec
                 </Button>
             ) : (
                 <div className={style.buttonWrapper}>
-                    {isListening && <span className={style.listeningText}>듣는중</span>}
-                    {isLoading && <span className={style.loadingText}>잠시만 기다려주세요...</span>}
                     <Button 
                         type="button" 
                         className={`${style.speechButton} ${isListening ? style.listening : ''}`}
@@ -105,6 +106,9 @@ const SpeechButton = ({ onTranscriptComplete, onInitialClick, isLoading }: Speec
                             <path d="M73.7,60.7v-6.6h13.7v-8.6H73.7V39h13.7v-8.6H73.7v-6.6h13.6C86.9,12.7,77.8,3.7,66.6,3.7h-4.2c-11.2,0-20.3,9-20.6,20.1h13.1v6.6H41.7V39h13.2v6.6H41.7v8.6h13.2v6.6H41.7v0.6C41.7,72.7,51,82,62.4,82h4.2c11.4,0,20.7-9.3,20.7-20.7v-0.6H73.7z"/>
                         </svg>
                     </Button>
+                    {isListening && <span className={style.listeningText}>듣는중...</span>}
+                    {isLoading && <span className={style.loadingText}>잠시만 기다려주세요...</span>}
+                    {!isListening && !isLoading && <span className={style.guideText}>마이크를 클릭하여 대화를 걸어주세요</span>}
                 </div>
             )}
         </div>
