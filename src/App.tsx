@@ -9,7 +9,6 @@ import CanvasPage from './pages/canvas/CanvasPage.tsx';
 import GalleryPage from './pages/Gallery/GalleryPage.tsx';
 import LoginPage from './pages/Login/LoginPage.tsx';
 import SignupPage from './pages/Signup/SignupPage.tsx';
-import FamilyPage from './pages/Family/FamilyPage.tsx';
 import DisplayPage from './pages/Display/DisplayPage.tsx';
 import PostCardPage from './pages/PostCard/PostCardPage.tsx';
 
@@ -32,7 +31,6 @@ function AppContent() {
           <Route path='/signup' element={<SignupPage />} />
           <Route path='/canvas' element={<CanvasPage />} />
           <Route path='/gallery' element={<GalleryPage/>} />
-          <Route path='/family' element={<FamilyPage />} />
           <Route path="/gallery/:id" element={<DisplayPage />} />
           <Route path="/postcard/:id" element={<PostCardPage />} />
         </Routes>

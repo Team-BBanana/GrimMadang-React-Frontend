@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import DisplayComponent from './component/DisplayComponent';
 import API from '@/api';
+import HomeIcon from '@/components/HomeIcon/HomeIcon';
 import postCardAudio from "/canvasTutorial/postCardAudio.wav"
+import { useElderInfo } from '@/hooks/useElderInfo';
+import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 
 interface Drawing {
     id: string;
@@ -29,15 +32,6 @@ interface Feedback {
     updatedAt: string;
 }
 
-interface ElderInfo {
-    elderId: string;
-    name: string;
-    phoneNumber: string;
-    role: string;
-    attendance_streak: number;
-    attendance_total: number;
-}
-
 interface Comment {
     id: string;
     content: string;
@@ -53,21 +47,26 @@ const DisplayPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [imageData, setImageData] = useState<Drawing | null>(null);
     const [feedback, setFeedback] = useState<Feedback | null>(null);
-    const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
     const [comments, setComments] = useState<Comment[]>([]);
+    const { elderInfo, isLoading, error } = useElderInfo();
+    const { speakText, cleanup } = useSpeechSynthesis();
 
     useEffect(() => {
-        const audio = new Audio(postCardAudio);
-        const timer = setTimeout(() => {
-            audio.play();
-        }, 2000); 
+        if (elderInfo) {
+            const message = elderInfo.role === 'ROLE_ELDER'
+                ? "그림을 눌러 가족에게 보낼 엽서를 만들어 보세요"
+                : "응원의 한마디를 남겨보세요";
+            
+            const timer = setTimeout(() => {
+                speakText(message);
+            }, elderInfo.role === 'ROLE_ELDER' ? 4000 : 1000); // ROLE_ELDER는 기존 오디오 후에 재생
 
-        return () => {
-            clearTimeout(timer); 
-            audio.pause();
-            audio.currentTime = 0; 
-        };
-    }, []);
+            return () => {
+                clearTimeout(timer);
+                cleanup();
+            };
+        }
+    }, [elderInfo]);
 
     const fetchComments = async () => {
         try {
@@ -93,13 +92,6 @@ const DisplayPage: React.FC = () => {
                 // 피드백 가져오기
                 const feedbackResponse = await API.galleryApi.getFeedbacks(id);
                 setFeedback(feedbackResponse.data);
-
-                // elderinfo 가져오기
-                const elderResponse = await API.userApi.getElderInfo();
-                if (elderResponse.status === 200) {
-                    const elderData = elderResponse.data as ElderInfo;
-                    setElderinfo(elderData);
-                }
 
                 // 댓글 가져오기
                 await fetchComments();
@@ -131,19 +123,24 @@ const DisplayPage: React.FC = () => {
         }
     };
 
-    if (!imageData || !feedback || !elderinfo) {
+    if (!imageData || !feedback || !elderInfo || isLoading) {
         return <div>로딩 중...</div>;
+    }
+
+    if (error) {
+        return <div>에러가 발생했습니다: {error.message}</div>;
     }
 
     return (
         <>
+            <HomeIcon />
             <DisplayComponent 
                 id={id || ''}
                 title={imageData.title} 
                 imageUrl={imageData.imageUrl2} 
                 createdTime={imageData.createdAt} 
                 feedback2={feedback.feedback2}
-                userRole={elderinfo.role}
+                userRole={elderInfo.role}
                 onCommentSubmit={handleCommentSubmit}
                 comments={comments}
             />

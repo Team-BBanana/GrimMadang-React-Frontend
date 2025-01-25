@@ -10,6 +10,11 @@ interface ElderInfo {
   attendance_total: number;  // 총 출석 일수
 }
 
+interface ElderInfoResponse {
+  status: number;
+  data: ElderInfo;
+}
+
 export const useElderInfo = () => {
   const [elderInfo, setElderInfo] = useState<ElderInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -18,15 +23,12 @@ export const useElderInfo = () => {
   useEffect(() => {
     const fetchElderInfo = async () => {
       try {
-        const response = await API.userApi.getElderInfo();
+        const response = await API.userApi.getElderInfo() as ElderInfoResponse;
         if (response.status === 200) {
-          const elderData = response.data as ElderInfo;
-          console.log('elderData:', elderData);
-          setElderInfo(elderData);
+          setElderInfo(response.data);
         }
-      } catch (error) {
-        console.error('getElderInfo 실패:', error);
-        setError(error as Error);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Failed to fetch elder info'));
       } finally {
         setIsLoading(false);
       }
