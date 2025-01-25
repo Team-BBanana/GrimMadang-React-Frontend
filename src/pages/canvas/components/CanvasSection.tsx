@@ -1,7 +1,6 @@
 import { fabric } from "fabric";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState} from "react";
 import { useAtom } from "jotai";
-import canvasInstanceAtom from "@/pages/canvas/components/stateCanvasInstance";
 import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
 import style from "../CanvasPage.module.css";
 import ImagePanelSection from "./PanelSection";
@@ -10,8 +9,9 @@ import { makeFrame } from '../utils/makeFrame';
 import Overlay from './Overlay';
 import overlayAtom from '@/store/atoms/overlayAtom';
 import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation }from 'react-router-dom';
 import { useSpeechCommands } from '../hooks/useSpeechCommands';
+import { useCanvasState } from '@/hooks/useCanvasState';
 
 interface CanvasSectionProps {
   className?: string;
@@ -23,15 +23,16 @@ interface CanvasSectionProps {
 }
 
 const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveCanvas }: CanvasSectionProps) => {
-  const canvasContainerRef = useRef<HTMLDivElement>(null);
-  const [canvas, setCanvas] = useAtom(canvasInstanceAtom);
-  const [isDragging, setIsDragging] = useState(true);
-  const [offset] = useState({ x: 0, y: 0 });
-  const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });
-  const [step, setStep] = useState(1);
-  const [isPanelVisible, setIsPanelVisible] = useState(false);
-  const [brushWidth] = useState(10);
+  const {
+    canvas,
+    setCanvas,
+    brushWidth,
+    canvasContainerRef,
+    handleMouseMove,
+    handleMouseUp
+  } = useCanvasState(canvasRef);
 
+  const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [imageData, setImageData] = useState<any>(null);
   const [currentFeedback, setCurrentFeedback] = useState<string | null>(null);
   const [isImageCardCollapsed, setIsImageCardCollapsed] = useState(false);
@@ -46,14 +47,12 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
 
   const [currentStep, setCurrentStep] = useState(0);
   const [showTitle, setShowTitle] = useState(false);
-  const [lastCanvasChange, setLastCanvasChange] = useState<number>(Date.now());
 
   const hasInitialPlayedRef = useRef(false);
   const currentAudio = useRef<HTMLAudioElement | null>(null);
   const isFillUsedRef = useRef(false);
   const [secondfeedback, setSecondfeedback] = useState<string>('');
 
-  const navigate = useNavigate();
 
   const location = useLocation();
   const metadata = location.state?.metadata;
@@ -285,7 +284,6 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
           image: imageUrl
         });
 
-        setLastCanvasChange(0);
       }
     };
 
@@ -405,19 +403,6 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
     }
   };
   
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging) {
-      const newX = e.clientX - offset.x;
-      const newY = e.clientY - offset.y;
-      setPanelPosition({ x: newX, y: newY });
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    handleChange();
-  };
-
   const toggleImageCard = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsImageCardCollapsed(!isImageCardCollapsed);
@@ -453,7 +438,7 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
       className={style.canvasContainer} 
       ref={canvasContainerRef} 
       onMouseMove={handleMouseMove} 
-      onMouseUp={handleMouseUp}
+      onMouseUp={() => handleMouseUp(handleChange)}
     >
       <BannerSection
         onSave={saveImageAndFeedback}
