@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import style from './PostCardComponent.module.css';
 import Button from '@/components/Button/Button';
+import HomeIcon from '@/components/HomeIcon/HomeIcon';
 
 interface PostCardComponentProps {
     backgroundImage: string;
@@ -27,6 +28,7 @@ const PostCardComponent: React.FC<PostCardComponentProps> = ({ backgroundImage, 
 
     return (
         <div className={style.container}>
+            <HomeIcon />
             <h1 className={style.title}>마음을 담은 엽서 만들기</h1>
             <p className={style.description}>
                 소중한 추억을 엽서로 만들어 가족들과 공유해보세요

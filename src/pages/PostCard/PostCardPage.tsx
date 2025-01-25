@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import PostCardComponent from './component/PostCardComponent';
 import API from '@/api';
 import style from './PostCardPage.module.css';
+import { useElderInfo } from '@/hooks/useElderInfo';
 
 declare global {
     interface Window {
@@ -15,6 +16,9 @@ const PostCardPage: React.FC = () => {
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [backgroundImage, setBackgroundImage] = useState<string>('');
+
+      // 어르신 정보 훅 사용
+    const { elderInfo } = useElderInfo();
 
     useEffect(() => {
         const fetchDrawing = async () => {

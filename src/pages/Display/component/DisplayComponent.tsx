@@ -22,7 +22,7 @@ interface DisplayComponentProps {
     createdTime: string;
     feedback2: string;
     userRole: string;
-    onCommentSubmit: (comment: string) => void;
+    onCommentSubmit: (comment: string) => Promise<void>;
     comments: Comment[];
 }
 
@@ -49,6 +49,9 @@ const DisplayComponent: React.FC<DisplayComponentProps> = ({
     };
 
     const handleImageClick = () => {
+        if (userRole !== 'ROLE_ELDER') {
+            return;
+        }
         navigate(`/postcard/${id}`);
     };
 
@@ -61,9 +64,10 @@ const DisplayComponent: React.FC<DisplayComponentProps> = ({
                             <img 
                                 src={imageUrl} 
                                 alt={title} 
-                                className={style.image} 
+                                className={`${style.image} ${userRole === 'ROLE_ELDER' ? style.clickable : ''}`}
                                 onClick={handleImageClick}
                                 style={{ cursor: 'pointer' }}
+                                title={userRole === 'ROLE_ELDER' ? '클릭하여 엽서 만들기' : ''}
                             />
                             <div className={style.frameOverlay}></div>
                         </div>

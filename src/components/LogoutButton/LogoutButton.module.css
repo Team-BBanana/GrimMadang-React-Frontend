@@ -1,0 +1,33 @@
+.logoutButton {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    background: transparent;
+    border: 2px solid #ffffff;
+    border-radius: 30px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.iconWrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.iconWrapper span {
+    color: #ffffff;
+    font-size: 20px;
+    font-family: 'Song Myung', serif;
+}
+
+.logoutButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.logoutButton:active {
+    transform: translateY(0);
+} 

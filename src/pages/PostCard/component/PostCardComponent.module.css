@@ -2,10 +2,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
+    height: 100vh;
     padding: 2rem;
     background: linear-gradient(90deg, #022216, #1a3b2a, #284e3a, #1a3b2a, #022216);
     color: #a8d5ba;
+    overflow: hidden;
+    position: relative;
 }
 
 .title {
@@ -32,7 +34,7 @@
     background-color: #f1f1f1;
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    margin-bottom: 2rem;
+    margin: auto;
     position: relative;
     overflow: hidden;
 }
@@ -139,4 +141,33 @@
 .contentInput::placeholder {
     font-size: 30px;
     color: #6b9a83;
+}
+
+.homeIcon {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.iconWrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.iconText {
+    color: #ffffff;
+    font-size: 24px;
+    font-family: 'Song Myung', serif;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+.homeIcon:hover {
+    transform: scale(1.1);
+}
+
+.homeIcon svg {
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.3));
 }

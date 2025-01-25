@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import API from '@/api';
+import { useNavigate } from 'react-router-dom';
 
 interface ElderInfo {
   elderId: string;           // 어르신 ID
@@ -10,23 +11,27 @@ interface ElderInfo {
   attendance_total: number;  // 총 출석 일수
 }
 
+interface ElderInfoResponse {
+  status: number;
+  data: ElderInfo;
+}
+
 export const useElderInfo = () => {
   const [elderInfo, setElderInfo] = useState<ElderInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchElderInfo = async () => {
       try {
-        const response = await API.userApi.getElderInfo();
+        const response = await API.userApi.getElderInfo() as ElderInfoResponse;
         if (response.status === 200) {
-          const elderData = response.data as ElderInfo;
-          console.log('elderData:', elderData);
-          setElderInfo(elderData);
+          setElderInfo(response.data);
         }
-      } catch (error) {
-        console.error('getElderInfo 실패:', error);
-        setError(error as Error);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Failed to fetch elder info'));
+        navigate('/');
       } finally {
         setIsLoading(false);
       }

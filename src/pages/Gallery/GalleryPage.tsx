@@ -10,6 +10,7 @@ import './component/Card/carousel/module/base.css'
 import GalleryComponent from "./component/Gallery/GalleryComponent";
 import Tutorial from "./component/Tutorial/Tutorial";
 import style from './GalleryPage.module.css';
+import LogoutButton from '@/components/LogoutButton/LogoutButton';
 
 interface WelcomeFlowData {
     sessionId: string;
@@ -56,7 +57,8 @@ const GalleryPage = () => {
     const [isListening, setIsListening] = useState(false);
 
     const { speakText, isPlaying } = useSpeechSynthesis();
-    const { elderInfo } = useElderInfo();
+    const { elderInfo} = useElderInfo();
+
 
     // 컴포넌트 언마운트 시 타이머 정리
     useEffect(() => {
@@ -213,6 +215,7 @@ const GalleryPage = () => {
                     elderinfo={elderInfo} 
                     drawings={drawings as any}
                 />
+                <LogoutButton />
                 {elderInfo?.role === 'ROLE_ELDER' && (
                     isPlaying ? (
                         <div className={style.speakingIcon}>
