@@ -384,8 +384,6 @@
     text-align: center;
 }
 
-
-
 .bannerSectiontitle {
     position: absolute;
     left: 280px;
@@ -408,7 +406,6 @@
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
-
 }
 
 .overlayContent {
@@ -422,4 +419,41 @@
     color: white;
     font-size: 24px;
     margin: 0;
+}
+
+.savingOverlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 1000;
+}
+
+.loadingContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.disableInteraction {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: transparent;
+    z-index: 9999;
+    cursor: not-allowed;
 }

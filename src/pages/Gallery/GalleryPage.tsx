@@ -2,11 +2,14 @@ import SpeechButton from "./component/SpeechButton/SpeechButton";
 import API from "@/api";
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
+import { useElderInfo } from '@/hooks/useElderInfo';
 
 import './component/Card/carousel/module/embla.css'
 import './component/Card/carousel/module/base.css'
 import GalleryComponent from "./component/Gallery/GalleryComponent";
 import Tutorial from "./component/Tutorial/Tutorial";
+import style from './GalleryPage.module.css';
 
 interface WelcomeFlowData {
     sessionId: string;
@@ -16,15 +19,6 @@ interface WelcomeFlowData {
     attendanceStreak: number;
 }
 
-interface ElderInfo {
-    elderId: string;
-    name: string;
-    phoneNumber: string;
-    role: string;
-    attendance_streak: number;
-    attendance_total: number;
-    elder_id: string;
-}
 
 interface exploreCanvasData {
     sessionId: string;
@@ -50,27 +44,19 @@ interface Drawing {
 
 const GalleryPage = () => {
     const navigate = useNavigate();
-    const [elderinfo, setElderinfo] = useState<ElderInfo | null>(null);
-    const [showTutorial, setShowTutorial] = useState(false);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const [isExploreMode, setIsExploreMode] = useState(false);
     const [drawings, setDrawings] = useState<Drawing[]>([]);
     const [topic,setTopic] = useState<string | null>(null);
-    const [metadata, setMetadata] = useState(null);
     const [isFirstExplore, setIsFirstExplore] = useState(true);
+    const [isFading, setIsFading] = useState(false);
+    const [isLoadingResponse, setIsLoadingResponse] = useState(false);
+    const [showTutorial, setShowTutorial] = useState(false);
+    const [isInitial, setIsInitial] = useState(false);
+    const [isListening, setIsListening] = useState(false);
 
-    // 3분 타이머 함수
-    const startThreeMinuteTimer = () => {
-        if (timerRef.current) {
-            clearTimeout(timerRef.current);
-        }
-
-        timerRef.current = setTimeout(() => {
-            console.log("3분이 경과했습니다.");
-            setIsExploreMode(true);
-            handleExploreChat("", true);  // 타임아웃으로 인한 요청
-        }, 3 * 60 * 1000);
-    };
+    const { speakText, isPlaying } = useSpeechSynthesis();
+    const { elderInfo } = useElderInfo();
 
     // 컴포넌트 언마운트 시 타이머 정리
     useEffect(() => {
@@ -95,122 +81,62 @@ const GalleryPage = () => {
         fetchDrawings();
     }, []);
 
-
+    // 튜토리얼 표시 여부 체크
     useEffect(() => {
-        // Fetch elder information and set user role
-        const fetchElderName = async () => {
-            try {
-                const response = await API.userApi.getElderInfo();
-
-                if (response.status === 200) {
-                    const elderData = response.data as ElderInfo;
-                    console.log('elderData:', elderData);
-                    setElderinfo(elderData);                    
-                    // ROLE_ELDER이고 현재 세션에서 첫 방문인 경우에만 튜토리얼 표시
-                    if (elderData.role === 'ROLE_ELDER' && !document.cookie.includes('tutorialShown=true')) {
-                        setShowTutorial(true);
-                        document.cookie = 'tutorialShown=true; path=/; max-age=3600';
-                    }
-                }
-
-            } catch (error) {
-                console.error('getElderName 실패:', error);
-            }
-        };
-
-        fetchElderName();
-    }, []);
-
+        if (elderInfo?.role === 'ROLE_ELDER' && !document.cookie.includes('tutorialShown=true')) {
+            setShowTutorial(true);
+            document.cookie = 'tutorialShown=true; path=/; max-age=3600';
+            setIsInitial(true);
+        }
+    }, [elderInfo]);
 
     const fetchWelcomeFlow = async () => {
-        if (!elderinfo) return;
+        if (!elderInfo) return;
 
         try {
+            setIsLoadingResponse(true);  // 로딩 시작
             const data: WelcomeFlowData = {
-                sessionId: elderinfo.elderId || '',
-                name: elderinfo.name || '',
+                sessionId: elderInfo.elderId || '',
+                name: elderInfo.name || '',
                 userRequestWelcomeWav: "first",
-                attendanceTotal: elderinfo.attendance_total || 0,
-                attendanceStreak: elderinfo.attendance_streak || 0
+                attendanceTotal: elderInfo.attendance_total || 0,
+                attendanceStreak: elderInfo.attendance_streak || 0
             };
             const response = await API.canvasApi.welcomeFlow(data);
-            console.log('Welcome flow response:', response.data);
-
-            const textToSpeak = response.data.data.aiResponseWelcomeWav; // API 응답에서 텍스트 추출
+            
+            const textToSpeak = response.data.data.aiResponseWelcomeWav;
             if (textToSpeak) {
+                setIsFading(true);
+                setIsLoadingResponse(false);  // 로딩 종료
                 await speakText(textToSpeak);
+                setIsInitial(false);
             }
-
         } catch (error) {
             console.error('환영 흐름 중 오류 발생:', error);
-        }
-    };
-
-    const speakText = async (text: string) => {
-        console.log("speakText 호출됨:", text);
-        try {
-            // 서버에 음성 합성 요청
-            const response = await fetch(`${import.meta.env.VITE_UPLOAD_SERVER_URL}/synthesize-speech`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ text })
-            });
-
-            if (!response.ok) {
-                throw new Error('Speech synthesis failed');
-            }
-
-            const data = await response.json();
-            
-            // Base64 디코딩 및 오디오 재생
-            const audioData = atob(data.audioContent);
-            const arrayBuffer = new Uint8Array(audioData.length);
-            for (let i = 0; i < audioData.length; i++) {
-                arrayBuffer[i] = audioData.charCodeAt(i);
-            }
-            
-            const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
-            const url = URL.createObjectURL(blob);
-            
-            return new Promise<void>((resolve) => {
-                const audio = new Audio(url);
-                audio.onended = () => {
-                    URL.revokeObjectURL(url);
-                    resolve();
-                };
-                audio.onerror = (error) => {
-                    console.error('Audio playback error:', error);
-                    URL.revokeObjectURL(url);
-                    resolve();
-                };
-                audio.play();
-            });
-        } catch (error) {
-            console.error('Speech synthesis error:', error);
+            setIsLoadingResponse(false);  // 에러 시 로딩 종료
         }
     };
 
     const fetchVoiceChat = async (transcript: string) => {
-        if (!elderinfo || isExploreMode) return;
+        if (!elderInfo || isExploreMode) return;
 
         try {
+            setIsLoadingResponse(true);  // 로딩 시작
             const data: WelcomeFlowData = {
-                sessionId: elderinfo.elderId || '',
-                name: elderinfo.name || '',
+                sessionId: elderInfo.elderId || '',
+                name: elderInfo.name || '',
                 userRequestWelcomeWav: transcript,
-                attendanceTotal: elderinfo.attendance_total || 0,
-                attendanceStreak: elderinfo.attendance_streak || 0
+                attendanceTotal: elderInfo.attendance_total || 0,
+                attendanceStreak: elderInfo.attendance_streak || 0
             };
 
             const response = await API.canvasApi.welcomeFlow(data);
-            console.log('Voice chat response:', response.data);
             
             const newTopic = response.data.data.wantedTopic;
             const textToSpeak = response.data.data.aiResponseWelcomeWav;
 
             if (textToSpeak) {
+                setIsLoadingResponse(false);  // 로딩 종료
                 await speakText(textToSpeak);
                 // 음성 출력이 완료된 후에만 다음 단계로 진행
                 if (newTopic) {
@@ -225,30 +151,32 @@ const GalleryPage = () => {
 
         } catch (error) {
             console.error('Voice chat error:', error);
+            setIsLoadingResponse(false);  // 에러 시 로딩 종료
         }
     };
 
     const handleExploreChat = async (_transcript: string, isTimeout: boolean = false, currentTopic: string | null = null) => {
-        if (!elderinfo) return;
+        if (!elderInfo) return;
 
         // 첫 번째 호출에서는 topic을 사용하고, 이후에는 transcript를 사용
         const userRequest = isFirstExplore ? (currentTopic || topic) : _transcript;
         console.log("handleExploreChat에서 사용하는 request:", userRequest);
 
         const data: exploreCanvasData = {
-            sessionId: elderinfo.elderId || '',
-            name: elderinfo.name || '',
+            sessionId: elderInfo.elderId || '',
+            name: elderInfo.name || '',
             rejectedCount: 0,
             userRequestExploreWav: userRequest || 'first',
             isTimedOut: isTimeout ? "true" : "false"
         };
 
         try {
+            setIsLoadingResponse(true);  // 로딩 시작
             const response = await API.canvasApi.exploreCanvas(data);
-            console.log('Explore chat response:', response.data);
-
+            
             const textToSpeak = response.data.aiResponseExploreWav;
             if (textToSpeak) {
+                setIsLoadingResponse(false);  // 로딩 종료
                 await speakText(textToSpeak);
             }
 
@@ -266,6 +194,7 @@ const GalleryPage = () => {
             }
         } catch (error) {
             console.error('Explore chat error:', error);
+            setIsLoadingResponse(false);  // 에러 시 로딩 종료
         }
     };
 
@@ -281,20 +210,36 @@ const GalleryPage = () => {
         <>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                 <GalleryComponent 
-                    elderinfo={elderinfo} 
-                    drawings={drawings as any} // Fixing type incompatibility issue
+                    elderinfo={elderInfo} 
+                    drawings={drawings as any}
                 />
-                {elderinfo?.role === 'ROLE_ELDER' && (
-                    <SpeechButton 
-                        onTranscriptComplete={handleTranscript}
-                        onCloseTutorial={() => setShowTutorial(false)}
-                        onInitialClick={fetchWelcomeFlow}
-                    />
+                {elderInfo?.role === 'ROLE_ELDER' && (
+                    isPlaying ? (
+                        <div className={style.speakingIcon}>
+                            <svg width="80px" height="80px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="10" cy="6" r="4" stroke="#347050" strokeWidth="1.5"/>
+                                <path d="M19 2C19 2 21 3.2 21 6C21 8.8 19 10 19 10" stroke="#347050" strokeWidth="1.5" strokeLinecap="round"/>
+                                <path d="M17 4C17 4 18 4.6 18 6C18 7.4 17 8 17 8" stroke="#347050" strokeWidth="1.5" strokeLinecap="round"/>
+                                <path d="M17.9975 18C18 17.8358 18 17.669 18 17.5C18 15.0147 14.4183 13 10 13C5.58172 13 2 15.0147 2 17.5C2 19.9853 2 22 10 22C12.231 22 13.8398 21.8433 15 21.5634" stroke="#347050" strokeWidth="1.5" strokeLinecap="round"/>
+                            </svg>
+                        </div>
+                    ) : (
+                        <SpeechButton 
+                            onTranscriptComplete={handleTranscript}
+                            onInitialClick={fetchWelcomeFlow}
+                            isLoading={isLoadingResponse}
+                            isInitial={isInitial}
+                            onListeningChange={setIsListening}
+                        />
+                    )
                 )}
             </div>
-            {showTutorial && elderinfo?.role === 'ROLE_ELDER' && (
-                <Tutorial onClose={() => setShowTutorial(false)} />
+            {showTutorial && elderInfo?.role === 'ROLE_ELDER' && (
+                <Tutorial 
+                    onClose={isFading} 
+                />
             )}
+            {(isPlaying || isLoadingResponse || isListening) && <div className={style.disableInteraction} />}
         </>
     );
 }
