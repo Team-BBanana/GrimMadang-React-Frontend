@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import API from '@/api/API';
+import API from '@/api';
 
 interface ElderInfo {
   elderId: string;           // 어르신 ID

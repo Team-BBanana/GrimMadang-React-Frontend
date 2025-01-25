@@ -57,6 +57,7 @@ const GalleryPage = () => {
     const [drawings, setDrawings] = useState<Drawing[]>([]);
     const [topic,setTopic] = useState<string | null>(null);
     const [isFirstExplore, setIsFirstExplore] = useState(true);
+    const [isFading, setIsFading] = useState(false);
 
     // 컴포넌트 언마운트 시 타이머 정리
     useEffect(() => {
@@ -95,7 +96,7 @@ const GalleryPage = () => {
                     // ROLE_ELDER이고 현재 세션에서 첫 방문인 경우에만 튜토리얼 표시
                     if (elderData.role === 'ROLE_ELDER' && !document.cookie.includes('tutorialShown=true')) {
                         setShowTutorial(true);
-                        document.cookie = 'tutorialShown=true; path=/; max-age=3600';
+                        // document.cookie = 'tutorialShown=true; path=/; max-age=3600';
                     }
                 }
 
@@ -124,6 +125,7 @@ const GalleryPage = () => {
 
             const textToSpeak = response.data.data.aiResponseWelcomeWav; // API 응답에서 텍스트 추출
             if (textToSpeak) {
+                setIsFading(true);
                 await speakText(textToSpeak);
             }
 
@@ -273,13 +275,14 @@ const GalleryPage = () => {
                 {elderinfo?.role === 'ROLE_ELDER' && (
                     <SpeechButton 
                         onTranscriptComplete={handleTranscript}
-                        onCloseTutorial={() => setShowTutorial(false)}
                         onInitialClick={fetchWelcomeFlow}
                     />
                 )}
             </div>
             {showTutorial && elderinfo?.role === 'ROLE_ELDER' && (
-                <Tutorial onClose={() => setShowTutorial(false)} />
+                <Tutorial 
+                    onClose={isFading} 
+                />
             )}
         </>
     );

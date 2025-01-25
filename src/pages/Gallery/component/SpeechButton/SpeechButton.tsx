@@ -5,7 +5,6 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 
 interface SpeechButtonProps {
     onTranscriptComplete: (transcript: string) => void;
-    onCloseTutorial: () => void;
     onInitialClick: () => void;
 }
 
@@ -13,7 +12,6 @@ const SpeechButton = ({ onTranscriptComplete, onInitialClick }: SpeechButtonProp
     const [isListening, setIsListening] = useState(false);
     const [isInitial, setIsInitial] = useState(true);
     const mediaRecorder = useRef<MediaRecorder | null>(null);
-    // const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
 
     const {
         transcript,
@@ -23,44 +21,11 @@ const SpeechButton = ({ onTranscriptComplete, onInitialClick }: SpeechButtonProp
     
     let silenceTimeout: NodeJS.Timeout | null = null;
 
-    // const sendAudioToServer = async (audioBlob: Blob) => {
-    //     try {
-    //         if (onAudioComplete) {
-    //             onAudioComplete(audioBlob);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error sending audio:', error);
-    //     }
-    // };
-
-    // const startRecording = async () => {
-    //     try {
-    //         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    //         mediaRecorder.current = new MediaRecorder(stream);
-    //         audioChunks.current = [];
-
-    //         mediaRecorder.current.ondataavailable = (event) => {
-    //             audioChunks.current.push(event.data);
-    //         };
-
-    //         mediaRecorder.current.onstop = async () => {
-    //             const audioBlob = new Blob(audioChunks.current, { type: 'audio/mp3' });
-    //             setAudioBlob(audioBlob);
-    //             await sendAudioToServer(audioBlob);
-    //         };
-
-    //         mediaRecorder.current.start();
-    //     } catch (error) {
-    //         console.error('Error accessing microphone:', error);
-    //     }
-    // };
-
     const startListening = async () => {
         try {
             setIsListening(true);
             setIsInitial(false);
             resetTranscript();
-            // await startRecording();
             console.log("startListening");
             SpeechRecognition.startListening({ continuous: true, language: 'ko-KR' });
         } catch (error) {
@@ -73,10 +38,6 @@ const SpeechButton = ({ onTranscriptComplete, onInitialClick }: SpeechButtonProp
         setIsListening(false);
         console.log("stopListening");
         SpeechRecognition.stopListening();
-        // if (mediaRecorder.current && mediaRecorder.current.state !== 'inactive') {
-        //     mediaRecorder.current.stop();
-        //     mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
-        // }
         if (transcript) {
             onTranscriptComplete(transcript);
         }
