@@ -12,6 +12,7 @@ import activeToolAtom from "@/pages/canvas/components/stateActiveTool";
 import { useLocation }from 'react-router-dom';
 import { useSpeechCommands } from '../hooks/useSpeechCommands';
 import { useCanvasState } from '@/hooks/useCanvasState';
+import { useTutorialState } from '@/hooks/useTutorialState';
 
 interface CanvasSectionProps {
   className?: string;
@@ -32,41 +33,33 @@ const CanvasSection = ({ uploadCanvasImage, canvasRef, handleChange, handleSaveC
     handleMouseUp
   } = useCanvasState(canvasRef);
 
+  const {
+    tutorialStep,
+    setTutorialStep,
+    overlay,
+    setOverlay,
+    hasInitialPlayedRef,
+    isFillUsedRef,
+    showTitle,
+    setShowTitle,
+    tutorialMessages,
+    activeTool
+  } = useTutorialState(canvas);
+
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [imageData, setImageData] = useState<any>(null);
   const [currentFeedback, setCurrentFeedback] = useState<string | null>(null);
   const [isImageCardCollapsed, setIsImageCardCollapsed] = useState(false);
-  const [overlay, setOverlay] = useAtom(overlayAtom);
-  const [tutorialStep, setTutorialStep] = useState(0);
-  const [activeTool] = useAtom(activeToolAtom);
-
   const [title, setTitle] = useState<string[]>([]);
   const [instructions, setInstructions] = useState<string[]>([]);
   const [topic, setTopic] = useState<string>();
   const [imageUrl, setImageUrl] = useState<string>();
-
   const [currentStep, setCurrentStep] = useState(0);
-  const [showTitle, setShowTitle] = useState(false);
-
-  const hasInitialPlayedRef = useRef(false);
   const currentAudio = useRef<HTMLAudioElement | null>(null);
-  const isFillUsedRef = useRef(false);
   const [secondfeedback, setSecondfeedback] = useState<string>('');
-
 
   const location = useLocation();
   const metadata = location.state?.metadata;
-
-  const tutorialMessages = {
-    canvasHello: "안녕하세요, 저는 오늘 그림그리기를 도와줄, 마당이라고 해요. 차근차근, 같이 멋진 작품 만들어 봐요.",
-    draw: "그리기 버튼을 눌러, 동그라미를 하나 그려볼까요?",
-    brushWidth: "더 큰 동그라미를 선택해서, 굵은 선을 그릴 수도 있어요.",
-    eraser: "지우개 버튼을 눌러, 마음에 안드는 부분을 지워볼까요?",
-    fill: "채우기 버튼을 눌러주세요. 그린 그림을 누르면, 넓은 면을 색칠 할 수 있어요.",
-    startStep: "지금까지, 그림판의 사용법을 알아보았어요 이제, 그림을 그리러 가볼까요?",
-    nextStep: "이제, 다음 단계로 가볼까요?",
-    finalStep: "완료되었어요! 이제 저장해볼까요?"
-  };
 
   const speakText = async (text: string) => {
     console.log("speakText 호출됨:", text);
