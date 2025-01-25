@@ -2,11 +2,13 @@ import SpeechButton from "./component/SpeechButton/SpeechButton";
 import API from "@/api";
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 
 import './component/Card/carousel/module/embla.css'
 import './component/Card/carousel/module/base.css'
 import GalleryComponent from "./component/Gallery/GalleryComponent";
 import Tutorial from "./component/Tutorial/Tutorial";
+import style from './GalleryPage.module.css';
 
 interface WelcomeFlowData {
     sessionId: string;
@@ -58,6 +60,8 @@ const GalleryPage = () => {
     const [topic,setTopic] = useState<string | null>(null);
     const [isFirstExplore, setIsFirstExplore] = useState(true);
     const [isFading, setIsFading] = useState(false);
+
+    const { speakText, isPlaying } = useSpeechSynthesis();
 
     // 컴포넌트 언마운트 시 타이머 정리
     useEffect(() => {
@@ -123,60 +127,13 @@ const GalleryPage = () => {
             const response = await API.canvasApi.welcomeFlow(data);
             console.log('Welcome flow response:', response.data);
 
-            const textToSpeak = response.data.data.aiResponseWelcomeWav; // API 응답에서 텍스트 추출
+            const textToSpeak = response.data.data.aiResponseWelcomeWav;
             if (textToSpeak) {
                 setIsFading(true);
                 await speakText(textToSpeak);
             }
-
         } catch (error) {
             console.error('환영 흐름 중 오류 발생:', error);
-        }
-    };
-
-    const speakText = async (text: string) => {
-        console.log("speakText 호출됨:", text);
-        try {
-            // 서버에 음성 합성 요청
-            const response = await fetch(`${import.meta.env.VITE_UPLOAD_SERVER_URL}/synthesize-speech`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ text })
-            });
-
-            if (!response.ok) {
-                throw new Error('Speech synthesis failed');
-            }
-
-            const data = await response.json();
-            
-            // Base64 디코딩 및 오디오 재생
-            const audioData = atob(data.audioContent);
-            const arrayBuffer = new Uint8Array(audioData.length);
-            for (let i = 0; i < audioData.length; i++) {
-                arrayBuffer[i] = audioData.charCodeAt(i);
-            }
-            
-            const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
-            const url = URL.createObjectURL(blob);
-            
-            return new Promise<void>((resolve) => {
-                const audio = new Audio(url);
-                audio.onended = () => {
-                    URL.revokeObjectURL(url);
-                    resolve();
-                };
-                audio.onerror = (error) => {
-                    console.error('Audio playback error:', error);
-                    URL.revokeObjectURL(url);
-                    resolve();
-                };
-                audio.play();
-            });
-        } catch (error) {
-            console.error('Speech synthesis error:', error);
         }
     };
 
@@ -284,6 +241,7 @@ const GalleryPage = () => {
                     onClose={isFading} 
                 />
             )}
+            {isPlaying && <div className={style.disableInteraction} />}
         </>
     );
 }

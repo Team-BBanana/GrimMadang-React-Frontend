@@ -1,10 +1,10 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useCallback } from 'react';
 
 export const useSpeechSynthesis = () => {
   const currentAudio = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const speakText = async (text: string) => {
+  const speakText = useCallback(async (text: string) => {
     console.log("speakText 호출됨:", text);
     try {
       if (currentAudio.current) {
@@ -60,7 +60,7 @@ export const useSpeechSynthesis = () => {
       console.error('Speech synthesis error:', error);
       setIsPlaying(false);
     }
-  };
+  }, []);
 
   const cleanup = () => {
     if (currentAudio.current) {
