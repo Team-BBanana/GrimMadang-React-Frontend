@@ -37,9 +37,6 @@ interface GalleryComponentProps {
 const GalleryComponent: React.FC<GalleryComponentProps> = ({ elderinfo, drawings }) => {
     const navigate = useNavigate();
     
-    const handleCreateNewCanvas = () => {
-      navigate('/canvas', { state: { createNew: true } });
-    };
 
     const OPTIONS: EmblaOptionsType = {loop: true};
 
@@ -59,13 +56,7 @@ const GalleryComponent: React.FC<GalleryComponentProps> = ({ elderinfo, drawings
             <div className={style.carouselContainer}>
                 <Carousel
                     slides={[
-                        ...carouselSlides,
-                        ...(elderinfo?.role === 'ROLE_ELDER' ? [{
-                            imageUrl: '',
-                            title: '새 캔버스 만들기',
-                            onClick: handleCreateNewCanvas,
-                            isAddButton: true
-                        }] : [])
+                        ...carouselSlides
                     ]}
                     options={OPTIONS}
                 />

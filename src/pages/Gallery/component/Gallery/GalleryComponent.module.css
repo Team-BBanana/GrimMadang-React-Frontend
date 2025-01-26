@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px;
+    padding: 4vh 4vw 4vh 4vw;
     width: 100%;
     height: 100vh;
     background: linear-gradient(90deg, #022216, #1a3b2a, #284e3a, #1a3b2a, #022216); /* 어두운 녹색 그라디언트 적용 */
@@ -11,30 +11,30 @@
 
 .title {
     font-family: 'Song Myung', serif;
-    font-size: 60px;
+    font-size: 6vh;
     text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
     font-weight: 700;
     color: #a8d5ba;
-    letter-spacing: 14.5px;
+    letter-spacing: 1vw;
     margin: 0px;
-    padding-top: 30px;
+    margin-top: 2vh;
 }
 
 .carouselContainer {
-    height: 100%;
+    height: 65vh;
     display: flex;
     justify-content:end;
     align-items: center;
-    padding: 0 30px;
+    margin-bottom: 10vh;
 }
 
 .explaination {
-    font-size: 30px;
+    font-size: 2.5vh;
     color: #a8d5ba;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 2vh;
 }
 
 .explaination p {
-    margin: 10px;
+    margin: 1vh;
 }

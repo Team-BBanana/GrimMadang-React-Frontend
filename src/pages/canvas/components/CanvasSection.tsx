@@ -1,5 +1,5 @@
 import { fabric } from "fabric";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import BannerSection from "@/pages/canvas/components/BannerSection.tsx";
 import style from "../CanvasPage.module.css";
 import ImagePanelSection from "./PanelSection";

@@ -108,7 +108,7 @@ const SpeechButton = ({ onTranscriptComplete, onInitialClick, isLoading, isIniti
                     </Button>
                     {isListening && <span className={style.listeningText}>듣는중...</span>}
                     {isLoading && <span className={style.loadingText}>잠시만 기다려주세요...</span>}
-                    {!isListening && !isLoading && <span className={style.guideText}>마이크를 클릭하여 대화를 걸어주세요</span>}
+                    {!isListening && !isLoading && <span className={style.guideText}>마이크를 눌러 대화를 걸어주세요</span>}
                 </div>
             )}
         </div>

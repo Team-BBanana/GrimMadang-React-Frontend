@@ -89,3 +89,78 @@ body {
   --admonition-warning-rgb-value: 253, 186, 116;
   --admonition-danger-rgb-value: 220, 38, 38;
 }
+
+.embla {
+  width: 90vw;
+  height: 65vh;
+  margin: auto;
+  position: relative;
+}
+
+.embla__viewport {
+  overflow: hidden;
+  height: 100%;
+}
+
+.embla__container {
+  display: flex;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -khtml-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  height: 100%;
+}
+
+.embla__slide {
+  position: relative;
+  min-width: 50vw;
+  height: 100%;
+  padding: 0 10px;
+}
+
+.embla__slide__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: white;
+  box-shadow: 0 0 3rem rgba(0, 0, 0, 0.7),  
+              0 1rem 2rem rgba(0, 0, 0, 0.4),
+              0 3rem 3rem rgba(0, 0, 0, 0.3);
+}
+
+.frame-wrapper {
+  position: relative;
+  height: 100%;
+}
+
+.add-button {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  font-size: 2.5vh;
+  color: #347050;
+  font-weight: bold;
+}
+
+.embla__dots {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin-top: 5vh;
+}
+
+.embla__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  border: none;
+}
+
+.embla__dot--selected {
+  background-color: rgba(255, 255, 255, 0.8);
+}
