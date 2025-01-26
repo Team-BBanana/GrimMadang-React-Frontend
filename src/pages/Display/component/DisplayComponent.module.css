@@ -2,9 +2,10 @@
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    padding: 80px;
+    padding: 10vh 4vw 2vh 4vw;
     width: 100%;
     height: 100vh;
+    overflow: hidden;
     background: linear-gradient(90deg, #022216, #1a3b2a, #284e3a, #1a3b2a, #022216);
     color: #fff;
 }
@@ -12,29 +13,31 @@
 .contentWrapper {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 1vh;
     height: 100%;
-    padding-bottom: 30px;
+    overflow: hidden;
 }
 
 .topSection {
     display: flex;
     flex-direction: row;
-    gap: 20px;
-    min-height: 500px;
+    gap: 2vw;
+    height: 65vh;
+    min-height: 65vh;
 }
 
 .rightInfo {
-    width: 50%;
+    width: 45vw;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 2vh;
     min-height: 0;
+    overflow: hidden;
 }
 
 .imageSection {
     position: relative;
-    width: 100%;
+    width: 80vw;
     height: 100%;
     display: flex;
     justify-content: center;
@@ -114,17 +117,20 @@
     flex: 1;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    padding: 20px;
+    padding: 2vh 2vw;
     backdrop-filter: blur(10px);
     overflow: hidden;
     min-height: 0;
-    padding-right: 12px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .aiCommentSection .scrollableContent {
     overflow-y: auto;
-    max-height: calc(100% - 100px);
+    height: 100%;
     padding-right: 12px;
+    flex: 1;
     
     /* 스크롤바 스타일링 */
     &::-webkit-scrollbar {
@@ -152,19 +158,18 @@
 }
 
 .bottomSection {
+    width: 89.4vw;
     display: flex;
     flex-direction: row;
     border-radius: 12px;
-    padding: 20px 50px;
-    display: flex;
-    flex-direction: row;
     position: relative;
     overflow: visible;
+    height: 25vh;
 }
 
 .title {
     font-family: 'Song Myung', serif;
-    font-size: 60px;
+    font-size: 5vh;
     color: #a8d5ba;
     margin: 0;
     display: flex;
@@ -179,6 +184,7 @@
     justify-content: flex-end;
     width: 100%;
     gap: 10px;
+    font-size: 2vh;
 }
 
 .commentCount {
@@ -188,26 +194,44 @@
     gap: 10px;
     width: 100%;
     justify-content: flex-end;
+    font-size: 2vh;
 }
 
 .feedbackSection {
     overflow-y: auto;
-    max-height: 100%;
+    height: 100%;
     padding-right: 12px;
     box-sizing: border-box;
+    flex: 1;
+}
+
+.feedback {
+    font-size: 2.5vh;
+    line-height: 1.6;
+    height: 100%;
 }
 
 @media (max-width: 768px) {
-    .container {
-        padding: 20px;
-    }
-
     .topSection {
-        grid-template-columns: 1fr;
-        height: auto;
+        flex-direction: column;
+        height: 85vh;
+    }
+    
+    .imageSection,
+    .rightInfo {
+        width: 92vw;
+        height: 42vh;
     }
 
-    .title {
-        font-size: 1.5rem;
+    .scrollableContent{
+        height: 100%;
+    }
+
+    .title{
+        font-size: 3vh;
+    }
+
+    .titleSection {
+        display: none;
     }
 }

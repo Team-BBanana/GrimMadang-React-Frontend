@@ -49,7 +49,6 @@ const DisplayPage: React.FC = () => {
     const [comments, setComments] = useState<Comment[]>([]);
     const { elderInfo, isLoading, error } = useElderInfo();
     const { speakText, cleanup } = useSpeechSynthesis();
-    const navigate = useNavigate();
 
 
     useEffect(() => {

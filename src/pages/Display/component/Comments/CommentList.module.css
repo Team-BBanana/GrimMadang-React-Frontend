@@ -11,9 +11,11 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    width: 100%;
+    width: 20%;
+    height: 100%;
     padding: 0;
     margin: 0;
+    position: relative;
 }
 
 /* 화살표 스타일 */
@@ -27,7 +29,6 @@
     border: none;
     color: #a8d5ba;
     cursor: pointer;
-    padding: 8px;
     width: 100px;
     height: 100px;
     display: flex;
@@ -37,11 +38,12 @@
 }
 
 .prevArrow {
+    display: none;
     left: -80px;
 }
 
 .nextArrow {
-    right: -80px;
+    right: -5.6%;
 }
 
 /* 슬라이더 컨테이너 스타일 */
@@ -51,7 +53,10 @@
 }
 
 .slideWrapper {
-    padding: 0 20px;
+    height: 10vh;
+    padding: 0 px;
+    display: flex;
+    align-items: center;
 }
 
 /* Slick 기본 스타일 커스터마이징 */
@@ -88,4 +93,72 @@
 :global(.slick-dots li.slick-active button:before) {
     color: #a8d5ba;
     opacity: 1;
+}
+
+.commentItem {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 2vh 2vw;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.commentHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1vh;
+}
+
+.userName {
+    color: #a8d5ba;
+    font-size: 2.2vh;
+    font-weight: bold;
+}
+
+.date {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.8vh;
+}
+
+.commentText {
+    color: #ffffff;
+    font-size: 2vh;
+    line-height: 1.5;
+    word-break: keep-all;
+}
+
+/* 슬라이더 화살표 스타일 */
+.slick-prev,
+.slick-next {
+    font-size: 3vh;
+    color: #ffffff;
+    z-index: 1;
+}
+
+/* 입력 폼 스타일 */
+.commentInput {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 2vh 2vw;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.commentTextarea {
+    width: 100%;
+    height: 12vh;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 1vh 1vw;
+    color: #ffffff;
+    font-size: 1.8vh;
+    resize: none;
 } 
